@@ -1,9 +1,9 @@
 <?php
 
-$env = parse_ini_file("./.env");
+$env = parse_ini_file("../.env");
 
-$username = $env['USERNAME'];
-$password = $env['PASSWORD'];
+$username = $env['ADMIN_USERNAME'];
+$password = $env['ADMIN_PASSWORD'];
 $host = $env['HOSTNAME'];
 $dbname = $env['DBNAME'];
 $dsn = "mysql:host=$host;dbname=$dbname";
@@ -15,7 +15,7 @@ try
    $db = new PDO($dsn, $username, $password); 
    
    // display a message to let us know that we are connected to the database
-   echo "<p>You are connected to the database -- host=$host</p>";
+   echo "<p>You are connected to the database -- host=$host as user=$username</p>";
 }
 catch (PDOException $e)     // handle a PDO exception (errors thrown by the PDO library)
 {
