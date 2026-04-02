@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Custom Location Map Demo</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      crossorigin=""
+    />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="brand">
+        <span class="eyebrow">Flask + SQLAlchemy + Leaflet</span>
+        <h1>Custom location map demo</h1>
+      </div>
+      <nav class="main-nav">
+        <a href="/" aria-current="page">Map Demo</a>
+        <a href="#location-form">Add Marker</a>
+        <a href="#api-reference">API</a>
+      </nav>
+    </header>
+
+    <main class="page-shell map-layout">
+      <section class="hero-card">
+        <div class="full-span">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Map</p>
+              <h2>API-driven markers on top of OpenStreetMap tiles.</h2>
+              <p>
+                The map reads from <code>/api/locations</code>. Add or remove
+                custom places below and the marker set updates without a page
+                reload. You can also click anywhere on the map to capture
+                latitude and longitude for a new marker.
+              </p>
+            </div>
+            <button class="button secondary" id="refresh-map" type="button">
+              Refresh map
+            </button>
+          </div>
+
+          <div class="toolbar">
+            <label>
+              Search
+              <input
+                id="search-input"
+                type="search"
+                placeholder="Filter by name, category, or description"
+              />
+            </label>
+            <label>
+              Category
+              <select id="category-filter">
+                <option value="">All categories</option>
+              </select>
+            </label>
+          </div>
+
+          <div id="map" class="map-frame" aria-label="Location map"></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Create</p>
+            <h2>Add a custom marker</h2>
+          </div>
+          <p class="inline-note">This form calls <code>POST /api/locations</code>.</p>
+        </div>
+
+        <form id="location-form" class="form-grid">
+          <label>
+            Name
+            <input name="name" type="text" required />
+          </label>
+          <label>
+            Category
+            <input name="category" type="text" placeholder="Cafe, Office, Park..." />
+          </label>
+          <label>
+            Latitude
+            <input
+              name="latitude"
+              type="number"
+              step="any"
+              min="-90"
+              max="90"
+              required
+            />
+          </label>
+          <label>
+            Longitude
+            <input
+              name="longitude"
+              type="number"
+              step="any"
+              min="-180"
+              max="180"
+              required
+            />
+          </label>
+          <label class="full-width">
+            Description
+            <textarea
+              name="description"
+              rows="4"
+              placeholder="Optional marker details"
+            ></textarea>
+          </label>
+          <div class="full-width form-actions">
+            <button class="button primary" type="submit">Add marker</button>
+          </div>
+        </form>
+
+        <p id="form-message" class="status-message" aria-live="polite"></p>
+      </section>
+
+      <section class="panel">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Stored markers</p>
+            <h2 id="results-title">0 markers</h2>
+          </div>
+          <button class="button secondary" id="refresh-list" type="button">
+            Refresh list
+          </button>
+        </div>
+
+        <div id="location-list" class="stack-list"></div>
+      </section>
+
+      <section class="panel" id="api-reference">
+        <p class="eyebrow">API</p>
+        <h2>Populate the map programmatically</h2>
+        <ul class="api-list">
+          <li><code>GET /api/locations</code> returns every stored location.</li>
+          <li><code>POST /api/locations</code> adds a new marker.</li>
+          <li><code>DELETE /api/locations/:id</code> removes a marker.</li>
+        </ul>
+
+        <pre><code>{
+  "name": "Golden Gate Bridge",
+  "latitude": 37.8199,
+  "longitude": -122.4783,
+  "category": "Landmark",
+  "description": "API-created demo marker"
+}</code></pre>
+      </section>
+    </main>
+
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      crossorigin=""
+    ></script>
+    <script src="{{ url_for('static', filename='scripts/demo.js') }}" defer></script>
+  </body>
+</html>

@@ -1,6 +1,8 @@
 <?php
 
-$env = parse_ini_file("./.env");
+// Legacy connector kept for reference after the demo branch was consolidated
+// around the Flask application.
+$env = parse_ini_file("../.env");
 
 $username = $env['USERNAME'];
 $password = $env['PASSWORD'];
