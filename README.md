@@ -1,2 +1,4 @@
-# database-project
-Database Final Project for Rayyan Alam, Arjun Rao, Raheel Syed, and Austin Trinh
+## How to Run
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
