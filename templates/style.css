@@ -607,9 +607,9 @@ p {
   gap: 200px;
 }
 
-.home-line{
-  width: 75%; 
-  border: 1px solid var(--color-primary-light); 
+.home-line {
+  width: 75%;
+  border: 1px solid var(--color-primary-light);
   margin: 0;
 }
 
@@ -720,6 +720,32 @@ p {
   overflow-y: auto;
   overflow-x: hidden;
   padding-right: 16px;
+}
+
+.home-bottom-container {
+  display: flex;
+  width: 1440px;
+  padding: 48px 0;
+  flex-direction: column;
+  align-items: center;
+  background: var(--primary-dark, #232d4b);
+}
+
+.home-bottom-inner {
+  display: flex;
+  width: 1377px;
+  flex-direction: column;
+  align-items: center;
+  gap: 48px;
+}
+
+.request-grid {
+  display: inline-grid;
+  row-gap: 16px;
+  column-gap: 16px;
+  align-self: stretch;
+  grid-template-rows: repeat(2, fit-content(100%));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 /* =========================================================
@@ -834,4 +860,72 @@ p {
 .icon-delete {
   font-size: 24px;
   color: var(--color-error);
+}
+
+/* =========================================================
+   REQUEST CARD
+   ========================================================= */
+
+.request-card {
+  display: flex;
+  padding: 16px;
+  align-items: flex-start;
+  border-radius: 16px;
+  background: var(--color-light-gray);
+}
+
+.request-card-inner {
+  display: flex;
+  width: 419px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 32px;
+}
+
+.request-card-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 24px;
+  align-self: stretch;
+}
+
+.request-card-top {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  align-self: stretch;
+}
+
+.request-card-image {
+  width: 376px;
+  height: 282px;
+  border-radius: 8px;
+}
+
+.request-user{
+  display: flex;
+  gap: 8px;
+  align-self: stretch;
+}
+
+.request-coord-price {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  align-self: stretch;
+}
+
+.request-card-icons {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.request-buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  align-self: stretch;
 }
