@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Emilys+Candy&family=IBM+Plex+Serif:wght@400&display=swap"
+    rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+<link rel="stylesheet" href="style.css">
+
+<header class="header">
+    <div class="header-inner">
+        <div class="logo-group">
+            <div class="logo-text">Third</div>
+            <div class="logo-text">Spots</div>
+        </div>
+        <i class="fa-solid fa-circle-user icon-profile"></i>
+    </div>
+</header>
+
+<body>
+    <div class="home-container">
+        <div class="home-left">
+            <!-- Placeholder image until interactive map is added -->
+            <img class="map-placeholder"
+                src="https://t4.ftcdn.net/jpg/02/65/42/55/360_F_265425516_wtAw64cGdOVvrdl64b5bsyBqcD0rkw1W.jpg" />
+            <div class="home-left-on-map">
+                <search class="search">
+                    <div class="search-group">
+                        <button class="search-button" aria-label="Search">
+                            <i class="fa-solid fa-magnifying-glass icon-search"></i>
+                        </button>
+                        <input type="text" placeholder="Search for a Spot..."
+                            class="search-input text-primary-dark heading-3">
+                    </div>
+                </search>
+                <button class="button button--secondary">Add Spot <i class="fa-solid fa-plus icon-add"></i></button>
+            </div>
+        </div>
+        <div class="home-right">
+            <div class="welcome-message">
+                <!-- Different message based on user type -->
+                <div class="display-3 text-white">Welcome Back User_Name!</div>
+                <button class="button button--secondary">Find Spots <i class="fa-solid fa-location-dot"></i></button>
+            </div>
+        </div>
+    </div>
+</body>

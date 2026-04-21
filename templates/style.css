@@ -1,17 +1,3 @@
-/* =========================================================
-   DESIGN SYSTEM STYLESHEET
-   Based on provided Figma tokens and component states
-   ========================================================= */
-
-/* =========================================================
-   GOOGLE FONTS
-   Add this to your HTML <head>:
-   
-   <link rel="preconnect" href="https://fonts.googleapis.com">
-   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-   <link href="https://fonts.googleapis.com/css2?family=Emilys+Candy&family=IBM+Plex+Serif:wght@400&display=swap" rel="stylesheet">
-   ========================================================= */
-
 :root {
   /* =======================================================
      COLORS
@@ -107,6 +93,10 @@ body {
   line-height: var(--line-tight);
   color: var(--color-black);
   background: var(--color-white);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 img,
@@ -132,6 +122,7 @@ select {
   font-style: normal;
   font-weight: var(--weight-regular);
   line-height: var(--line-tight);
+  color: var(--color-white);
 }
 
 .display-1 {
@@ -277,7 +268,7 @@ p {
 
   display: inline-flex;
   padding: var(--space-button);
-  flex-direction: column;
+  flex-direction: row;
   justify-content: center;
   align-items: center;
   gap: var(--space-button-gap);
@@ -514,4 +505,145 @@ p {
 
 .bg-error {
   background-color: var(--color-error);
+}
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.header {
+  display: flex;
+  width: 1440px;
+  height: 160px;
+  padding: 32px 48px 32px 507px;
+  flex-direction: column;
+  align-items: flex-start;
+  background: var(--color-secondary-dark);
+}
+
+.header-inner {
+  display: flex;
+  width: 885px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo-group {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  align-items: center;
+  color: var(--color-white);
+}
+
+.icon-profile {
+  color: var(--color-white);
+  font-size: 64px;
+}
+
+/* =========================================================
+   HOME
+   ========================================================= */
+
+.search {
+  display: flex;
+  padding: 16px 24px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 10px;
+  align-self: stretch;
+  border-radius: 16px;
+  border: 3px solid var(--color-black);
+  background: var(--color-white);
+}
+
+.search-group {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.search-button {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.search-input {
+  width: 724px;
+  padding: 0 0 0 0;
+  border: none;
+  border-bottom: 2px solid var(--color-primary-dark);
+  outline: none;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  color: var(--color-primary-dark);
+}
+
+.icon-search {
+  font-size: 32px;
+}
+
+.welcome-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 72px;
+  align-self: stretch;
+}
+
+.home-right {
+  display: flex;
+  width: 479px;
+  height: 864px;
+  padding: 244px 64px;
+  flex-direction: column;
+  align-items: flex-start;
+  background: var(--color-primary-dark);
+}
+
+.home-left {
+  position: relative;
+  width: 961px;
+  height: 864px;
+}
+
+.home-left {
+  position: relative;
+  width: 961px;
+  height: 864px;
+}
+
+.map-placeholder {
+  display: block;
+  width: 961px;
+  height: 864px;
+  object-fit: cover;
+}
+
+.home-left-on-map {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-end;
+
+  width: 90%;
+  height: 90%;
+}
+
+.home-container {
+  display: flex;
+  width: 1440px;
+  height: 864px;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
 }
