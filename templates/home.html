@@ -1,1112 +1,988 @@
-<!DOCTYPE html>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Emilys+Candy&family=IBM+Plex+Serif:wght@400&display=swap"
-    rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
-<link rel="stylesheet" href="style.css">
+{% extends "base.html" %}
+{% from "components/spot_card.html" import spot_card %}
 
-<body>
-    <header class="header">
-        <div class="header-inner">
-            <div class="logo-group">
-                <div class="logo-text">Third</div>
-                <div class="logo-text">Spots</div>
+{% block content %}
+<div class="home-container">
+    <div class="home-top-container">
+        <div class="home-left">
+            <!-- Placeholder image until interactive map is added -->
+            <img class="map-placeholder"
+                src="https://t4.ftcdn.net/jpg/02/65/42/55/360_F_265425516_wtAw64cGdOVvrdl64b5bsyBqcD0rkw1W.jpg" />
+            <div class="home-left-on-map">
+                <form class="search">
+                    <div class="search-group">
+                        <button class="search-button" aria-label="Search">
+                            <i class="fa-solid fa-magnifying-glass icon-search"></i>
+                        </button>
+                        <input type="text" placeholder="Search for a Spot..."
+                            class="search-input text-primary-dark heading-3">
+                    </div>
+                </form>
+                <button class="button button--secondary" id="addSpotButton" type="button">
+                    Add Spot <i class="fa-solid fa-plus icon-add"></i>
+                </button>
             </div>
-            <i class="fa-solid fa-circle-user icon-profile"></i>
+            <div class="bookmark-popup-backdrop" id="bookmarkPopupBackdrop" hidden></div>
+            <div class="bookmark-popup" id="bookmarkPopup" hidden aria-hidden="true">
+                <div class="bookmark-popup__panel">
+                    <div class="bookmark-popup__title heading-2 text-black">
+                        Add <span class="text-secondary-dark" id="bookmarkSpotName">Spot Name</span> To:
+                    </div>
+                    <div class="bookmark-popup__collections">
+                        <label class="bookmark-collection">
+                            <input type="checkbox" class="bookmark-collection__input">
+                            <span class="bookmark-collection__box"></span>
+                            <span class="bookmark-collection__label heading-3 text-black">Hype</span>
+                        </label>
+                        <label class="bookmark-collection">
+                            <input type="checkbox" class="bookmark-collection__input">
+                            <span class="bookmark-collection__box"></span>
+                            <span class="bookmark-collection__label heading-3 text-black">Yummers</span>
+                        </label>
+
+                        <label class="bookmark-collection">
+                            <input type="checkbox" class="bookmark-collection__input">
+                            <span class="bookmark-collection__box"></span>
+                            <span class="bookmark-collection__label heading-3 text-black">Chill</span>
+                        </label>
+                    </div>
+
+                    <div class="bookmark-popup__actions">
+                        <button class="button button--secondary" id="bookmarkSaveButton" type="button">
+                            Save
+                        </button>
+                        <button class="button button--error" id="bookmarkClearButton" type="button">
+                            Clear
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
-    </header>
-    <div class="home-container">
-        <div class="home-top-container">
-            <div class="home-left">
-                <!-- Placeholder image until interactive map is added -->
-                <img class="map-placeholder"
-                    src="https://t4.ftcdn.net/jpg/02/65/42/55/360_F_265425516_wtAw64cGdOVvrdl64b5bsyBqcD0rkw1W.jpg" />
-                <div class="home-left-on-map">
-                    <form class="search">
-                        <div class="search-group">
-                            <button class="search-button" aria-label="Search">
-                                <i class="fa-solid fa-magnifying-glass icon-search"></i>
-                            </button>
-                            <input type="text" placeholder="Search for a Spot..."
-                                class="search-input text-primary-dark heading-3">
-                        </div>
-                    </form>
-                    <button class="button button--secondary" id="addSpotButton" type="button">
-                        Add Spot <i class="fa-solid fa-plus icon-add"></i>
+        <div class="home-right">
+            <div class="right-panel right-panel--active" id="welcomePanel">
+                <div class="welcome-message">
+                    <div class="display-3 text-white">Welcome Back Moderator!</div>
+                    <button class="button button--secondary" id="findSpotsButton" type="button">
+                        Find Spots <i class="fa-solid fa-location-dot"></i>
                     </button>
                 </div>
-                <div class="bookmark-popup-backdrop" id="bookmarkPopupBackdrop" hidden></div>
-                <div class="bookmark-popup" id="bookmarkPopup" hidden aria-hidden="true">
-                    <div class="bookmark-popup__panel">
-                        <div class="bookmark-popup__title heading-2 text-black">
-                            Add <span class="text-secondary-dark" id="bookmarkSpotName">Spot Name</span> To:
-                        </div>
-                        <div class="bookmark-popup__collections">
-                            <label class="bookmark-collection">
-                                <input type="checkbox" class="bookmark-collection__input">
-                                <span class="bookmark-collection__box"></span>
-                                <span class="bookmark-collection__label heading-3 text-black">Hype</span>
-                            </label>
-                            <label class="bookmark-collection">
-                                <input type="checkbox" class="bookmark-collection__input">
-                                <span class="bookmark-collection__box"></span>
-                                <span class="bookmark-collection__label heading-3 text-black">Yummers</span>
-                            </label>
-
-                            <label class="bookmark-collection">
-                                <input type="checkbox" class="bookmark-collection__input">
-                                <span class="bookmark-collection__box"></span>
-                                <span class="bookmark-collection__label heading-3 text-black">Chill</span>
-                            </label>
-                        </div>
-
-                        <div class="bookmark-popup__actions">
-                            <button class="button button--secondary" id="bookmarkSaveButton" type="button">
-                                Save
-                            </button>
-                            <button class="button button--error" id="bookmarkClearButton" type="button">
-                                Clear
-                            </button>
-                        </div>
-                    </div>
-                </div>
             </div>
-            <div class="home-right">
-                <div class="right-panel right-panel--active" id="welcomePanel">
-                    <div class="welcome-message">
-                        <div class="display-3 text-white">Welcome Back Moderator!</div>
-                        <button class="button button--secondary" id="findSpotsButton" type="button">
-                            Find Spots <i class="fa-solid fa-location-dot"></i>
-                        </button>
-                    </div>
+            <div class="right-panel right-panel--hidden" id="spotsPanel">
+                <div class="spot-buttons">
+                    <button class="button button--primary" id="filtersButton" type="button" aria-expanded="false">
+                        Filters <i class="fa-solid fa-filter"></i>
+                    </button>
+                    <button class="button button--primary" id="dateSortButton" type="button">
+                        Date <i class="fa-solid fa-sort" id="dateSortIcon"></i>
+                    </button>
                 </div>
-                <div class="right-panel right-panel--hidden" id="spotsPanel">
-                    <div class="spot-buttons">
-                        <button class="button button--primary" id="filtersButton" type="button" aria-expanded="false">
-                            Filters <i class="fa-solid fa-filter"></i>
-                        </button>
-                        <button class="button button--primary" id="dateSortButton" type="button">
-                            Date <i class="fa-solid fa-sort" id="dateSortIcon"></i>
-                        </button>
-                    </div>
-                    <div class="spots-list">
-                        <div class="spot-card spot-card--clickable" data-spot-name="Bodo's Bagels"
-                            data-spot-image="https://charlottesville29.com/wp-content/uploads/2012/06/food-0621.jpg"
-                            data-spot-price="FREE" data-spot-rating="3.5" data-spot-rating-count="(12)">
-                            <div class="spot-card-inner">
-                                <img class="spot-card-image spot-card-image--sync" alt="Spot image">
-                                <div class="spot-info">
-                                    <div class="spot-card-top">
-                                        <div class="text spot-card-name--sync"></div>
-                                        <button class="spot-bookmark" type="button" aria-label="Toggle bookmark">
-                                            <i class="fa-regular fa-bookmark icon-bookmark"></i>
-                                        </button>
-                                    </div>
-
-                                    <div class="spot-card-middle">
-                                        <div class="spot-rating-summary">
-                                            <div class="text-small text-gray spot-card-rating--sync"></div>
-                                            <div class="spot-stars">
-                                                <i class="fa-solid fa-star icon-star"></i>
-                                                <i class="fa-solid fa-star icon-star"></i>
-                                                <i class="fa-solid fa-star icon-star"></i>
-                                                <i class="fa-solid fa-star icon-star"></i>
-                                                <i class="fa-regular fa-star icon-star"></i>
-                                            </div>
-                                            <div class="text-small text-gray spot-card-rating-count--sync"></div>
-                                        </div>
-                                        <div class="text-small text-secondary-dark spot-card-price--sync"></div>
-                                    </div>
-
-                                    <div class="spot-card-bottom">
-                                        <div class="spot-icons">
-                                            <button class="icon-button-base" data-tooltip="Food">
-                                                <i class="fa-solid fa-utensils"></i>
-                                            </button>
-                                        </div>
-                                        <button class="spot-delete">
-                                            <i class="fa-solid fa-trash icon-delete"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="filter-popup-backdrop" id="filterBackdrop" hidden></div>
-
-                    <div class="filter-popup" id="filterPopup" hidden aria-hidden="true">
-                        <div class="button filter-popup__tab" id="filterPopupTab" type="button" role="button"
-                            tabindex="0">
-                            <span>Filters</span>
-                            <i class="fa-solid fa-filter"></i>
-                        </div>
-
-                        <div class="filter-popup__panel">
-                            <div class="filter-popup__icons">
-                                <button class="filter-icon" data-tooltip="Food">
-                                    <i class="fa-solid fa-utensils"></i>
-                                </button>
-                                <button class="filter-icon" data-tooltip="Drink">
-                                    <i class="fa-solid fa-mug-hot"></i>
-                                </button>
-                                <button class="filter-icon" data-tooltip="Casual">
-                                    <i class="fa-solid fa-shirt"></i>
-                                </button>
-                                <button class="filter-icon" data-tooltip="Formal">
-                                    <i class="fa-brands fa-black-tie"></i>
-                                </button>
-                                <button class="filter-icon" data-tooltip="Nature">
-                                    <i class="fa-solid fa-tree"></i>
-                                </button>
-                                <button class="filter-icon" data-tooltip="Sports">
-                                    <i class="fa-solid fa-football"></i>
-                                </button>
-                                <button class="filter-icon" data-tooltip="Recreation">
-                                    <i class="fa-solid fa-person-running"></i>
-                                </button>
-                                <button class="filter-icon" data-tooltip="Study">
-                                    <i class="fa-solid fa-book"></i>
-                                </button>
-                                <button class="filter-icon" data-tooltip="Historic">
-                                    <i class="fa-solid fa-landmark"></i>
-                                </button>
-                                <button class="filter-icon" data-tooltip="Religious">
-                                    <i class="fa-solid fa-person-praying"></i>
-                                </button>
-                                <button class="filter-icon" data-tooltip="Sightseeing">
-                                    <i class="fa-solid fa-binoculars"></i>
-                                </button>
-                                <button class="filter-icon" data-tooltip="Tourist Attraction">
-                                    <i class="fa-solid fa-camera"></i>
-                                </button>
-                                <button class="filter-icon" data-tooltip="Other">
-                                    <i class="fa-solid fa-ellipsis"></i>
-                                </button>
-                            </div>
-                            <div class="filter-popup__controls">
-                                <div class="filter-row">
-                                    <div class="filter-distance">
-                                        <label for="distanceInput" class="heading-3 text-black">Distance:</label>
-                                        <input id="distanceInput" class="distance-input heading-3 text-black"
-                                            type="number" min="0" step="1" placeholder="" />
-                                        <span class="heading-3 text-black">Miles</span>
-                                    </div>
-                                </div>
-                                <div class="filter-row">
-                                    <span class="heading-3 text-black">Price:</span>
-                                    <div class="price-selector" id="priceSelector">
-                                        <button class="price-free" id="priceFree" type="button"
-                                            aria-pressed="false">FREE</button>
-                                        <button class="price-dollar" type="button" data-price="1"
-                                            aria-pressed="false">$</button>
-                                        <button class="price-dollar" type="button" data-price="2"
-                                            aria-pressed="false">$$</button>
-                                        <button class="price-dollar" type="button" data-price="3"
-                                            aria-pressed="false">$$$</button>
-                                        <button class="price-dollar" type="button" data-price="4"
-                                            aria-pressed="false">$$$$</button>
-                                    </div>
-                                </div>
-                                <button class="button button--secondary filter-apply" type="button">
-                                    Apply Filters
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                <div class="spots-list">
+                    {% for spot in spots %}
+                    {{ spot_card(spot) }}
+                    {% endfor %}
                 </div>
-                <div class="right-panel right-panel--hidden" id="spotDetailPanel">
-                    <div class="spot-detail">
-                        <button class="spot-detail-close" id="closeSpotDetailButton" type="button"
-                            aria-label="Close spot detail">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
-                        <img class="spot-detail-image" id="spotDetailImage"
-                            src="https://charlottesville29.com/wp-content/uploads/2012/06/food-0621.jpg"
-                            alt="Spot image">
-                        <div class="heading-1 text-black spot-detail-title" id="spotDetailTitle">Bodo’s Bagels</div>
-                        <div class="spot-detail-meta">
-                            <div class="spot-icons">
-                                <button class="icon-button-base" data-tooltip="Food" type="button">
-                                    <i class="fa-solid fa-utensils"></i>
-                                </button>
-                                <button class="icon-button-base" data-tooltip="Drink" type="button">
-                                    <i class="fa-solid fa-mug-hot"></i>
-                                </button>
-                                <button class="icon-button-base" data-tooltip="Casual" type="button">
-                                    <i class="fa-solid fa-shirt"></i>
-                                </button>
-                            </div>
-                            <div class="spot-detail-price heading-4 text-secondary-dark" id="spotDetailPrice">$$</div>
-                            <div class="spot-rating-summary">
-                                <div class="text-small text-gray" id="spotDetailRatingValue">3.5</div>
-                                <div class="spot-stars">
-                                    <i class="fa-solid fa-star icon-star"></i>
-                                    <i class="fa-solid fa-star icon-star"></i>
-                                    <i class="fa-solid fa-star icon-star"></i>
-                                    <i class="fa-solid fa-star icon-star"></i>
-                                    <i class="fa-regular fa-star icon-star"></i>
-                                </div>
-                                <div class="text-small text-gray" id="spotDetailRatingCount">(12)</div>
-                            </div>
-                        </div>
-                        <div class="spot-detail-description text text-black">
-                            Bodos is a bagel shop with many bagels and drinks. Bodos is a bagel shop with many bagels
-                            and drinks.
-                        </div>
-                        <button class="button button--primary spot-detail-review-button" id="writeReviewButton"
-                            type="button">
-                            Write A Review <i class="fa-solid fa-pen"></i>
-                        </button>
+                <div class="filter-popup-backdrop" id="filterBackdrop" hidden></div>
 
-                        <div class="spot-detail-content-swap">
-                            <div class="spot-detail-reviews" id="spotDetailReviews">
-                                <article class="review-card spot-detail-review-card">
-                                    <div class="review-card-top">
-                                        <div class="review-card-meta">
-                                            <i class="fa-solid fa-circle-user icon-review-profile"></i>
-                                            <div class="heading-4 text-black">Raheel Syed</div>
-                                        </div>
-                                        <div class="review-card-interactions">
-                                            <div class="spot-stars">
-                                                <i class="fa-solid fa-star icon-star"></i>
-                                                <i class="fa-solid fa-star icon-star"></i>
-                                                <i class="fa-solid fa-star icon-star"></i>
-                                                <i class="fa-solid fa-star icon-star"></i>
-                                                <i class="fa-regular fa-star icon-star"></i>
-                                            </div>
-                                            <button class="review-card-delete" type="button" aria-label="Delete review">
-                                                <i class="fa-solid fa-trash"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <p class="text text-black">I'm loving it</p>
-                                    <div class="review-card-bottom">
-                                        <div class="small text-gray">03/10/05</div>
-                                        <div class="review-card-interactions">
-                                            <div class="text text-secondary-dark">10</div>
-                                            <button class="review-card-like" type="button" aria-label="Like review">
-                                                <i class="fa-regular fa-thumbs-up"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </article>
-                            </div>
-
-                            <div class="write-review-panel" id="writeReviewPanel" hidden>
-                                <div class="write-review-rating-row">
-                                    <div class="write-review-stars" id="writeReviewStars" aria-label="Select rating">
-                                        <button class="write-review-star-hitbox" type="button" data-rating="0.5"
-                                            aria-label="0.5 stars"></button>
-                                        <button class="write-review-star-hitbox" type="button" data-rating="1"
-                                            aria-label="1 star"></button>
-                                        <button class="write-review-star-hitbox" type="button" data-rating="1.5"
-                                            aria-label="1.5 stars"></button>
-                                        <button class="write-review-star-hitbox" type="button" data-rating="2"
-                                            aria-label="2 stars"></button>
-                                        <button class="write-review-star-hitbox" type="button" data-rating="2.5"
-                                            aria-label="2.5 stars"></button>
-                                        <button class="write-review-star-hitbox" type="button" data-rating="3"
-                                            aria-label="3 stars"></button>
-                                        <button class="write-review-star-hitbox" type="button" data-rating="3.5"
-                                            aria-label="3.5 stars"></button>
-                                        <button class="write-review-star-hitbox" type="button" data-rating="4"
-                                            aria-label="4 stars"></button>
-                                        <button class="write-review-star-hitbox" type="button" data-rating="4.5"
-                                            aria-label="4.5 stars"></button>
-                                        <button class="write-review-star-hitbox" type="button" data-rating="5"
-                                            aria-label="5 stars"></button>
-                                        <div class="write-review-stars-visual" id="writeReviewStarsVisual"
-                                            aria-hidden="true">
-                                            <i class="fa-regular fa-star write-review-star-icon"></i>
-                                            <i class="fa-regular fa-star write-review-star-icon"></i>
-                                            <i class="fa-regular fa-star write-review-star-icon"></i>
-                                            <i class="fa-regular fa-star write-review-star-icon"></i>
-                                            <i class="fa-regular fa-star write-review-star-icon"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                                <input class="write-review-text text" id="writeReviewText" type="text"
-                                    placeholder="This spot is...">
-                                <div class="write-review-actions">
-                                    <button class="button button--primary" id="postReviewButton"
-                                        type="button">Post</button>
-                                    <button class="button button--error" id="cancelReviewButton"
-                                        type="button">Cancel</button>
-                                </div>
-                            </div>
-                        </div>
+                <div class="filter-popup" id="filterPopup" hidden aria-hidden="true">
+                    <div class="button filter-popup__tab" id="filterPopupTab" type="button" role="button" tabindex="0">
+                        <span>Filters</span>
+                        <i class="fa-solid fa-filter"></i>
                     </div>
-                </div>
-            </div>
-            <div class="add-spot-backdrop" id="addSpotBackdrop" hidden></div>
-            <div class="add-spot-popup" id="addSpotPopup" hidden aria-hidden="true">
-                <div class="add-spot-popup__panel">
-                    <div class="display-2 text-black add-spot-popup__title">New Spot</div>
-                    <div class="add-spot-popup__content">
-                        <div class="add-spot-popup__left">
-                            <div class="add-spot-field">
-                                <input id="newSpotName" class="add-spot-input heading-3 text-black" type="text"
-                                    placeholder="Spot Name">
-                            </div>
-                            <div class="add-spot-field">
-                                <input id="newSpotCoordinates" class="add-spot-input heading-3 text-black" type="text"
-                                    placeholder="Spot Coordinates (Lat, Long)">
-                            </div>
 
-                            <div class="add-spot-field">
-                                <input id="newSpotDescription" class="add-spot-input heading-3 text-black" type="text"
-                                    placeholder="Spot Description">
-                            </div>
+                    <div class="filter-popup__panel">
+                        <div class="filter-popup__icons">
+                            <button class="filter-icon" data-tooltip="Food">
+                                <i class="fa-solid fa-utensils"></i>
+                            </button>
+                            <button class="filter-icon" data-tooltip="Drink">
+                                <i class="fa-solid fa-mug-hot"></i>
+                            </button>
+                            <button class="filter-icon" data-tooltip="Casual">
+                                <i class="fa-solid fa-shirt"></i>
+                            </button>
+                            <button class="filter-icon" data-tooltip="Formal">
+                                <i class="fa-brands fa-black-tie"></i>
+                            </button>
+                            <button class="filter-icon" data-tooltip="Nature">
+                                <i class="fa-solid fa-tree"></i>
+                            </button>
+                            <button class="filter-icon" data-tooltip="Sports">
+                                <i class="fa-solid fa-football"></i>
+                            </button>
+                            <button class="filter-icon" data-tooltip="Recreation">
+                                <i class="fa-solid fa-person-running"></i>
+                            </button>
+                            <button class="filter-icon" data-tooltip="Study">
+                                <i class="fa-solid fa-book"></i>
+                            </button>
+                            <button class="filter-icon" data-tooltip="Historic">
+                                <i class="fa-solid fa-landmark"></i>
+                            </button>
+                            <button class="filter-icon" data-tooltip="Religious">
+                                <i class="fa-solid fa-person-praying"></i>
+                            </button>
+                            <button class="filter-icon" data-tooltip="Sightseeing">
+                                <i class="fa-solid fa-binoculars"></i>
+                            </button>
+                            <button class="filter-icon" data-tooltip="Tourist Attraction">
+                                <i class="fa-solid fa-camera"></i>
+                            </button>
+                            <button class="filter-icon" data-tooltip="Other">
+                                <i class="fa-solid fa-ellipsis"></i>
+                            </button>
                         </div>
-                        <div class="add-spot-popup__middle">
-                            <div class="heading-3 text-black add-spot-section-title">Pricing Tier</div>
-                            <div class="add-spot-price-selector" id="addSpotPriceSelector">
-                                <button class="price-free add-spot-price-free-row" id="addSpotPriceFree" type="button"
-                                    aria-pressed="false">
-                                    FREE
-                                </button>
-                                <div class="add-spot-price-dollars">
-                                    <button class="price-dollar" type="button" data-add-spot-price="1"
+                        <div class="filter-popup__controls">
+                            <div class="filter-row">
+                                <div class="filter-distance">
+                                    <label for="distanceInput" class="heading-3 text-black">Distance:</label>
+                                    <input id="distanceInput" class="distance-input heading-3 text-black" type="number"
+                                        min="0" step="1" placeholder="" />
+                                    <span class="heading-3 text-black">Miles</span>
+                                </div>
+                            </div>
+                            <div class="filter-row">
+                                <span class="heading-3 text-black">Price:</span>
+                                <div class="price-selector" id="priceSelector">
+                                    <button class="price-free" id="priceFree" type="button"
+                                        aria-pressed="false">FREE</button>
+                                    <button class="price-dollar" type="button" data-price="1"
                                         aria-pressed="false">$</button>
-                                    <button class="price-dollar" type="button" data-add-spot-price="2"
+                                    <button class="price-dollar" type="button" data-price="2"
                                         aria-pressed="false">$$</button>
-                                    <button class="price-dollar" type="button" data-add-spot-price="3"
+                                    <button class="price-dollar" type="button" data-price="3"
                                         aria-pressed="false">$$$</button>
-                                    <button class="price-dollar" type="button" data-add-spot-price="4"
+                                    <button class="price-dollar" type="button" data-price="4"
                                         aria-pressed="false">$$$$</button>
                                 </div>
                             </div>
+                            <button class="button button--secondary filter-apply" type="button">
+                                Apply Filters
+                            </button>
                         </div>
-                        <div class="add-spot-popup__right">
-                            <div class="heading-3 text-black add-spot-section-title">Tags</div>
-                            <div class="add-spot-tags" id="addSpotTags">
-                                <button class="filter-icon" data-tooltip="Food">
-                                    <i class="fa-solid fa-utensils"></i>
-                                </button>
-                                <button class="filter-icon" data-tooltip="Drink">
-                                    <i class="fa-solid fa-mug-hot"></i>
-                                </button>
-                                <button class="filter-icon" data-tooltip="Casual">
-                                    <i class="fa-solid fa-shirt"></i>
-                                </button>
-                                <button class="filter-icon" data-tooltip="Formal">
-                                    <i class="fa-brands fa-black-tie"></i>
-                                </button>
-                                <button class="filter-icon" data-tooltip="Nature">
-                                    <i class="fa-solid fa-tree"></i>
-                                </button>
-                                <button class="filter-icon" data-tooltip="Sports">
-                                    <i class="fa-solid fa-football"></i>
-                                </button>
-                                <button class="filter-icon" data-tooltip="Recreation">
-                                    <i class="fa-solid fa-person-running"></i>
-                                </button>
-                                <button class="filter-icon" data-tooltip="Study">
-                                    <i class="fa-solid fa-book"></i>
-                                </button>
-                                <button class="filter-icon" data-tooltip="Historic">
-                                    <i class="fa-solid fa-landmark"></i>
-                                </button>
-                                <button class="filter-icon" data-tooltip="Religious">
-                                    <i class="fa-solid fa-person-praying"></i>
-                                </button>
-                                <button class="filter-icon" data-tooltip="Sightseeing">
-                                    <i class="fa-solid fa-binoculars"></i>
-                                </button>
-                                <button class="filter-icon" data-tooltip="Tourist Attraction">
-                                    <i class="fa-solid fa-camera"></i>
-                                </button>
-                                <button class="filter-icon" data-tooltip="Other">
-                                    <i class="fa-solid fa-ellipsis"></i>
-                                </button>
+                    </div>
+                </div>
+            </div>
+            <div class="right-panel right-panel--hidden" id="spotDetailPanel">
+                <div class="spot-detail">
+                    <button class="spot-detail-close" id="closeSpotDetailButton" type="button"
+                        aria-label="Close spot detail">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                    <img class="spot-detail-image" id="spotDetailImage"
+                        src="https://charlottesville29.com/wp-content/uploads/2012/06/food-0621.jpg" alt="Spot image">
+                    <div class="heading-1 text-black spot-detail-title" id="spotDetailTitle">Bodo’s Bagels</div>
+                    <div class="spot-detail-meta">
+                        <div class="spot-icons">
+                            <button class="icon-button-base" data-tooltip="Food" type="button">
+                                <i class="fa-solid fa-utensils"></i>
+                            </button>
+                            <button class="icon-button-base" data-tooltip="Drink" type="button">
+                                <i class="fa-solid fa-mug-hot"></i>
+                            </button>
+                            <button class="icon-button-base" data-tooltip="Casual" type="button">
+                                <i class="fa-solid fa-shirt"></i>
+                            </button>
+                        </div>
+                        <div class="spot-detail-price heading-4 text-secondary-dark" id="spotDetailPrice">$$</div>
+                        <div class="spot-rating-summary">
+                            <div class="text-small text-gray" id="spotDetailRatingValue">3.5</div>
+                            <div class="spot-stars">
+                                <i class="fa-solid fa-star icon-star"></i>
+                                <i class="fa-solid fa-star icon-star"></i>
+                                <i class="fa-solid fa-star icon-star"></i>
+                                <i class="fa-solid fa-star icon-star"></i>
+                                <i class="fa-regular fa-star icon-star"></i>
+                            </div>
+                            <div class="text-small text-gray" id="spotDetailRatingCount">(12)</div>
+                        </div>
+                    </div>
+                    <div class="spot-detail-description text text-black">
+                        Bodos is a bagel shop with many bagels and drinks. Bodos is a bagel shop with many bagels
+                        and drinks.
+                    </div>
+                    <button class="button button--primary spot-detail-review-button" id="writeReviewButton"
+                        type="button">
+                        Write A Review <i class="fa-solid fa-pen"></i>
+                    </button>
+
+                    <div class="spot-detail-content-swap">
+                        <div class="spot-detail-reviews" id="spotDetailReviews">
+                            <article class="review-card spot-detail-review-card">
+                                <div class="review-card-top">
+                                    <div class="review-card-meta">
+                                        <i class="fa-solid fa-circle-user icon-review-profile"></i>
+                                        <div class="heading-4 text-black">Raheel Syed</div>
+                                    </div>
+                                    <div class="review-card-interactions">
+                                        <div class="spot-stars">
+                                            <i class="fa-solid fa-star icon-star"></i>
+                                            <i class="fa-solid fa-star icon-star"></i>
+                                            <i class="fa-solid fa-star icon-star"></i>
+                                            <i class="fa-solid fa-star icon-star"></i>
+                                            <i class="fa-regular fa-star icon-star"></i>
+                                        </div>
+                                        <button class="review-card-delete" type="button" aria-label="Delete review">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <p class="text text-black">I'm loving it</p>
+                                <div class="review-card-bottom">
+                                    <div class="small text-gray">03/10/05</div>
+                                    <div class="review-card-interactions">
+                                        <div class="text text-secondary-dark">10</div>
+                                        <button class="review-card-like" type="button" aria-label="Like review">
+                                            <i class="fa-regular fa-thumbs-up"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </article>
+                        </div>
+
+                        <div class="write-review-panel" id="writeReviewPanel" hidden>
+                            <div class="write-review-rating-row">
+                                <div class="write-review-stars" id="writeReviewStars" aria-label="Select rating">
+                                    <button class="write-review-star-hitbox" type="button" data-rating="0.5"
+                                        aria-label="0.5 stars"></button>
+                                    <button class="write-review-star-hitbox" type="button" data-rating="1"
+                                        aria-label="1 star"></button>
+                                    <button class="write-review-star-hitbox" type="button" data-rating="1.5"
+                                        aria-label="1.5 stars"></button>
+                                    <button class="write-review-star-hitbox" type="button" data-rating="2"
+                                        aria-label="2 stars"></button>
+                                    <button class="write-review-star-hitbox" type="button" data-rating="2.5"
+                                        aria-label="2.5 stars"></button>
+                                    <button class="write-review-star-hitbox" type="button" data-rating="3"
+                                        aria-label="3 stars"></button>
+                                    <button class="write-review-star-hitbox" type="button" data-rating="3.5"
+                                        aria-label="3.5 stars"></button>
+                                    <button class="write-review-star-hitbox" type="button" data-rating="4"
+                                        aria-label="4 stars"></button>
+                                    <button class="write-review-star-hitbox" type="button" data-rating="4.5"
+                                        aria-label="4.5 stars"></button>
+                                    <button class="write-review-star-hitbox" type="button" data-rating="5"
+                                        aria-label="5 stars"></button>
+                                    <div class="write-review-stars-visual" id="writeReviewStarsVisual"
+                                        aria-hidden="true">
+                                        <i class="fa-regular fa-star write-review-star-icon"></i>
+                                        <i class="fa-regular fa-star write-review-star-icon"></i>
+                                        <i class="fa-regular fa-star write-review-star-icon"></i>
+                                        <i class="fa-regular fa-star write-review-star-icon"></i>
+                                        <i class="fa-regular fa-star write-review-star-icon"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <input class="write-review-text text" id="writeReviewText" type="text"
+                                placeholder="This spot is...">
+                            <div class="write-review-actions">
+                                <button class="button button--primary" id="postReviewButton" type="button">Post</button>
+                                <button class="button button--error" id="cancelReviewButton"
+                                    type="button">Cancel</button>
                             </div>
                         </div>
                     </div>
-
-                    <button class="button button--secondary add-spot-create" id="createSpotButton" type="button">
-                        Create Spot (Private)
-                    </button>
                 </div>
             </div>
         </div>
-        <div class="home-bottom-container">
-            <div class="home-bottom-inner">
-                <div class="display-1 text-white">Requested Spots</div>
-                <div class="request-grid">
-                    <div class="request-card">
-                        <div class="request-card-inner">
-                            <div class="request-card-info">
-                                <div class="request-card-top">
-                                    <img class="request-card-image"
-                                        src="https://library.virginia.edu/sites/default/files/2025-03/shannon-tour-landing-page.jpg" />
-                                    <div class="heading-1 text-primary-dark">Shannon Library</div>
-                                    <div class="request-user">
-                                        <div class="heading-3" style="white-space: nowrap;">Requested By:</div>
-                                        <div class="heading-3">Rayyan Alam</div>
-                                    </div>
-                                    <div class="request-coord-price">
-                                        <div>
-                                            <div class="heading-4 text-gray">38.0364, -78.5053</div>
-                                        </div>
-                                        <div class="heading-4 text-secondary-dark">FREE</div>
-                                    </div>
+        <div class="add-spot-backdrop" id="addSpotBackdrop" hidden></div>
+        <div class="add-spot-popup" id="addSpotPopup" hidden aria-hidden="true">
+            <div class="add-spot-popup__panel">
+                <div class="display-2 text-black add-spot-popup__title">New Spot</div>
+                <div class="add-spot-popup__content">
+                    <div class="add-spot-popup__left">
+                        <div class="add-spot-field">
+                            <input id="newSpotName" class="add-spot-input heading-3 text-black" type="text"
+                                placeholder="Spot Name">
+                        </div>
+                        <div class="add-spot-field">
+                            <input id="newSpotCoordinates" class="add-spot-input heading-3 text-black" type="text"
+                                placeholder="Spot Coordinates (Lat, Long)">
+                        </div>
+
+                        <div class="add-spot-field">
+                            <input id="newSpotDescription" class="add-spot-input heading-3 text-black" type="text"
+                                placeholder="Spot Description">
+                        </div>
+                    </div>
+                    <div class="add-spot-popup__middle">
+                        <div class="heading-3 text-black add-spot-section-title">Pricing Tier</div>
+                        <div class="add-spot-price-selector" id="addSpotPriceSelector">
+                            <button class="price-free add-spot-price-free-row" id="addSpotPriceFree" type="button"
+                                aria-pressed="false">
+                                FREE
+                            </button>
+                            <div class="add-spot-price-dollars">
+                                <button class="price-dollar" type="button" data-add-spot-price="1"
+                                    aria-pressed="false">$</button>
+                                <button class="price-dollar" type="button" data-add-spot-price="2"
+                                    aria-pressed="false">$$</button>
+                                <button class="price-dollar" type="button" data-add-spot-price="3"
+                                    aria-pressed="false">$$$</button>
+                                <button class="price-dollar" type="button" data-add-spot-price="4"
+                                    aria-pressed="false">$$$$</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="add-spot-popup__right">
+                        <div class="heading-3 text-black add-spot-section-title">Tags</div>
+                        <div class="add-spot-tags" id="addSpotTags">
+                            <button class="filter-icon" data-tooltip="Food">
+                                <i class="fa-solid fa-utensils"></i>
+                            </button>
+                            <button class="filter-icon" data-tooltip="Drink">
+                                <i class="fa-solid fa-mug-hot"></i>
+                            </button>
+                            <button class="filter-icon" data-tooltip="Casual">
+                                <i class="fa-solid fa-shirt"></i>
+                            </button>
+                            <button class="filter-icon" data-tooltip="Formal">
+                                <i class="fa-brands fa-black-tie"></i>
+                            </button>
+                            <button class="filter-icon" data-tooltip="Nature">
+                                <i class="fa-solid fa-tree"></i>
+                            </button>
+                            <button class="filter-icon" data-tooltip="Sports">
+                                <i class="fa-solid fa-football"></i>
+                            </button>
+                            <button class="filter-icon" data-tooltip="Recreation">
+                                <i class="fa-solid fa-person-running"></i>
+                            </button>
+                            <button class="filter-icon" data-tooltip="Study">
+                                <i class="fa-solid fa-book"></i>
+                            </button>
+                            <button class="filter-icon" data-tooltip="Historic">
+                                <i class="fa-solid fa-landmark"></i>
+                            </button>
+                            <button class="filter-icon" data-tooltip="Religious">
+                                <i class="fa-solid fa-person-praying"></i>
+                            </button>
+                            <button class="filter-icon" data-tooltip="Sightseeing">
+                                <i class="fa-solid fa-binoculars"></i>
+                            </button>
+                            <button class="filter-icon" data-tooltip="Tourist Attraction">
+                                <i class="fa-solid fa-camera"></i>
+                            </button>
+                            <button class="filter-icon" data-tooltip="Other">
+                                <i class="fa-solid fa-ellipsis"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="button button--secondary add-spot-create" id="createSpotButton" type="button">
+                    Create Spot (Private)
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="home-bottom-container">
+        <div class="home-bottom-inner">
+            <div class="display-1 text-white">Requested Spots</div>
+            <div class="request-grid">
+                <div class="request-card">
+                    <div class="request-card-inner">
+                        <div class="request-card-info">
+                            <div class="request-card-top">
+                                <img class="request-card-image"
+                                    src="https://library.virginia.edu/sites/default/files/2025-03/shannon-tour-landing-page.jpg" />
+                                <div class="heading-1 text-primary-dark">Shannon Library</div>
+                                <div class="request-user">
+                                    <div class="heading-3" style="white-space: nowrap;">Requested By:</div>
+                                    <div class="heading-3">Rayyan Alam</div>
                                 </div>
-                                <div class="request-card-icons">
-                                    <button class="icon-button-base" data-tooltip="Food">
-                                        <i class="fa-solid fa-utensils"></i>
-                                    </button>
-                                    <button class="icon-button-base" data-tooltip="Drink">
-                                        <i class="fa-solid fa-mug-hot"></i>
-                                    </button>
+                                <div class="request-coord-price">
+                                    <div>
+                                        <div class="heading-4 text-gray">38.0364, -78.5053</div>
+                                    </div>
+                                    <div class="heading-4 text-secondary-dark">FREE</div>
                                 </div>
                             </div>
-                            <div class="request-buttons">
-                                <button class="button button--primary">
-                                    Approve
+                            <div class="request-card-icons">
+                                <button class="icon-button-base" data-tooltip="Food">
+                                    <i class="fa-solid fa-utensils"></i>
                                 </button>
-                                <button class="button button--error">
-                                    Reject
+                                <button class="icon-button-base" data-tooltip="Drink">
+                                    <i class="fa-solid fa-mug-hot"></i>
                                 </button>
                             </div>
+                        </div>
+                        <div class="request-buttons">
+                            <button class="button button--primary">
+                                Approve
+                            </button>
+                            <button class="button button--error">
+                                Reject
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <script>
-        // Handle the transition from the welcome panel to the spots panel when the "Find Spots" button is clicked
-        const findSpotsButton = document.getElementById("findSpotsButton");
-        const homeRight = document.querySelector(".home-right");
-        const welcomePanel = document.getElementById("welcomePanel");
-        const spotsPanel = document.getElementById("spotsPanel");
+</div>
+<script src="{{ url_for('static', filename='js/spot_card.js') }}"></script>
+<script>
+    // Handle the transition from the welcome panel to the spots panel when the "Find Spots" button is clicked
+    const findSpotsButton = document.getElementById("findSpotsButton");
+    const homeRight = document.querySelector(".home-right");
+    const welcomePanel = document.getElementById("welcomePanel");
+    const spotsPanel = document.getElementById("spotsPanel");
 
-        findSpotsButton.addEventListener("click", () => {
-            welcomePanel.classList.remove("right-panel--active");
-            welcomePanel.classList.add("right-panel--hidden");
+    findSpotsButton.addEventListener("click", () => {
+        welcomePanel.classList.remove("right-panel--active");
+        welcomePanel.classList.add("right-panel--hidden");
 
-            spotsPanel.classList.remove("right-panel--hidden");
-            spotsPanel.classList.add("right-panel--active");
+        spotsPanel.classList.remove("right-panel--hidden");
+        spotsPanel.classList.add("right-panel--active");
 
-            homeRight.classList.add("home-right--after");
+        homeRight.classList.add("home-right--after");
+    });
+
+    // Handle the date sort button icon change when clicked
+    const dateSortButton = document.getElementById("dateSortButton");
+    const dateSortIcon = document.getElementById("dateSortIcon");
+
+    const iconStates = ["fa-sort", "fa-sort-down", "fa-sort-up"];
+    let currentIconIndex = 0;
+
+    dateSortButton.addEventListener("click", () => {
+        dateSortIcon.classList.remove(iconStates[currentIconIndex]);
+        currentIconIndex = (currentIconIndex + 1) % iconStates.length;
+        dateSortIcon.classList.add(iconStates[currentIconIndex]);
+    });
+
+    // =========================
+    // BOOKMARK POPUP
+    // =========================
+    const bookmarkPopup = document.getElementById("bookmarkPopup");
+    const bookmarkPopupBackdrop = document.getElementById("bookmarkPopupBackdrop");
+    const bookmarkSpotName = document.getElementById("bookmarkSpotName");
+    const bookmarkSaveButton = document.getElementById("bookmarkSaveButton");
+    const bookmarkClearButton = document.getElementById("bookmarkClearButton");
+    const bookmarkCollectionInputs = Array.from(document.querySelectorAll(".bookmark-collection__input"));
+
+    let activeBookmarkIcon = null;
+    let activeBookmarkButton = null;
+
+    function getSavedCollections(button) {
+        const raw = button.dataset.savedCollections;
+        return raw ? JSON.parse(raw) : [];
+    }
+
+    function setSavedCollections(button, collections) {
+        button.dataset.savedCollections = JSON.stringify(collections);
+    }
+
+    function getCurrentCollectionLabels() {
+        return bookmarkCollectionInputs
+            .filter((input) => input.checked)
+            .map((input) => input.closest(".bookmark-collection").querySelector(".bookmark-collection__label").textContent.trim());
+    }
+
+    function applyCollectionsToPopup(savedCollections) {
+        bookmarkCollectionInputs.forEach((input) => {
+            const label = input.closest(".bookmark-collection").querySelector(".bookmark-collection__label").textContent.trim();
+            input.checked = savedCollections.includes(label);
+        });
+    }
+
+    function hasSelectedCollections() {
+        return bookmarkCollectionInputs.some((input) => input.checked);
+    }
+
+    function setBookmarkIconState(icon, isSaved) {
+        if (!icon) return;
+        icon.classList.toggle("fa-solid", isSaved);
+        icon.classList.toggle("fa-regular", !isSaved);
+    }
+
+    function openBookmarkPopup(spotName, button, icon) {
+        bookmarkSpotName.textContent = spotName;
+        activeBookmarkButton = button;
+        activeBookmarkIcon = icon;
+
+        const savedCollections = getSavedCollections(button);
+        applyCollectionsToPopup(savedCollections);
+
+        bookmarkPopup.hidden = false;
+        bookmarkPopupBackdrop.hidden = false;
+
+        requestAnimationFrame(() => {
+            bookmarkPopup.classList.add("bookmark-popup--open");
+            bookmarkPopupBackdrop.classList.add("bookmark-popup-backdrop--open");
         });
 
-        // Handle the date sort button icon change when clicked
-        const dateSortButton = document.getElementById("dateSortButton");
-        const dateSortIcon = document.getElementById("dateSortIcon");
+        bookmarkPopup.setAttribute("aria-hidden", "false");
+    }
 
-        const iconStates = ["fa-sort", "fa-sort-down", "fa-sort-up"];
-        let currentIconIndex = 0;
+    function closeBookmarkPopup() {
+        if (!bookmarkPopup.classList.contains("bookmark-popup--open")) return;
 
-        dateSortButton.addEventListener("click", () => {
-            dateSortIcon.classList.remove(iconStates[currentIconIndex]);
-            currentIconIndex = (currentIconIndex + 1) % iconStates.length;
-            dateSortIcon.classList.add(iconStates[currentIconIndex]);
-        });
+        bookmarkPopup.classList.remove("bookmark-popup--open");
+        bookmarkPopupBackdrop.classList.remove("bookmark-popup-backdrop--open");
+        bookmarkPopup.setAttribute("aria-hidden", "true");
 
-        // =========================
-        // BOOKMARK POPUP
-        // =========================
-        const bookmarkPopup = document.getElementById("bookmarkPopup");
-        const bookmarkPopupBackdrop = document.getElementById("bookmarkPopupBackdrop");
-        const bookmarkSpotName = document.getElementById("bookmarkSpotName");
-        const bookmarkSaveButton = document.getElementById("bookmarkSaveButton");
-        const bookmarkClearButton = document.getElementById("bookmarkClearButton");
-        const bookmarkCollectionInputs = Array.from(document.querySelectorAll(".bookmark-collection__input"));
+        window.setTimeout(() => {
+            bookmarkPopup.hidden = true;
+            bookmarkPopupBackdrop.hidden = true;
+            activeBookmarkIcon = null;
+            activeBookmarkButton = null;
+        }, 220);
+    }
 
-        let activeBookmarkIcon = null;
-        let activeBookmarkButton = null;
+    document.querySelectorAll(".spot-bookmark").forEach((button) => {
+        const icon = button.querySelector(".fa-bookmark");
+        setSavedCollections(button, []);
+        setBookmarkIconState(icon, false);
 
-        function getSavedCollections(button) {
-            const raw = button.dataset.savedCollections;
-            return raw ? JSON.parse(raw) : [];
-        }
-
-        function setSavedCollections(button, collections) {
-            button.dataset.savedCollections = JSON.stringify(collections);
-        }
-
-        function getCurrentCollectionLabels() {
-            return bookmarkCollectionInputs
-                .filter((input) => input.checked)
-                .map((input) => input.closest(".bookmark-collection").querySelector(".bookmark-collection__label").textContent.trim());
-        }
-
-        function applyCollectionsToPopup(savedCollections) {
-            bookmarkCollectionInputs.forEach((input) => {
-                const label = input.closest(".bookmark-collection").querySelector(".bookmark-collection__label").textContent.trim();
-                input.checked = savedCollections.includes(label);
-            });
-        }
-
-        function hasSelectedCollections() {
-            return bookmarkCollectionInputs.some((input) => input.checked);
-        }
-
-        function setBookmarkIconState(icon, isSaved) {
-            if (!icon) return;
-            icon.classList.toggle("fa-solid", isSaved);
-            icon.classList.toggle("fa-regular", !isSaved);
-        }
-
-        function openBookmarkPopup(spotName, button, icon) {
-            bookmarkSpotName.textContent = spotName;
-            activeBookmarkButton = button;
-            activeBookmarkIcon = icon;
-
-            const savedCollections = getSavedCollections(button);
-            applyCollectionsToPopup(savedCollections);
-
-            bookmarkPopup.hidden = false;
-            bookmarkPopupBackdrop.hidden = false;
-
-            requestAnimationFrame(() => {
-                bookmarkPopup.classList.add("bookmark-popup--open");
-                bookmarkPopupBackdrop.classList.add("bookmark-popup-backdrop--open");
-            });
-
-            bookmarkPopup.setAttribute("aria-hidden", "false");
-        }
-
-        function closeBookmarkPopup() {
-            if (!bookmarkPopup.classList.contains("bookmark-popup--open")) return;
-
-            bookmarkPopup.classList.remove("bookmark-popup--open");
-            bookmarkPopupBackdrop.classList.remove("bookmark-popup-backdrop--open");
-            bookmarkPopup.setAttribute("aria-hidden", "true");
-
-            window.setTimeout(() => {
-                bookmarkPopup.hidden = true;
-                bookmarkPopupBackdrop.hidden = true;
-                activeBookmarkIcon = null;
-                activeBookmarkButton = null;
-            }, 220);
-        }
-
-        document.querySelectorAll(".spot-bookmark").forEach((button) => {
-            const icon = button.querySelector(".fa-bookmark");
-            setSavedCollections(button, []);
-            setBookmarkIconState(icon, false);
-
-            button.addEventListener("click", (event) => {
-                event.stopPropagation();
-
-                const spotCard = button.closest(".spot-card");
-                const spotNameElement = spotCard.querySelector(".text");
-                const spotName = spotNameElement ? spotNameElement.textContent.trim() : "Spot";
-
-                openBookmarkPopup(spotName, button, icon);
-            });
-        });
-
-        bookmarkPopupBackdrop.addEventListener("click", closeBookmarkPopup);
-
-        bookmarkPopup.addEventListener("click", (event) => {
+        button.addEventListener("click", (event) => {
             event.stopPropagation();
+
+            const spotCard = button.closest(".spot-card");
+            const spotNameElement = spotCard.querySelector(".text");
+            const spotName = spotNameElement ? spotNameElement.textContent.trim() : "Spot";
+
+            openBookmarkPopup(spotName, button, icon);
         });
+    });
 
-        bookmarkSaveButton.addEventListener("click", () => {
-            if (!activeBookmarkButton) return;
+    bookmarkPopupBackdrop.addEventListener("click", closeBookmarkPopup);
 
-            const selectedCollections = getCurrentCollectionLabels();
-            setSavedCollections(activeBookmarkButton, selectedCollections);
-            setBookmarkIconState(activeBookmarkIcon, selectedCollections.length > 0);
-            closeBookmarkPopup();
+    bookmarkPopup.addEventListener("click", (event) => {
+        event.stopPropagation();
+    });
+
+    bookmarkSaveButton.addEventListener("click", () => {
+        if (!activeBookmarkButton) return;
+
+        const selectedCollections = getCurrentCollectionLabels();
+        setSavedCollections(activeBookmarkButton, selectedCollections);
+        setBookmarkIconState(activeBookmarkIcon, selectedCollections.length > 0);
+        closeBookmarkPopup();
+    });
+
+    bookmarkClearButton.addEventListener("click", () => {
+        bookmarkCollectionInputs.forEach((input) => {
+            input.checked = false;
         });
+    });
 
-        bookmarkClearButton.addEventListener("click", () => {
-            bookmarkCollectionInputs.forEach((input) => {
-                input.checked = false;
-            });
-        });
+    // =========================
+    // FILTER POPUP
+    // =========================
+    const filtersButton = document.getElementById("filtersButton");
+    const filterPopup = document.getElementById("filterPopup");
+    const filterBackdrop = document.getElementById("filterBackdrop");
+    const filterPopupTab = document.getElementById("filterPopupTab");
+    const filterApplyButton = document.querySelector(".filter-apply");
+    const filterIcons = Array.from(document.querySelectorAll(".filter-icon"));
+    const distanceInput = document.getElementById("distanceInput");
+    const priceFree = document.getElementById("priceFree");
+    const priceButtons = Array.from(document.querySelectorAll(".price-dollar"));
 
-        // =========================
-        // FILTER POPUP
-        // =========================
-        const filtersButton = document.getElementById("filtersButton");
-        const filterPopup = document.getElementById("filterPopup");
-        const filterBackdrop = document.getElementById("filterBackdrop");
-        const filterPopupTab = document.getElementById("filterPopupTab");
-        const filterApplyButton = document.querySelector(".filter-apply");
-        const filterIcons = Array.from(document.querySelectorAll(".filter-icon"));
-        const distanceInput = document.getElementById("distanceInput");
-        const priceFree = document.getElementById("priceFree");
-        const priceButtons = Array.from(document.querySelectorAll(".price-dollar"));
+    let filterCloseTimeout = null;
 
-        let filterCloseTimeout = null;
+    // Saved filter state
+    let appliedFilterIconStates = filterIcons.map((button) => button.classList.contains("filter-icon--active"));
+    let appliedDistanceValue = "";
+    let appliedPriceOption = "none";
 
-        // Saved filter state
-        let appliedFilterIconStates = filterIcons.map((button) => button.classList.contains("filter-icon--active"));
-        let appliedDistanceValue = "";
-        let appliedPriceOption = "none";
+    // Draft filter state
+    let draftFilterIconStates = [...appliedFilterIconStates];
+    let draftDistanceValue = appliedDistanceValue;
+    let draftPriceOption = appliedPriceOption;
 
-        // Draft filter state
-        let draftFilterIconStates = [...appliedFilterIconStates];
-        let draftDistanceValue = appliedDistanceValue;
-        let draftPriceOption = appliedPriceOption;
-
-        function renderFilterIcons() {
-            filterIcons.forEach((button, index) => {
-                const isActive = draftFilterIconStates[index];
-                button.classList.toggle("filter-icon--active", isActive);
-                button.setAttribute("aria-pressed", String(isActive));
-            });
-        }
-
-        function renderPriceSelection() {
-            const freeSelected = draftPriceOption === "free";
-
-            priceFree.classList.toggle("price-free--active", freeSelected);
-            priceFree.setAttribute("aria-pressed", String(freeSelected));
-
-            priceButtons.forEach((button) => {
-                const value = button.dataset.price;
-                const isActive = draftPriceOption === value;
-                button.classList.toggle("price-dollar--active", isActive);
-                button.setAttribute("aria-pressed", String(isActive));
-            });
-        }
-
-        function renderDraftFilters() {
-            renderFilterIcons();
-            distanceInput.value = draftDistanceValue;
-            renderPriceSelection();
-        }
-
-        function loadAppliedFiltersIntoDraft() {
-            draftFilterIconStates = [...appliedFilterIconStates];
-            draftDistanceValue = appliedDistanceValue;
-            draftPriceOption = appliedPriceOption;
-            renderDraftFilters();
-        }
-
-        function saveDraftFiltersAsApplied() {
-            appliedFilterIconStates = [...draftFilterIconStates];
-            appliedDistanceValue = draftDistanceValue;
-            appliedPriceOption = draftPriceOption;
-        }
-
-        function openFilterPopup() {
-            if (filterCloseTimeout) {
-                clearTimeout(filterCloseTimeout);
-                filterCloseTimeout = null;
-            }
-
-            loadAppliedFiltersIntoDraft();
-
-            filterPopup.hidden = false;
-            filterBackdrop.hidden = false;
-
-            requestAnimationFrame(() => {
-                filterPopup.classList.add("filter-popup--open");
-                filterBackdrop.classList.add("filter-popup-backdrop--open");
-            });
-
-            filterPopup.setAttribute("aria-hidden", "false");
-            filtersButton.setAttribute("aria-expanded", "true");
-        }
-
-        function closeFilterPopup() {
-            if (!filterPopup.classList.contains("filter-popup--open")) return;
-
-            filterPopup.classList.remove("filter-popup--open");
-            filterBackdrop.classList.remove("filter-popup-backdrop--open");
-            filterPopup.setAttribute("aria-hidden", "true");
-            filtersButton.setAttribute("aria-expanded", "false");
-
-            filterCloseTimeout = window.setTimeout(() => {
-                filterPopup.hidden = true;
-                filterBackdrop.hidden = true;
-                filterCloseTimeout = null;
-            }, 220);
-        }
-
-        function toggleFilterPopup() {
-            const isOpen = filterPopup.classList.contains("filter-popup--open");
-            if (isOpen) {
-                closeFilterPopup();
-            } else {
-                openFilterPopup();
-            }
-        }
-
-        filtersButton.addEventListener("click", (event) => {
-            event.stopPropagation();
-            toggleFilterPopup();
-        });
-
-        filterPopupTab.addEventListener("click", (event) => {
-            event.stopPropagation();
-            closeFilterPopup();
-        });
-
-        filterApplyButton.addEventListener("click", () => {
-            saveDraftFiltersAsApplied();
-            closeFilterPopup();
-        });
-
-        filterPopupTab.addEventListener("keydown", (event) => {
-            if (event.key === "Enter" || event.key === " ") {
-                event.preventDefault();
-                closeFilterPopup();
-            }
-        });
-
-        filterBackdrop.addEventListener("click", closeFilterPopup);
-
-        filterPopup.addEventListener("click", (event) => {
-            event.stopPropagation();
-        });
-
+    function renderFilterIcons() {
         filterIcons.forEach((button, index) => {
-            button.addEventListener("click", () => {
-                draftFilterIconStates[index] = !draftFilterIconStates[index];
-                renderFilterIcons();
-            });
+            const isActive = draftFilterIconStates[index];
+            button.classList.toggle("filter-icon--active", isActive);
+            button.setAttribute("aria-pressed", String(isActive));
         });
+    }
 
-        distanceInput.addEventListener("input", () => {
-            draftDistanceValue = distanceInput.value;
-        });
+    function renderPriceSelection() {
+        const freeSelected = draftPriceOption === "free";
 
-        priceFree.addEventListener("click", () => {
-            draftPriceOption = draftPriceOption === "free" ? "none" : "free";
-            renderPriceSelection();
-        });
+        priceFree.classList.toggle("price-free--active", freeSelected);
+        priceFree.setAttribute("aria-pressed", String(freeSelected));
 
         priceButtons.forEach((button) => {
-            button.addEventListener("click", () => {
-                const value = button.dataset.price;
-                draftPriceOption = draftPriceOption === value ? "none" : value;
-                renderPriceSelection();
-            });
+            const value = button.dataset.price;
+            const isActive = draftPriceOption === value;
+            button.classList.toggle("price-dollar--active", isActive);
+            button.setAttribute("aria-pressed", String(isActive));
+        });
+    }
+
+    function renderDraftFilters() {
+        renderFilterIcons();
+        distanceInput.value = draftDistanceValue;
+        renderPriceSelection();
+    }
+
+    function loadAppliedFiltersIntoDraft() {
+        draftFilterIconStates = [...appliedFilterIconStates];
+        draftDistanceValue = appliedDistanceValue;
+        draftPriceOption = appliedPriceOption;
+        renderDraftFilters();
+    }
+
+    function saveDraftFiltersAsApplied() {
+        appliedFilterIconStates = [...draftFilterIconStates];
+        appliedDistanceValue = draftDistanceValue;
+        appliedPriceOption = draftPriceOption;
+    }
+
+    function openFilterPopup() {
+        if (filterCloseTimeout) {
+            clearTimeout(filterCloseTimeout);
+            filterCloseTimeout = null;
+        }
+
+        loadAppliedFiltersIntoDraft();
+
+        filterPopup.hidden = false;
+        filterBackdrop.hidden = false;
+
+        requestAnimationFrame(() => {
+            filterPopup.classList.add("filter-popup--open");
+            filterBackdrop.classList.add("filter-popup-backdrop--open");
         });
 
-        renderDraftFilters();
+        filterPopup.setAttribute("aria-hidden", "false");
+        filtersButton.setAttribute("aria-expanded", "true");
+    }
 
-        // =========================
-        // ADD SPOT POPUP
-        // =========================
-        const addSpotButton = document.getElementById("addSpotButton");
-        const addSpotPopup = document.getElementById("addSpotPopup");
-        const addSpotBackdrop = document.getElementById("addSpotBackdrop");
-        const createSpotButton = document.getElementById("createSpotButton");
+    function closeFilterPopup() {
+        if (!filterPopup.classList.contains("filter-popup--open")) return;
 
-        const newSpotNameInput = document.getElementById("newSpotName");
-        const newSpotCoordinatesInput = document.getElementById("newSpotCoordinates");
-        const newSpotDescriptionInput = document.getElementById("newSpotDescription");
+        filterPopup.classList.remove("filter-popup--open");
+        filterBackdrop.classList.remove("filter-popup-backdrop--open");
+        filterPopup.setAttribute("aria-hidden", "true");
+        filtersButton.setAttribute("aria-expanded", "false");
 
-        const addSpotPriceFree = document.getElementById("addSpotPriceFree");
-        const addSpotPriceButtons = Array.from(document.querySelectorAll("[data-add-spot-price]"));
-        const addSpotTagButtons = Array.from(document.querySelectorAll(".add-spot-tag"));
+        filterCloseTimeout = window.setTimeout(() => {
+            filterPopup.hidden = true;
+            filterBackdrop.hidden = true;
+            filterCloseTimeout = null;
+        }, 220);
+    }
 
-        let addSpotCloseTimeout = null;
+    function toggleFilterPopup() {
+        const isOpen = filterPopup.classList.contains("filter-popup--open");
+        if (isOpen) {
+            closeFilterPopup();
+        } else {
+            openFilterPopup();
+        }
+    }
 
-        let addSpotDraft = {
+    filtersButton.addEventListener("click", (event) => {
+        event.stopPropagation();
+        toggleFilterPopup();
+    });
+
+    filterPopupTab.addEventListener("click", (event) => {
+        event.stopPropagation();
+        closeFilterPopup();
+    });
+
+    filterApplyButton.addEventListener("click", () => {
+        saveDraftFiltersAsApplied();
+        closeFilterPopup();
+    });
+
+    filterPopupTab.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            closeFilterPopup();
+        }
+    });
+
+    filterBackdrop.addEventListener("click", closeFilterPopup);
+
+    filterPopup.addEventListener("click", (event) => {
+        event.stopPropagation();
+    });
+
+    filterIcons.forEach((button, index) => {
+        button.addEventListener("click", () => {
+            draftFilterIconStates[index] = !draftFilterIconStates[index];
+            renderFilterIcons();
+        });
+    });
+
+    distanceInput.addEventListener("input", () => {
+        draftDistanceValue = distanceInput.value;
+    });
+
+    priceFree.addEventListener("click", () => {
+        draftPriceOption = draftPriceOption === "free" ? "none" : "free";
+        renderPriceSelection();
+    });
+
+    priceButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+            const value = button.dataset.price;
+            draftPriceOption = draftPriceOption === value ? "none" : value;
+            renderPriceSelection();
+        });
+    });
+
+    renderDraftFilters();
+
+    // =========================
+    // ADD SPOT POPUP
+    // =========================
+    const addSpotButton = document.getElementById("addSpotButton");
+    const addSpotPopup = document.getElementById("addSpotPopup");
+    const addSpotBackdrop = document.getElementById("addSpotBackdrop");
+    const createSpotButton = document.getElementById("createSpotButton");
+
+    const newSpotNameInput = document.getElementById("newSpotName");
+    const newSpotCoordinatesInput = document.getElementById("newSpotCoordinates");
+    const newSpotDescriptionInput = document.getElementById("newSpotDescription");
+
+    const addSpotPriceFree = document.getElementById("addSpotPriceFree");
+    const addSpotPriceButtons = Array.from(document.querySelectorAll("[data-add-spot-price]"));
+    const addSpotTagButtons = Array.from(document.querySelectorAll(".add-spot-tag"));
+
+    let addSpotCloseTimeout = null;
+
+    let addSpotDraft = {
+        name: "",
+        coordinates: "",
+        description: "",
+        price: "none",
+        tags: []
+    };
+
+    function renderAddSpotPrice() {
+        const freeSelected = addSpotDraft.price === "free";
+
+        addSpotPriceFree.classList.toggle("price-free--active", freeSelected);
+        addSpotPriceFree.setAttribute("aria-pressed", String(freeSelected));
+
+        addSpotPriceButtons.forEach((button) => {
+            const value = button.dataset.addSpotPrice;
+            const isActive = addSpotDraft.price === value;
+            button.classList.toggle("price-dollar--active", isActive);
+            button.setAttribute("aria-pressed", String(isActive));
+        });
+    }
+
+    function renderAddSpotTags() {
+        addSpotTagButtons.forEach((button, index) => {
+            const isActive = addSpotDraft.tags.includes(index);
+            button.classList.toggle("filter-icon--active", isActive);
+            button.setAttribute("aria-pressed", String(isActive));
+        });
+    }
+
+    function renderAddSpotDraft() {
+        newSpotNameInput.value = addSpotDraft.name;
+        newSpotCoordinatesInput.value = addSpotDraft.coordinates;
+        newSpotDescriptionInput.value = addSpotDraft.description;
+        renderAddSpotPrice();
+        renderAddSpotTags();
+    }
+
+    function readAddSpotDraftFromInputs() {
+        addSpotDraft.name = newSpotNameInput.value;
+        addSpotDraft.coordinates = newSpotCoordinatesInput.value;
+        addSpotDraft.description = newSpotDescriptionInput.value;
+    }
+
+    function resetAddSpotDraft() {
+        addSpotDraft = {
             name: "",
             coordinates: "",
             description: "",
             price: "none",
             tags: []
         };
+        renderAddSpotDraft();
+    }
 
-        function renderAddSpotPrice() {
-            const freeSelected = addSpotDraft.price === "free";
-
-            addSpotPriceFree.classList.toggle("price-free--active", freeSelected);
-            addSpotPriceFree.setAttribute("aria-pressed", String(freeSelected));
-
-            addSpotPriceButtons.forEach((button) => {
-                const value = button.dataset.addSpotPrice;
-                const isActive = addSpotDraft.price === value;
-                button.classList.toggle("price-dollar--active", isActive);
-                button.setAttribute("aria-pressed", String(isActive));
-            });
+    function openAddSpotPopup() {
+        if (addSpotCloseTimeout) {
+            clearTimeout(addSpotCloseTimeout);
+            addSpotCloseTimeout = null;
         }
 
-        function renderAddSpotTags() {
-            addSpotTagButtons.forEach((button, index) => {
-                const isActive = addSpotDraft.tags.includes(index);
-                button.classList.toggle("filter-icon--active", isActive);
-                button.setAttribute("aria-pressed", String(isActive));
-            });
+        renderAddSpotDraft();
+
+        addSpotPopup.hidden = false;
+        addSpotBackdrop.hidden = false;
+
+        requestAnimationFrame(() => {
+            addSpotPopup.classList.add("add-spot-popup--open");
+            addSpotBackdrop.classList.add("add-spot-backdrop--open");
+        });
+
+        addSpotPopup.setAttribute("aria-hidden", "false");
+    }
+
+    function closeAddSpotPopup({ clearAfterClose = false, saveBeforeClose = false } = {}) {
+        if (!addSpotPopup.classList.contains("add-spot-popup--open")) return;
+
+        if (saveBeforeClose) {
+            readAddSpotDraftFromInputs();
         }
 
-        function renderAddSpotDraft() {
-            newSpotNameInput.value = addSpotDraft.name;
-            newSpotCoordinatesInput.value = addSpotDraft.coordinates;
-            newSpotDescriptionInput.value = addSpotDraft.description;
+        addSpotPopup.classList.remove("add-spot-popup--open");
+        addSpotBackdrop.classList.remove("add-spot-backdrop--open");
+        addSpotPopup.setAttribute("aria-hidden", "true");
+
+        addSpotCloseTimeout = window.setTimeout(() => {
+            addSpotPopup.hidden = true;
+            addSpotBackdrop.hidden = true;
+            addSpotCloseTimeout = null;
+
+            if (clearAfterClose) {
+                resetAddSpotDraft();
+            }
+        }, 220);
+    }
+
+    addSpotButton.addEventListener("click", () => {
+        openAddSpotPopup();
+    });
+
+    addSpotBackdrop.addEventListener("click", () => {
+        closeAddSpotPopup({ saveBeforeClose: true });
+    });
+
+    addSpotPopup.addEventListener("click", (event) => {
+        event.stopPropagation();
+    });
+
+    createSpotButton.addEventListener("click", () => {
+        closeAddSpotPopup({ clearAfterClose: true, saveBeforeClose: false });
+    });
+
+    newSpotNameInput.addEventListener("input", () => {
+        addSpotDraft.name = newSpotNameInput.value;
+    });
+
+    newSpotCoordinatesInput.addEventListener("input", () => {
+        addSpotDraft.coordinates = newSpotCoordinatesInput.value;
+    });
+
+    newSpotDescriptionInput.addEventListener("input", () => {
+        addSpotDraft.description = newSpotDescriptionInput.value;
+    });
+
+    addSpotPriceFree.addEventListener("click", () => {
+        addSpotDraft.price = addSpotDraft.price === "free" ? "none" : "free";
+        renderAddSpotPrice();
+    });
+
+    addSpotPriceButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+            const value = button.dataset.addSpotPrice;
+            addSpotDraft.price = addSpotDraft.price === value ? "none" : value;
             renderAddSpotPrice();
+        });
+    });
+
+    addSpotTagButtons.forEach((button, index) => {
+        button.addEventListener("click", () => {
+            if (addSpotDraft.tags.includes(index)) {
+                addSpotDraft.tags = addSpotDraft.tags.filter((tagIndex) => tagIndex !== index);
+            } else {
+                addSpotDraft.tags.push(index);
+            }
             renderAddSpotTags();
-        }
-
-        function readAddSpotDraftFromInputs() {
-            addSpotDraft.name = newSpotNameInput.value;
-            addSpotDraft.coordinates = newSpotCoordinatesInput.value;
-            addSpotDraft.description = newSpotDescriptionInput.value;
-        }
-
-        function resetAddSpotDraft() {
-            addSpotDraft = {
-                name: "",
-                coordinates: "",
-                description: "",
-                price: "none",
-                tags: []
-            };
-            renderAddSpotDraft();
-        }
-
-        function openAddSpotPopup() {
-            if (addSpotCloseTimeout) {
-                clearTimeout(addSpotCloseTimeout);
-                addSpotCloseTimeout = null;
-            }
-
-            renderAddSpotDraft();
-
-            addSpotPopup.hidden = false;
-            addSpotBackdrop.hidden = false;
-
-            requestAnimationFrame(() => {
-                addSpotPopup.classList.add("add-spot-popup--open");
-                addSpotBackdrop.classList.add("add-spot-backdrop--open");
-            });
-
-            addSpotPopup.setAttribute("aria-hidden", "false");
-        }
-
-        function closeAddSpotPopup({ clearAfterClose = false, saveBeforeClose = false } = {}) {
-            if (!addSpotPopup.classList.contains("add-spot-popup--open")) return;
-
-            if (saveBeforeClose) {
-                readAddSpotDraftFromInputs();
-            }
-
-            addSpotPopup.classList.remove("add-spot-popup--open");
-            addSpotBackdrop.classList.remove("add-spot-backdrop--open");
-            addSpotPopup.setAttribute("aria-hidden", "true");
-
-            addSpotCloseTimeout = window.setTimeout(() => {
-                addSpotPopup.hidden = true;
-                addSpotBackdrop.hidden = true;
-                addSpotCloseTimeout = null;
-
-                if (clearAfterClose) {
-                    resetAddSpotDraft();
-                }
-            }, 220);
-        }
-
-        addSpotButton.addEventListener("click", () => {
-            openAddSpotPopup();
         });
+    });
 
-        addSpotBackdrop.addEventListener("click", () => {
+    // Escape key handler to close popups
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+            closeBookmarkPopup();
+            closeFilterPopup();
             closeAddSpotPopup({ saveBeforeClose: true });
-        });
-
-        addSpotPopup.addEventListener("click", (event) => {
-            event.stopPropagation();
-        });
-
-        createSpotButton.addEventListener("click", () => {
-            closeAddSpotPopup({ clearAfterClose: true, saveBeforeClose: false });
-        });
-
-        newSpotNameInput.addEventListener("input", () => {
-            addSpotDraft.name = newSpotNameInput.value;
-        });
-
-        newSpotCoordinatesInput.addEventListener("input", () => {
-            addSpotDraft.coordinates = newSpotCoordinatesInput.value;
-        });
-
-        newSpotDescriptionInput.addEventListener("input", () => {
-            addSpotDraft.description = newSpotDescriptionInput.value;
-        });
-
-        addSpotPriceFree.addEventListener("click", () => {
-            addSpotDraft.price = addSpotDraft.price === "free" ? "none" : "free";
-            renderAddSpotPrice();
-        });
-
-        addSpotPriceButtons.forEach((button) => {
-            button.addEventListener("click", () => {
-                const value = button.dataset.addSpotPrice;
-                addSpotDraft.price = addSpotDraft.price === value ? "none" : value;
-                renderAddSpotPrice();
-            });
-        });
-
-        addSpotTagButtons.forEach((button, index) => {
-            button.addEventListener("click", () => {
-                if (addSpotDraft.tags.includes(index)) {
-                    addSpotDraft.tags = addSpotDraft.tags.filter((tagIndex) => tagIndex !== index);
-                } else {
-                    addSpotDraft.tags.push(index);
-                }
-                renderAddSpotTags();
-            });
-        });
-
-        // Escape key handler to close popups
-        document.addEventListener("keydown", (event) => {
-            if (event.key === "Escape") {
-                closeBookmarkPopup();
-                closeFilterPopup();
-                closeAddSpotPopup({ saveBeforeClose: true });
-            }
-        });
-
-        document.querySelectorAll(".spot-card--clickable").forEach((card) => {
-            const image = card.querySelector(".spot-card-image--sync");
-            const name = card.querySelector(".spot-card-name--sync");
-            const rating = card.querySelector(".spot-card-rating--sync");
-            const ratingCount = card.querySelector(".spot-card-rating-count--sync");
-            const price = card.querySelector(".spot-card-price--sync");
-
-            if (image) {
-                image.src = card.dataset.spotImage || "";
-                image.alt = card.dataset.spotName || "Spot image";
-            }
-
-            if (name) {
-                name.textContent = card.dataset.spotName || "Spot";
-            }
-
-            if (rating) {
-                rating.textContent = card.dataset.spotRating || "0";
-            }
-
-            if (ratingCount) {
-                ratingCount.textContent = card.dataset.spotRatingCount || "(0)";
-            }
-
-            if (price) {
-                price.textContent = card.dataset.spotPrice || "";
-            }
-        });
-
-        // =========================
-        // SPOT DETAIL
-        // =========================
-        const spotDetailPanel = document.getElementById("spotDetailPanel");
-        const closeSpotDetailButton = document.getElementById("closeSpotDetailButton");
-        const spotDetailTitle = document.getElementById("spotDetailTitle");
-        const spotDetailImage = document.getElementById("spotDetailImage");
-        const spotDetailPrice = document.getElementById("spotDetailPrice");
-        const spotDetailRatingValue = document.getElementById("spotDetailRatingValue");
-        const spotDetailRatingCount = document.getElementById("spotDetailRatingCount");
-
-        function showPanel(panelToShow, panelToHide) {
-            panelToHide.classList.remove("right-panel--active");
-            panelToHide.classList.add("right-panel--hidden");
-
-            panelToShow.classList.remove("right-panel--hidden");
-            panelToShow.classList.add("right-panel--active");
         }
+    });
 
-        document.querySelectorAll(".spot-card--clickable").forEach((card) => {
-            card.addEventListener("click", (event) => {
-                if (
-                    event.target.closest(".spot-bookmark") ||
-                    event.target.closest(".spot-delete") ||
-                    event.target.closest(".icon-button-base")
-                ) {
-                    return;
-                }
+    // =========================
+    // SPOT DETAIL
+    // =========================
+    document.querySelectorAll(".spot-detail .review-card-like").forEach((button) => {
+        const icon = button.querySelector(".fa-thumbs-up");
 
-                spotDetailTitle.textContent = card.dataset.spotName || "Spot";
-                spotDetailImage.src = card.dataset.spotImage || "";
-                spotDetailImage.alt = card.dataset.spotName || "Spot image";
-                spotDetailPrice.textContent = card.dataset.spotPrice || "FREE";
-                spotDetailRatingValue.textContent = card.dataset.spotRating || "3.5";
-                spotDetailRatingCount.textContent = card.dataset.spotRatingCount || "(12)";
-
-                showPanel(spotDetailPanel, spotsPanel);
-            });
+        button.addEventListener("click", () => {
+            icon.classList.toggle("fa-regular");
+            icon.classList.toggle("fa-solid");
         });
+    });
 
-        closeSpotDetailButton.addEventListener("click", () => {
-            showPanel(spotsPanel, spotDetailPanel);
-        });
+    // =========================
+    // WRITE REVIEW
+    // =========================
+    const writeReviewButton = document.getElementById("writeReviewButton");
+    const spotDetailReviews = document.getElementById("spotDetailReviews");
+    const writeReviewPanel = document.getElementById("writeReviewPanel");
+    const cancelReviewButton = document.getElementById("cancelReviewButton");
+    const postReviewButton = document.getElementById("postReviewButton");
+    const writeReviewText = document.getElementById("writeReviewText");
+    const writeReviewStarButtons = Array.from(document.querySelectorAll(".write-review-star-hitbox"));
+    const writeReviewStarIcons = Array.from(document.querySelectorAll(".write-review-star-icon"));
 
-        document.querySelectorAll(".spot-detail .review-card-like").forEach((button) => {
-            const icon = button.querySelector(".fa-thumbs-up");
+    let selectedReviewRating = 0;
 
-            button.addEventListener("click", () => {
-                icon.classList.toggle("fa-regular");
-                icon.classList.toggle("fa-solid");
-            });
-        });
+    function renderWriteReviewStars(rating) {
+        writeReviewStarIcons.forEach((icon, index) => {
+            const starNumber = index + 1;
 
-        // =========================
-        // WRITE REVIEW
-        // =========================
-        const writeReviewButton = document.getElementById("writeReviewButton");
-        const spotDetailReviews = document.getElementById("spotDetailReviews");
-        const writeReviewPanel = document.getElementById("writeReviewPanel");
-        const cancelReviewButton = document.getElementById("cancelReviewButton");
-        const postReviewButton = document.getElementById("postReviewButton");
-        const writeReviewText = document.getElementById("writeReviewText");
-        const writeReviewStarButtons = Array.from(document.querySelectorAll(".write-review-star-hitbox"));
-        const writeReviewStarIcons = Array.from(document.querySelectorAll(".write-review-star-icon"));
+            icon.classList.remove("fa-regular", "fa-solid", "fa-star", "fa-star-half-stroke");
 
-        let selectedReviewRating = 0;
-
-        function renderWriteReviewStars(rating) {
-            writeReviewStarIcons.forEach((icon, index) => {
-                const starNumber = index + 1;
-
-                icon.classList.remove("fa-regular", "fa-solid", "fa-star", "fa-star-half-stroke");
-
-                if (rating >= starNumber) {
-                    icon.classList.add("fa-solid", "fa-star");
-                } else if (rating >= starNumber - 0.5) {
-                    icon.classList.add("fa-solid", "fa-star-half-stroke");
-                } else {
-                    icon.classList.add("fa-regular", "fa-star");
-                }
-            });
-        }
-
-        function openWriteReviewPanel() {
-            spotDetailReviews.hidden = true;
-            writeReviewPanel.hidden = false;
-        }
-
-        function closeWriteReviewPanel({ clearForm = false } = {}) {
-            writeReviewPanel.hidden = true;
-            spotDetailReviews.hidden = false;
-
-            if (clearForm) {
-                selectedReviewRating = 0;
-                writeReviewText.value = "";
-                renderWriteReviewStars(selectedReviewRating);
+            if (rating >= starNumber) {
+                icon.classList.add("fa-solid", "fa-star");
+            } else if (rating >= starNumber - 0.5) {
+                icon.classList.add("fa-solid", "fa-star-half-stroke");
+            } else {
+                icon.classList.add("fa-regular", "fa-star");
             }
+        });
+    }
+
+    function openWriteReviewPanel() {
+        spotDetailReviews.hidden = true;
+        writeReviewPanel.hidden = false;
+    }
+
+    function closeWriteReviewPanel({ clearForm = false } = {}) {
+        writeReviewPanel.hidden = true;
+        spotDetailReviews.hidden = false;
+
+        if (clearForm) {
+            selectedReviewRating = 0;
+            writeReviewText.value = "";
+            renderWriteReviewStars(selectedReviewRating);
         }
+    }
 
-        writeReviewButton.addEventListener("click", () => {
-            openWriteReviewPanel();
+    writeReviewButton.addEventListener("click", () => {
+        openWriteReviewPanel();
+    });
+
+    cancelReviewButton.addEventListener("click", () => {
+        closeWriteReviewPanel();
+    });
+
+    postReviewButton.addEventListener("click", () => {
+        closeWriteReviewPanel({ clearForm: true });
+    });
+
+    writeReviewStarButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+            selectedReviewRating = Number(button.dataset.rating);
+            renderWriteReviewStars(selectedReviewRating);
         });
+    });
 
-        cancelReviewButton.addEventListener("click", () => {
-            closeWriteReviewPanel();
-        });
-
-        postReviewButton.addEventListener("click", () => {
-            closeWriteReviewPanel({ clearForm: true });
-        });
-
-        writeReviewStarButtons.forEach((button) => {
-            button.addEventListener("click", () => {
-                selectedReviewRating = Number(button.dataset.rating);
-                renderWriteReviewStars(selectedReviewRating);
-            });
-        });
-
-        renderWriteReviewStars(selectedReviewRating);
-    </script>
-</body>
+    renderWriteReviewStars(selectedReviewRating);
+</script>
+{% endblock %}

@@ -1,19 +1,5 @@
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Emilys+Candy&family=IBM+Plex+Serif:wght@400&display=swap"
-    rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+{% extends "base.html" %}
 
-<h1 class="logo-text text-primary-dark">My Logo</h1>
-<h2 class="display-3">Welcome</h2>
-<p class="text">This is body text.</p>
-
-<button class="button button--secondary">Explore</button>
-<button class="button button--primary">Learn More</button>
-<button class="button button--error">Delete</button>
-
-<button class="icon-button" aria-label="Menu">
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path d="M4 7H20M4 12H20M4 17H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-    </svg>
-</button>
+{% block content %}
+<div>Test page</div>
+{% endblock %}
