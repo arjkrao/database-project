@@ -120,7 +120,7 @@
                                     </div>
                                     <div class="spot-card-bottom">
                                         <div class="spot-icons">
-                                            <button class="icon-button-base">
+                                            <button class="icon-button-base" data-tooltip="Food">
                                                 <i class="fa-solid fa-utensils"></i>
                                             </button>
                                         </div>
@@ -143,53 +143,44 @@
 
                         <div class="filter-popup__panel">
                             <div class="filter-popup__icons">
-                                <button class="filter-icon" type="button" aria-pressed="true">
+                                <button class="filter-icon" data-tooltip="Food">
                                     <i class="fa-solid fa-utensils"></i>
                                 </button>
-                                <button class="filter-icon" type="button" aria-pressed="true">
-                                    <i class="fa-solid fa-utensils"></i>
+                                <button class="filter-icon" data-tooltip="Drink">
+                                    <i class="fa-solid fa-mug-hot"></i>
                                 </button>
-                                <button class="filter-icon" type="button" aria-pressed="true">
-                                    <i class="fa-solid fa-utensils"></i>
+                                <button class="filter-icon" data-tooltip="Casual">
+                                    <i class="fa-solid fa-shirt"></i>
                                 </button>
-                                <button class="filter-icon" type="button" aria-pressed="true">
-                                    <i class="fa-solid fa-utensils"></i>
+                                <button class="filter-icon" data-tooltip="Formal">
+                                    <i class="fa-brands fa-black-tie"></i>
                                 </button>
-                                <button class="filter-icon" type="button" aria-pressed="true">
-                                    <i class="fa-solid fa-utensils"></i>
+                                <button class="filter-icon" data-tooltip="Nature">
+                                    <i class="fa-solid fa-tree"></i>
                                 </button>
-                                <button class="filter-icon" type="button" aria-pressed="true">
-                                    <i class="fa-solid fa-utensils"></i>
+                                <button class="filter-icon" data-tooltip="Sports">
+                                    <i class="fa-solid fa-football"></i>
                                 </button>
-                                <button class="filter-icon" type="button" aria-pressed="true">
-                                    <i class="fa-solid fa-utensils"></i>
+                                <button class="filter-icon" data-tooltip="Recreation">
+                                    <i class="fa-solid fa-person-running"></i>
                                 </button>
-                                <button class="filter-icon" type="button" aria-pressed="true">
-                                    <i class="fa-solid fa-utensils"></i>
+                                <button class="filter-icon" data-tooltip="Study">
+                                    <i class="fa-solid fa-book"></i>
                                 </button>
-                                <button class="filter-icon" type="button" aria-pressed="true">
-                                    <i class="fa-solid fa-utensils"></i>
+                                <button class="filter-icon" data-tooltip="Historic">
+                                    <i class="fa-solid fa-landmark"></i>
                                 </button>
-                                <button class="filter-icon" type="button" aria-pressed="true">
-                                    <i class="fa-solid fa-utensils"></i>
+                                <button class="filter-icon" data-tooltip="Religious">
+                                    <i class="fa-solid fa-person-praying"></i>
                                 </button>
-                                <button class="filter-icon" type="button" aria-pressed="true">
-                                    <i class="fa-solid fa-utensils"></i>
+                                <button class="filter-icon" data-tooltip="Sightseeing">
+                                    <i class="fa-solid fa-binoculars"></i>
                                 </button>
-                                <button class="filter-icon" type="button" aria-pressed="true">
-                                    <i class="fa-solid fa-utensils"></i>
+                                <button class="filter-icon" data-tooltip="Tourist Attraction">
+                                    <i class="fa-solid fa-camera"></i>
                                 </button>
-                                <button class="filter-icon" type="button" aria-pressed="true">
-                                    <i class="fa-solid fa-utensils"></i>
-                                </button>
-                                <button class="filter-icon" type="button" aria-pressed="true">
-                                    <i class="fa-solid fa-utensils"></i>
-                                </button>
-                                <button class="filter-icon" type="button" aria-pressed="true">
-                                    <i class="fa-solid fa-utensils"></i>
-                                </button>
-                                <button class="filter-icon" type="button" aria-pressed="true">
-                                    <i class="fa-solid fa-utensils"></i>
+                                <button class="filter-icon" data-tooltip="Other">
+                                    <i class="fa-solid fa-ellipsis"></i>
                                 </button>
                             </div>
                             <div class="filter-popup__controls">
@@ -225,11 +216,9 @@
                 </div>
             </div>
             <div class="add-spot-backdrop" id="addSpotBackdrop" hidden></div>
-
             <div class="add-spot-popup" id="addSpotPopup" hidden aria-hidden="true">
                 <div class="add-spot-popup__panel">
                     <div class="display-2 text-black add-spot-popup__title">New Spot</div>
-
                     <div class="add-spot-popup__content">
                         <div class="add-spot-popup__left">
                             <div class="add-spot-field">
@@ -247,7 +236,6 @@
                                     placeholder="Spot Description">
                             </div>
                         </div>
-
                         <div class="add-spot-popup__middle">
                             <div class="heading-3 text-black add-spot-section-title">Pricing Tier</div>
                             <div class="add-spot-price-selector" id="addSpotPriceSelector">
@@ -313,7 +301,7 @@
                         </div>
                     </div>
 
-                    <button class="button button--primary add-spot-create" id="createSpotButton" type="button">
+                    <button class="button button--secondary add-spot-create" id="createSpotButton" type="button">
                         Create Spot (Private)
                     </button>
                 </div>

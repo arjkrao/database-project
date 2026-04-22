@@ -383,6 +383,51 @@ p {
   border: var(--border-icon-hover) solid transparent;
   background: var(--color-primary-dark);
   color: var(--color-white);
+  position: relative;
+}
+
+.icon-button-base::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--color-black);
+  color: var(--color-white);
+  font-size: var(--text-small);
+  line-height: 1;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+  z-index: 100;
+}
+
+.icon-button-base::before {
+  content: "";
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px 6px 0 6px;
+  border-style: solid;
+  border-color: var(--color-black) transparent transparent transparent;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 100;
+}
+
+.icon-button-base:hover::after,
+.icon-button-base:hover::before,
+.icon-button-base:focus-visible::after,
+.icon-button-base:focus-visible::before {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
 
 .icon-button {
@@ -1299,7 +1344,7 @@ p {
   display: grid;
   grid-template-columns: 1.15fr 0.55fr 0.55fr;
   gap: 48px;
-  align-items: start;
+  align-items: stretch;
 }
 
 .add-spot-popup__middle,
@@ -1372,4 +1417,3 @@ p {
 .add-spot-create {
   align-self: center;
 }
-
