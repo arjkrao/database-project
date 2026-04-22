@@ -6,7 +6,6 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 
-
 load_dotenv()
 
 app = Flask(__name__)
@@ -129,36 +128,87 @@ def home():
             "price": "FREE",
             "rating": 3.5,
             "rating_count": 12,
-            "icons": [
-                ICON_OPTIONS["Food"],
-            ],
-        },
-        {
-            "name": "Blue Moon Diner",
-            "image": "https://cdn.corner.inc/place-photo/AfLeUgNw9h-VKpsyeTo0jouaumEZoS8u36CTseUsrOZtjYFUv1sfPLg19tx8DMT-SAc5jPsGUNDrm96OHzNb_T4XIuySyHk1MzgFotcGM4DJtIjpsTBikOgKGaEMLG8_RRpkT6x1JO5YvwSLcVVfZAVUCeoJxiO3y6oiUTvtNmBJ91y5W0RB.jpeg",
-            "price": "$$",
-            "rating": 4.5,
-            "rating_count": 24,
+            "description": "Bodos is a bagel shop with many bagels and drinks.",
             "icons": [
                 ICON_OPTIONS["Food"],
                 ICON_OPTIONS["Drink"],
                 ICON_OPTIONS["Casual"],
+            ],
+            "reviews": [
+                {
+                    "id": 1,
+                    "author": "Raheel Syed",
+                    "rating": 4.0,
+                    "body": "I'm loving it",
+                    "date": "03/10/05",
+                    "likes": 10,
+                    "liked": False,
+                },
+                {
+                    "id": 2,
+                    "author": "Rayyan Alam",
+                    "rating": 3.5,
+                    "body": "Great outdoor seating and fast service.",
+                    "date": "03/11/05",
+                    "likes": 7,
+                    "liked": True,
+                },
+            ],
+        },
+        {
+            "name": "Blue Moon Diner",
+            "image": "https://placehold.co/300x300",
+            "price": "$$",
+            "rating": 4.5,
+            "rating_count": 24,
+            "description": "Blue Moon Diner is a casual spot for comfort food and coffee.",
+            "icons": [
+                ICON_OPTIONS["Food"],
+                ICON_OPTIONS["Drink"],
+                ICON_OPTIONS["Casual"],
+                ICON_OPTIONS["Tourist Attraction"],
+            ],
+            "reviews": [
+                {
+                    "id": 3,
+                    "author": "Austin Trinh",
+                    "rating": 4.5,
+                    "body": "Amazing pancakes and really nice vibe.",
+                    "date": "04/02/05",
+                    "likes": 14,
+                    "liked": True,
+                },
+                {
+                    "id": 4,
+                    "author": "Arjun Rao",
+                    "rating": 4.0,
+                    "body": "Great brunch spot but it gets busy fast.",
+                    "date": "04/05/05",
+                    "likes": 5,
+                    "liked": False,
+                },
+                {
+                    "id": 5,
+                    "author": "Geethan Sundaram",
+                    "rating": 5.0,
+                    "body": "One of my favorite diner spots in town.",
+                    "date": "04/09/05",
+                    "likes": 9,
+                    "liked": False,
+                },
             ],
         },
     ]
 
     return render_template("home.html", spots=spots)
 
-
 @app.route("/profile")
 def profile():
     return render_template("profile.html")
 
-
 @app.route("/test")
 def test():
     return render_template("test.html")
-
 
 if __name__ == "__main__":
     app.run(debug=True)
