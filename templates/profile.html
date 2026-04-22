@@ -228,6 +228,124 @@
       };
       let collectionNames = Object.keys(collectionGridItemsByName);
       let activeCollectionName = "Hype";
+      const reviewsMarkup = `
+        <div class="reviews-grid">
+          <article class="review-card">
+            <div class="review-card-top">
+              <div class="review-card-meta">
+                <div class="review-card-title">Austin's Bagels</div>
+                <div class="review-card-date">03/10/05</div>
+                <div class="review-card-stars">★★★★☆</div>
+              </div>
+              <button class="review-card-edit" type="button" aria-label="Edit review">
+                <i class="fa-regular fa-pen-to-square"></i>
+              </button>
+            </div>
+            <p class="review-card-body">Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight.</p>
+            <div class="review-card-bottom">
+              <div class="review-card-rating">10</div>
+              <button class="review-card-delete" type="button" aria-label="Delete review">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </div>
+          </article>
+          <article class="review-card">
+            <div class="review-card-top">
+              <div class="review-card-meta">
+                <div class="review-card-title">Austin's Bagels</div>
+                <div class="review-card-date">03/10/05</div>
+                <div class="review-card-stars">★★★★☆</div>
+              </div>
+              <button class="review-card-edit" type="button" aria-label="Edit review">
+                <i class="fa-regular fa-pen-to-square"></i>
+              </button>
+            </div>
+            <p class="review-card-body">Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight.</p>
+            <div class="review-card-bottom">
+              <div class="review-card-rating">10</div>
+              <button class="review-card-delete" type="button" aria-label="Delete review">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </div>
+          </article>
+          <article class="review-card">
+            <div class="review-card-top">
+              <div class="review-card-meta">
+                <div class="review-card-title">Austin's Bagels</div>
+                <div class="review-card-date">03/10/05</div>
+                <div class="review-card-stars">★★★★☆</div>
+              </div>
+              <button class="review-card-edit" type="button" aria-label="Edit review">
+                <i class="fa-regular fa-pen-to-square"></i>
+              </button>
+            </div>
+            <p class="review-card-body">Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight.</p>
+            <div class="review-card-bottom">
+              <div class="review-card-rating">10</div>
+              <button class="review-card-delete" type="button" aria-label="Delete review">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </div>
+          </article>
+          <article class="review-card">
+            <div class="review-card-top">
+              <div class="review-card-meta">
+                <div class="review-card-title">Austin's Bagels</div>
+                <div class="review-card-date">03/10/05</div>
+                <div class="review-card-stars">★★★★☆</div>
+              </div>
+              <button class="review-card-edit" type="button" aria-label="Edit review">
+                <i class="fa-regular fa-pen-to-square"></i>
+              </button>
+            </div>
+            <p class="review-card-body">Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight.</p>
+            <div class="review-card-bottom">
+              <div class="review-card-rating">10</div>
+              <button class="review-card-delete" type="button" aria-label="Delete review">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </div>
+          </article>
+          <article class="review-card">
+            <div class="review-card-top">
+              <div class="review-card-meta">
+                <div class="review-card-title">Austin's Bagels</div>
+                <div class="review-card-date">03/10/05</div>
+                <div class="review-card-stars">★★★★☆</div>
+              </div>
+              <button class="review-card-edit" type="button" aria-label="Edit review">
+                <i class="fa-regular fa-pen-to-square"></i>
+              </button>
+            </div>
+            <p class="review-card-body">Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight.</p>
+            <div class="review-card-bottom">
+              <div class="review-card-rating">10</div>
+              <button class="review-card-delete" type="button" aria-label="Delete review">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </div>
+          </article>
+          <article class="review-card">
+            <div class="review-card-top">
+              <div class="review-card-meta">
+                <div class="review-card-title">Austin's Bagels</div>
+                <div class="review-card-date">03/10/05</div>
+                <div class="review-card-stars">★★★★☆</div>
+              </div>
+              <button class="review-card-edit" type="button" aria-label="Edit review">
+                <i class="fa-regular fa-pen-to-square"></i>
+              </button>
+            </div>
+            <p class="review-card-body">Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight.</p>
+            <div class="review-card-bottom">
+              <div class="review-card-rating">10</div>
+              <button class="review-card-delete" type="button" aria-label="Delete review">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </div>
+          </article>
+        </div>
+      `;
       const sharedGridMarkup = `
         <div class="grid">
           <div class="grid-item">
@@ -411,7 +529,7 @@
         }
 
         if (tabName === "reviews") {
-          profileContent.innerHTML = "";
+          profileContent.innerHTML = reviewsMarkup;
           return;
         }
 
