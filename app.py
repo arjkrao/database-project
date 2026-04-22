@@ -180,7 +180,7 @@ def home():
                 },
                 {
                     "id": 4,
-                    "author": "Arjun Rao",
+                    "author": "Raheel Syed",
                     "rating": 4.0,
                     "body": "Great brunch spot but it gets busy fast.",
                     "date": "04/05/05",
@@ -189,7 +189,7 @@ def home():
                 },
                 {
                     "id": 5,
-                    "author": "Geethan Sundaram",
+                    "author": "Arjun Rao",
                     "rating": 5.0,
                     "body": "One of my favorite diner spots in town.",
                     "date": "04/09/05",
@@ -200,7 +200,52 @@ def home():
         },
     ]
 
-    return render_template("home.html", spots=spots)
+    requested_spots = [
+        {
+            "id": 1,
+            "name": "Shannon Library",
+            "image": "https://library.virginia.edu/sites/default/files/2025-03/shannon-tour-landing-page.jpg",
+            "requested_by": "Rayyan Alam",
+            "coordinates": "38.0364, -78.5053",
+            "price": "FREE",
+            "icons": [
+                ICON_OPTIONS["Study"],
+                ICON_OPTIONS["Historic"],
+            ],
+        },
+        {
+            "id": 2,
+            "name": "The Lawn",
+            "image": "https://placehold.co/376x282/f2f2f0/232d4a?text=The+Lawn",
+            "requested_by": "Arjun Rao",
+            "coordinates": "38.0356, -78.5034",
+            "price": "FREE",
+            "icons": [
+                ICON_OPTIONS["Historic"],
+                ICON_OPTIONS["Sightseeing"],
+                ICON_OPTIONS["Tourist Attraction"],
+            ],
+        },
+        {
+            "id": 3,
+            "name": "Memorial Gym",
+            "image": "https://placehold.co/376x282/c7cad1/232d4a?text=Memorial+Gym",
+            "requested_by": "Austin Trinh",
+            "coordinates": "38.0392, -78.5061",
+            "price": "$",
+            "icons": [
+                ICON_OPTIONS["Sports"],
+                ICON_OPTIONS["Recreation"],
+            ],
+        },
+    ]
+
+    return render_template(
+        "home.html",
+        spots=spots,
+        requested_spots=requested_spots,
+    )
+
 
 @app.route("/profile")
 def profile():
