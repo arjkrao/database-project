@@ -33,12 +33,14 @@
                 src="https://placehold.co/384x384"
                 alt="Profile picture"
                 class="avatar-image"
+                id="avatarImage"
               />
             </div>
-            <div class="edit-icon">
+            <button class="edit-icon" id="editAvatarButton" type="button" aria-label="Choose profile picture">
               <i class="fa-solid fa-pen-to-square"></i>
-            </div>
+            </button>
           </div>
+          <input type="file" id="avatarFileInput" accept="image/*" hidden />
 
           <div class="profile-name">Raheel Syed</div>
           <div class="profile-email">email@gmail.com</div>
@@ -46,16 +48,16 @@
 
         <div class="bottom-container">
           <div class="profile-options">
-            <button class="button">Private</button>
+            <button class="button" type="button" data-tab="private">Private</button>
             <span class="profile-divider">|</span>
-            <button class="button button--medium-gray">Collections</button>
+            <button class="button button--medium-gray" type="button" data-tab="collections">Collections</button>
             <span class="profile-divider">|</span>
-            <button class="button button--medium-gray">Reviews</button>
+            <button class="button button--medium-gray" type="button" data-tab="reviews">Reviews</button>
             <span class="profile-divider">|</span>
-            <button class="button button--medium-gray">Shared</button>
+            <button class="button button--medium-gray" type="button" data-tab="shared">Shared</button>
           </div>
 
-          <div class="grid">
+          <div class="grid" id="profileGrid">
             <div class="grid-item">
               <img
                 src="https://placehold.co/300x300"
@@ -189,6 +191,178 @@
       </div>
     </main>
 
-    <script></script>
+    <script>
+      const editAvatarButton = document.getElementById("editAvatarButton");
+      const avatarFileInput = document.getElementById("avatarFileInput");
+      const avatarImage = document.getElementById("avatarImage");
+      const tabButtons = document.querySelectorAll(".profile-options .button");
+      const profileGrid = document.getElementById("profileGrid");
+      const originalGridMarkup = profileGrid.innerHTML;
+      const collectionsGridMarkup = `
+        <div class="grid-item">
+          <img
+            src="https://placehold.co/300x300/c7cad1/232d4a?text=Brunch+List"
+            alt="Brunch List"
+            class="grid-item-image"
+          />
+          <div class="grid-item-label">Brunch List</div>
+        </div>
+        <div class="grid-item">
+          <img
+            src="https://placehold.co/300x300/faddc1/e57200?text=Study+Spots"
+            alt="Study Spots"
+            class="grid-item-image"
+          />
+          <div class="grid-item-label">Study Spots</div>
+        </div>
+        <div class="grid-item">
+          <img
+            src="https://placehold.co/300x300/d9d9d9/080b12?text=Late+Night"
+            alt="Late Night"
+            class="grid-item-image"
+          />
+          <div class="grid-item-label">Late Night</div>
+        </div>
+        <div class="grid-item">
+          <img
+            src="https://placehold.co/300x300/efe4d5/574333?text=Coffee+Runs"
+            alt="Coffee Runs"
+            class="grid-item-image"
+          />
+          <div class="grid-item-label">Coffee Runs</div>
+        </div>
+        <div class="grid-item">
+          <img
+            src="https://placehold.co/300x300/e7edf6/232d4a?text=Weekend+Walks"
+            alt="Weekend Walks"
+            class="grid-item-image"
+          />
+          <div class="grid-item-label">Weekend Walks</div>
+        </div>
+        <div class="grid-item">
+          <img
+            src="https://placehold.co/300x300/f3ddd2/8f4b2b?text=Favorites"
+            alt="Favorites"
+            class="grid-item-image"
+          />
+          <div class="grid-item-label">Favorites</div>
+        </div>
+      `;
+      const sharedGridMarkup = `
+        <div class="grid-item">
+          <img
+            src="https://placehold.co/300x300/f5e7da/232d4a?text=Rayyan%27s+List"
+            alt="Rayyan's List"
+            class="grid-item-image"
+          />
+          <div class="grid-item-label">Rayyan's List</div>
+        </div>
+        <div class="grid-item">
+          <img
+            src="https://placehold.co/300x300/e6eef6/232d4a?text=Roommate+Recs"
+            alt="Roommate Recs"
+            class="grid-item-image"
+          />
+          <div class="grid-item-label">Roommate Recs</div>
+        </div>
+        <div class="grid-item">
+          <img
+            src="https://placehold.co/300x300/faddc1/7a481e?text=Food+Crawl"
+            alt="Food Crawl"
+            class="grid-item-image"
+          />
+          <div class="grid-item-label">Food Crawl</div>
+        </div>
+        <div class="grid-item">
+          <img
+            src="https://placehold.co/300x300/dfe8da/35543a?text=Outdoor+Picks"
+            alt="Outdoor Picks"
+            class="grid-item-image"
+          />
+          <div class="grid-item-label">Outdoor Picks</div>
+        </div>
+        <div class="grid-item">
+          <img
+            src="https://placehold.co/300x300/eadff0/5a3d73?text=Date+Night"
+            alt="Date Night"
+            class="grid-item-image"
+          />
+          <div class="grid-item-label">Date Night</div>
+        </div>
+        <div class="grid-item">
+          <img
+            src="https://placehold.co/300x300/f1e2d6/704d37?text=Hidden+Gems"
+            alt="Hidden Gems"
+            class="grid-item-image"
+          />
+          <div class="grid-item-label">Hidden Gems</div>
+        </div>
+      `;
+
+      function setActiveTab(activeButton) {
+        tabButtons.forEach((button) => {
+          button.classList.remove("button--medium-gray");
+
+          if (button !== activeButton) {
+            button.classList.add("button--medium-gray");
+          }
+        });
+      }
+
+      function updateGrid(tabName) {
+        if (tabName === "collections") {
+          profileGrid.innerHTML = collectionsGridMarkup;
+          profileGrid.style.gridTemplateColumns = "repeat(3, minmax(0, 1fr))";
+          return;
+        }
+
+        if (tabName === "reviews") {
+          profileGrid.innerHTML = "";
+          profileGrid.style.gridTemplateColumns = "";
+          return;
+        }
+
+        if (tabName === "shared") {
+          profileGrid.innerHTML = sharedGridMarkup;
+          profileGrid.style.gridTemplateColumns = "";
+          return;
+        }
+
+        profileGrid.innerHTML = originalGridMarkup;
+        profileGrid.style.gridTemplateColumns = "";
+      }
+
+      editAvatarButton.addEventListener("click", () => {
+        avatarFileInput.click();
+      });
+
+      avatarFileInput.addEventListener("change", (event) => {
+        const [selectedFile] = event.target.files;
+
+        if (!selectedFile) {
+          return;
+        }
+
+        const reader = new FileReader();
+
+        reader.addEventListener("load", () => {
+          avatarImage.src = reader.result;
+        });
+
+        reader.readAsDataURL(selectedFile);
+      });
+
+      tabButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          const scrollX = window.scrollX;
+          const scrollY = window.scrollY;
+
+          setActiveTab(button);
+          updateGrid(button.dataset.tab);
+
+          window.scrollTo(scrollX, scrollY);
+        });
+      });
+    </script>
   </body>
 </html>
