@@ -653,12 +653,6 @@ p {
   gap: 200px;
 }
 
-.home-line {
-  width: 75%;
-  border: 1px solid var(--color-primary-light);
-  margin: 0;
-}
-
 .home-top-container {
   display: flex;
   flex-direction: row;
@@ -912,6 +906,112 @@ p {
 .icon-delete {
   font-size: 24px;
   color: var(--color-error);
+}
+
+/* =========================================================
+   SPOT DETAILS
+   ========================================================= */
+
+.spot-card--clickable {
+  cursor: pointer;
+}
+
+.spot-detail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  height: 100%;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 8px;
+}
+
+.spot-detail::-webkit-scrollbar {
+  width: 8px;
+}
+
+.spot-detail::-webkit-scrollbar-thumb {
+  background: var(--color-medium-gray);
+  border-radius: 999px;
+}
+
+.spot-detail-close {
+  align-self: flex-end;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--color-error);
+  font-size: 32px;
+  line-height: 1;
+}
+
+.spot-detail-image {
+  width: 100%;
+  max-width: 399px;
+  height: 323px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.spot-detail-title {
+  text-align: center;
+}
+
+.spot-detail-meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.review-card-meta{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.icon-review-profile {
+  font-size: 32px;
+}
+
+.spot-detail-description {
+  width: 100%;
+}
+
+.spot-detail-review-button {
+  align-self: center;
+}
+
+.spot-detail-reviews {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.spot-detail-reviews::-webkit-scrollbar {
+  width: 8px;
+}
+
+.spot-detail-reviews::-webkit-scrollbar-thumb {
+  background: var(--color-medium-gray);
+  border-radius: 999px;
+}
+
+.spot-detail-review-card {
+  background: var(--color-medium-gray);
+}
+
+#spotDetailPanel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
 }
 
 /* =========================================================
