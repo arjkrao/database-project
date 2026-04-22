@@ -1,7 +1,7 @@
 import os
 
 from dotenv import load_dotenv
-from flask import Flask, render_template
+from flask import Flask, render_template, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
@@ -63,6 +63,16 @@ def index():
     else:
         connected, message = test_db_connection()
     return render_template("index.html", connected=connected, message=message)
+
+
+@app.route("/profile")
+def profile():
+    return render_template("profile.html")
+
+
+@app.route("/style.css")
+def stylesheet():
+    return send_from_directory("templates", "style.css")
 
 
 if __name__ == "__main__":
