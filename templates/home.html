@@ -98,7 +98,7 @@
                                 <img class="spot-card-image spot-card-image--sync" alt="Spot image">
                                 <div class="spot-info">
                                     <div class="spot-card-top">
-                                        <div class="text-body spot-card-name--sync"></div>
+                                        <div class="text spot-card-name--sync"></div>
                                         <button class="spot-bookmark" type="button" aria-label="Toggle bookmark">
                                             <i class="fa-regular fa-bookmark icon-bookmark"></i>
                                         </button>
@@ -254,40 +254,87 @@
                             Bodos is a bagel shop with many bagels and drinks. Bodos is a bagel shop with many bagels
                             and drinks.
                         </div>
-                        <button class="button button--primary spot-detail-review-button" type="button">
+                        <button class="button button--primary spot-detail-review-button" id="writeReviewButton"
+                            type="button">
                             Write A Review <i class="fa-solid fa-pen"></i>
                         </button>
-                        <div class="spot-detail-reviews">
-                            <article class="review-card spot-detail-review-card">
-                                <div class="review-card-top">
-                                    <div class="review-card-meta">
-                                        <i class="fa-solid fa-circle-user icon-review-profile"></i>
-                                        <div class="heading-4 text-black">Raheel Syed</div>
-                                    </div>
-                                    <div class="review-card-interactions">
-                                        <div class="spot-stars">
-                                            <i class="fa-solid fa-star icon-star"></i>
-                                            <i class="fa-solid fa-star icon-star"></i>
-                                            <i class="fa-solid fa-star icon-star"></i>
-                                            <i class="fa-solid fa-star icon-star"></i>
-                                            <i class="fa-regular fa-star icon-star"></i>
+
+                        <div class="spot-detail-content-swap">
+                            <div class="spot-detail-reviews" id="spotDetailReviews">
+                                <article class="review-card spot-detail-review-card">
+                                    <div class="review-card-top">
+                                        <div class="review-card-meta">
+                                            <i class="fa-solid fa-circle-user icon-review-profile"></i>
+                                            <div class="heading-4 text-black">Raheel Syed</div>
                                         </div>
-                                        <button class="review-card-delete" type="button" aria-label="Delete review">
-                                            <i class="fa-solid fa-trash"></i>
-                                        </button>
+                                        <div class="review-card-interactions">
+                                            <div class="spot-stars">
+                                                <i class="fa-solid fa-star icon-star"></i>
+                                                <i class="fa-solid fa-star icon-star"></i>
+                                                <i class="fa-solid fa-star icon-star"></i>
+                                                <i class="fa-solid fa-star icon-star"></i>
+                                                <i class="fa-regular fa-star icon-star"></i>
+                                            </div>
+                                            <button class="review-card-delete" type="button" aria-label="Delete review">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <p class="text text-black">I'm loving it</p>
+                                    <div class="review-card-bottom">
+                                        <div class="small text-gray">03/10/05</div>
+                                        <div class="review-card-interactions">
+                                            <div class="text text-secondary-dark">10</div>
+                                            <button class="review-card-like" type="button" aria-label="Like review">
+                                                <i class="fa-regular fa-thumbs-up"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </article>
+                            </div>
+
+                            <div class="write-review-panel" id="writeReviewPanel" hidden>
+                                <div class="write-review-rating-row">
+                                    <div class="write-review-stars" id="writeReviewStars" aria-label="Select rating">
+                                        <button class="write-review-star-hitbox" type="button" data-rating="0.5"
+                                            aria-label="0.5 stars"></button>
+                                        <button class="write-review-star-hitbox" type="button" data-rating="1"
+                                            aria-label="1 star"></button>
+                                        <button class="write-review-star-hitbox" type="button" data-rating="1.5"
+                                            aria-label="1.5 stars"></button>
+                                        <button class="write-review-star-hitbox" type="button" data-rating="2"
+                                            aria-label="2 stars"></button>
+                                        <button class="write-review-star-hitbox" type="button" data-rating="2.5"
+                                            aria-label="2.5 stars"></button>
+                                        <button class="write-review-star-hitbox" type="button" data-rating="3"
+                                            aria-label="3 stars"></button>
+                                        <button class="write-review-star-hitbox" type="button" data-rating="3.5"
+                                            aria-label="3.5 stars"></button>
+                                        <button class="write-review-star-hitbox" type="button" data-rating="4"
+                                            aria-label="4 stars"></button>
+                                        <button class="write-review-star-hitbox" type="button" data-rating="4.5"
+                                            aria-label="4.5 stars"></button>
+                                        <button class="write-review-star-hitbox" type="button" data-rating="5"
+                                            aria-label="5 stars"></button>
+                                        <div class="write-review-stars-visual" id="writeReviewStarsVisual"
+                                            aria-hidden="true">
+                                            <i class="fa-regular fa-star write-review-star-icon"></i>
+                                            <i class="fa-regular fa-star write-review-star-icon"></i>
+                                            <i class="fa-regular fa-star write-review-star-icon"></i>
+                                            <i class="fa-regular fa-star write-review-star-icon"></i>
+                                            <i class="fa-regular fa-star write-review-star-icon"></i>
+                                        </div>
                                     </div>
                                 </div>
-                                <p class="text text-black">I'm loving it</p>
-                                <div class="review-card-bottom">
-                                    <div class="small text-gray">03/10/05</div>
-                                    <div class="review-card-interactions">
-                                        <div class="text text-secondary-dark">10</div>
-                                        <button class="review-card-like" type="button" aria-label="Like review">
-                                            <i class="fa-regular fa-thumbs-up"></i>
-                                        </button>
-                                    </div>
+                                <input class="write-review-text text" id="writeReviewText" type="text"
+                                    placeholder="This spot is...">
+                                <div class="write-review-actions">
+                                    <button class="button button--primary" id="postReviewButton"
+                                        type="button">Post</button>
+                                    <button class="button button--error" id="cancelReviewButton"
+                                        type="button">Cancel</button>
                                 </div>
-                            </article>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -546,7 +593,7 @@
                 event.stopPropagation();
 
                 const spotCard = button.closest(".spot-card");
-                const spotNameElement = spotCard.querySelector(".text-body");
+                const spotNameElement = spotCard.querySelector(".text");
                 const spotName = spotNameElement ? spotNameElement.textContent.trim() : "Spot";
 
                 openBookmarkPopup(spotName, button, icon);
@@ -994,5 +1041,72 @@
                 icon.classList.toggle("fa-solid");
             });
         });
+
+        // =========================
+        // WRITE REVIEW
+        // =========================
+        const writeReviewButton = document.getElementById("writeReviewButton");
+        const spotDetailReviews = document.getElementById("spotDetailReviews");
+        const writeReviewPanel = document.getElementById("writeReviewPanel");
+        const cancelReviewButton = document.getElementById("cancelReviewButton");
+        const postReviewButton = document.getElementById("postReviewButton");
+        const writeReviewText = document.getElementById("writeReviewText");
+        const writeReviewStarButtons = Array.from(document.querySelectorAll(".write-review-star-hitbox"));
+        const writeReviewStarIcons = Array.from(document.querySelectorAll(".write-review-star-icon"));
+
+        let selectedReviewRating = 0;
+
+        function renderWriteReviewStars(rating) {
+            writeReviewStarIcons.forEach((icon, index) => {
+                const starNumber = index + 1;
+
+                icon.classList.remove("fa-regular", "fa-solid", "fa-star", "fa-star-half-stroke");
+
+                if (rating >= starNumber) {
+                    icon.classList.add("fa-solid", "fa-star");
+                } else if (rating >= starNumber - 0.5) {
+                    icon.classList.add("fa-solid", "fa-star-half-stroke");
+                } else {
+                    icon.classList.add("fa-regular", "fa-star");
+                }
+            });
+        }
+
+        function openWriteReviewPanel() {
+            spotDetailReviews.hidden = true;
+            writeReviewPanel.hidden = false;
+        }
+
+        function closeWriteReviewPanel({ clearForm = false } = {}) {
+            writeReviewPanel.hidden = true;
+            spotDetailReviews.hidden = false;
+
+            if (clearForm) {
+                selectedReviewRating = 0;
+                writeReviewText.value = "";
+                renderWriteReviewStars(selectedReviewRating);
+            }
+        }
+
+        writeReviewButton.addEventListener("click", () => {
+            openWriteReviewPanel();
+        });
+
+        cancelReviewButton.addEventListener("click", () => {
+            closeWriteReviewPanel();
+        });
+
+        postReviewButton.addEventListener("click", () => {
+            closeWriteReviewPanel({ clearForm: true });
+        });
+
+        writeReviewStarButtons.forEach((button) => {
+            button.addEventListener("click", () => {
+                selectedReviewRating = Number(button.dataset.rating);
+                renderWriteReviewStars(selectedReviewRating);
+            });
+        });
+
+        renderWriteReviewStars(selectedReviewRating);
     </script>
 </body>
