@@ -1,577 +1,254 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Emilys+Candy&family=IBM+Plex+Serif:wght@400&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
-    />
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
+
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Emilys+Candy&family=IBM+Plex+Serif:wght@400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
     <header class="header">
-      <div class="header-inner">
-        <div class="logo-group">
-          <div class="logo-text">Third</div>
-          <div class="logo-text">Spots</div>
+        <div class="header-inner">
+            <div class="logo-group">
+                <div class="logo-text">Third</div>
+                <div class="logo-text">Spots</div>
+            </div>
+            <i class="fa-solid fa-circle-user icon-profile"></i>
         </div>
-        <i class="fa-solid fa-circle-user icon-profile"></i>
-      </div>
     </header>
 
-    <main class="profile-page">
-      <div class="profile-card">
-        <div class="profile-header">
-          <div class="person-circle">
-            <div class="person-inner">
-              <img
-                src="https://placehold.co/384x384"
-                alt="Profile picture"
-                class="avatar-image"
-                id="avatarImage"
-              />
+    <div class="profile-page">
+        <div class="profile-card">
+            <div class="profile-header">
+                <div class="person-circle">
+                    <div class="person-inner">
+                        <img src="https://placehold.co/384x384" alt="Profile picture" class="avatar-image"
+                            id="avatarImage">
+                    </div>
+                    <button class="edit-icon" id="editAvatarButton" type="button" aria-label="Choose profile picture">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                </div>
+
+                <input type="file" id="avatarFileInput" accept="image/*" hidden>
+
+                <div class="profile-name heading-1 text-black">Raheel Syed</div>
+                <div class="profile-email small text-gray">email@gmail.com</div>
             </div>
-            <button class="edit-icon" id="editAvatarButton" type="button" aria-label="Choose profile picture">
-              <i class="fa-solid fa-pen-to-square"></i>
-            </button>
-          </div>
-          <input type="file" id="avatarFileInput" accept="image/*" hidden />
 
-          <div class="profile-name">Raheel Syed</div>
-          <div class="profile-email">email@gmail.com</div>
-        </div>
+            <div class="bottom-container">
+                <div class="profile-options">
+                    <button class="button" type="button" data-tab="private">Private</button>
+                    <span class="profile-divider text-black text">|</span>
+                    <button class="button button--medium-gray" type="button" data-tab="collections">Collections</button>
+                    <span class="profile-divider text-black text">|</span>
+                    <button class="button button--medium-gray" type="button" data-tab="reviews">Reviews</button>
+                    <span class="profile-divider text-black text">|</span>
+                    <button class="button button--medium-gray" type="button" data-tab="shared">Shared</button>
+                </div>
 
-        <div class="bottom-container">
-          <div class="profile-options">
-            <button class="button" type="button" data-tab="private">Private</button>
-            <span class="profile-divider">|</span>
-            <button class="button button--medium-gray" type="button" data-tab="collections">Collections</button>
-            <span class="profile-divider">|</span>
-            <button class="button button--medium-gray" type="button" data-tab="reviews">Reviews</button>
-            <span class="profile-divider">|</span>
-            <button class="button button--medium-gray" type="button" data-tab="shared">Shared</button>
-          </div>
+                <div id="profileContent">
+                    <div class="profile-tab-content profile-tab-content--active" data-content="private">
+                        <div class="grid">
+                            <div class="grid-item">
+                                <img src="https://placehold.co/300x300" alt="Austin's Bagels" class="grid-item-image">
+                                <div class="grid-item-label text text-black" style="text-align: center; font-weight: 700;">Austin's Bagels</div>
+                            </div>
+                        </div>
+                    </div>
 
-          <div id="profileContent">
-            <div class="grid">
-              <div class="grid-item">
-                <img
-                  src="https://placehold.co/300x300"
-                  alt="Austin's Bagels"
-                  class="grid-item-image"
-                />
-                <div class="grid-item-label">Austin's Bagels</div>
-              </div>
-              <div class="grid-item">
-                <img
-                  src="https://placehold.co/300x300"
-                  alt="Austin's Bagels"
-                  class="grid-item-image"
-                />
-                <div class="grid-item-label">Austin's Bagels</div>
-              </div>
-              <div class="grid-item">
-                <img
-                  src="https://placehold.co/300x300"
-                  alt="Austin's Bagels"
-                  class="grid-item-image"
-                />
-                <div class="grid-item-label">Austin's Bagels</div>
-              </div>
-              <div class="grid-item">
-                <img
-                  src="https://placehold.co/300x300"
-                  alt="Austin's Bagels"
-                  class="grid-item-image"
-                />
-                <div class="grid-item-label">Austin's Bagels</div>
-              </div>
-              <div class="grid-item">
-                <img
-                  src="https://placehold.co/300x300"
-                  alt="Austin's Bagels"
-                  class="grid-item-image"
-                />
-                <div class="grid-item-label">Austin's Bagels</div>
-              </div>
-              <div class="grid-item">
-                <img
-                  src="https://placehold.co/300x300"
-                  alt="Austin's Bagels"
-                  class="grid-item-image"
-                />
-                <div class="grid-item-label">Austin's Bagels</div>
-              </div>
-              <div class="grid-item">
-                <img
-                  src="https://placehold.co/300x300"
-                  alt="Austin's Bagels"
-                  class="grid-item-image"
-                />
-                <div class="grid-item-label">Austin's Bagels</div>
-              </div>
-              <div class="grid-item">
-                <img
-                  src="https://placehold.co/300x300"
-                  alt="Austin's Bagels"
-                  class="grid-item-image"
-                />
-                <div class="grid-item-label">Austin's Bagels</div>
-              </div>
-              <div class="grid-item">
-                <img
-                  src="https://placehold.co/300x300"
-                  alt="Austin's Bagels"
-                  class="grid-item-image"
-                />
-                <div class="grid-item-label">Austin's Bagels</div>
-              </div>
-              <div class="grid-item">
-                <img
-                  src="https://placehold.co/300x300"
-                  alt="Austin's Bagels"
-                  class="grid-item-image"
-                />
-                <div class="grid-item-label">Austin's Bagels</div>
-              </div>
-              <div class="grid-item">
-                <img
-                  src="https://placehold.co/300x300"
-                  alt="Austin's Bagels"
-                  class="grid-item-image"
-                />
-                <div class="grid-item-label">Austin's Bagels</div>
-              </div>
-              <div class="grid-item">
-                <img
-                  src="https://placehold.co/300x300"
-                  alt="Austin's Bagels"
-                  class="grid-item-image"
-                />
-                <div class="grid-item-label">Austin's Bagels</div>
-              </div>
-              <div class="grid-item">
-                <img
-                  src="https://placehold.co/300x300"
-                  alt="Austin's Bagels"
-                  class="grid-item-image"
-                />
-                <div class="grid-item-label">Austin's Bagels</div>
-              </div>
-              <div class="grid-item">
-                <img
-                  src="https://placehold.co/300x300"
-                  alt="Austin's Bagels"
-                  class="grid-item-image"
-                />
-                <div class="grid-item-label">Austin's Bagels</div>
-              </div>
-              <div class="grid-item">
-                <img
-                  src="https://placehold.co/300x300"
-                  alt="Austin's Bagels"
-                  class="grid-item-image"
-                />
-                <div class="grid-item-label">Austin's Bagels</div>
-              </div>
-              <div class="grid-item">
-                <img
-                  src="https://placehold.co/300x300"
-                  alt="Austin's Bagels"
-                  class="grid-item-image"
-                />
-                <div class="grid-item-label">Austin's Bagels</div>
-              </div>
+                    <div class="profile-tab-content" data-content="collections" hidden>
+                        <div class="collections-layout">
+                            <aside class="collections-sidebar">
+                                <div class="collections-sidebar-group">
+                                    <div class="collections-sidebar-title heading-1 text-black">Collection Name</div>
+                                    <div class="collections-sidebar-list">
+                                        <button class="collection-option collection-option--active text-black"
+                                            type="button" data-collection-name="Hype">
+                                            <span class="collection-option-dot"></span>
+                                            <span class="heading-4">Hype</span>
+                                        </button>
+                                        <button class="collection-option collection-option text-black"
+                                            type="button" data-collection-name="Hype">
+                                            <span class="collection-option-dot"></span>
+                                            <span class="heading-4">Hype</span>
+                                        </button>
+                                        <div class="collection-create-row">
+                                            <input class="collection-create-input text-black text"
+                                                id="newCollectionInput" type="text" placeholder="New Collection">
+                                            <button class="button button--primary collection-create-button"
+                                                id="createCollectionButton" type="button"
+                                                aria-label="Create collection">
+                                                <i class="fa-solid fa-plus"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </aside>
+                            <div class="grid grid--collections">
+                                <div class="grid-item">
+                                    <img src="https://placehold.co/300x300/f2f2f0/232d4a?text=Hype"
+                                        alt="Hype Collection" class="grid-item-image">
+                                    <div class="grid-item-label text text-black" style="text-align: center; font-weight: 700;">Hype Collection</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="profile-tab-content" data-content="reviews" hidden>
+                        <div class="reviews-grid">
+                            <article class="review-card">
+                                <div class="review-card-top">
+                                    <div class="review-card-title heading-4 text-primary-dark">Austin's Bagels</div>
+                                    <div class="review-card-date small text-gray">03/10/05</div>
+                                    <div class="spot-stars">
+                                        <i class="fa-solid fa-star icon-star"></i>
+                                        <i class="fa-solid fa-star icon-star"></i>
+                                        <i class="fa-solid fa-star icon-star"></i>
+                                        <i class="fa-solid fa-star icon-star"></i>
+                                        <i class="fa-regular fa-star icon-star"></i>
+                                    </div>
+                                    <button class="review-card-edit" type="button" aria-label="Edit review">
+                                        <i class="fa-regular fa-pen-to-square"></i>
+                                    </button>
+                                </div>
+                                <p class="review-card-body text text-black">
+                                    Its ight. Its ight. Its ight. Its ight. Its ight.
+                                </p>
+                                <div class="review-card-bottom">
+                                    <div class="review-card-interactions">
+                                        <div class="review-card-rating text text-secondary-dark">10</div>
+                                        <button class="review-card-like" type="button" aria-label="Like review">
+                                            <i class="fa-regular fa-thumbs-up"></i>
+                                        </button>
+                                    </div>
+                                    <button class="review-card-delete" type="button" aria-label="Delete review">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
+                            </article>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
+
+            <div class="profile-tab-content" data-content="shared" hidden>
+                <div class="grid">
+                    <div class="grid-item">
+                        <img src="https://placehold.co/300x300/f5e7da/232d4a?text=Shared+List" alt="Shared List"
+                            class="grid-item-image">
+                        <div class="grid-item-label text text-black" style="text-align: center; font-weight: 700;">Shared List</div>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-    </main>
+    </div>
 
     <script>
-      const editAvatarButton = document.getElementById("editAvatarButton");
-      const avatarFileInput = document.getElementById("avatarFileInput");
-      const avatarImage = document.getElementById("avatarImage");
-      const tabButtons = document.querySelectorAll(".profile-options .button");
-      const profileContent = document.getElementById("profileContent");
-      const originalContentMarkup = profileContent.innerHTML;
-      const collectionGridItemsByName = {
-        Hype: [
-          ["Austin's Bagels", "https://placehold.co/300x300/c7cad1/232d4a?text=Austin%27s+Bagels"],
-          ["Bluebird Cafe", "https://placehold.co/300x300/faddc1/e57200?text=Bluebird+Cafe"],
-          ["Moon Market", "https://placehold.co/300x300/d9d9d9/080b12?text=Moon+Market"],
-          ["Corner Slice", "https://placehold.co/300x300/efe4d5/574333?text=Corner+Slice"],
-          ["North Noodles", "https://placehold.co/300x300/e7edf6/232d4a?text=North+Noodles"],
-          ["Sunset Sweets", "https://placehold.co/300x300/f3ddd2/8f4b2b?text=Sunset+Sweets"],
-        ],
-        Yummers: [
-          ["Pasta Place", "https://placehold.co/300x300/f6dfcf/8a5330?text=Pasta+Place"],
-          ["Dumpling Den", "https://placehold.co/300x300/e8efe3/35543a?text=Dumpling+Den"],
-          ["Cafe Bloom", "https://placehold.co/300x300/e7edf6/31425f?text=Cafe+Bloom"],
-          ["Bagel Bar", "https://placehold.co/300x300/f8e4bf/8a5b13?text=Bagel+Bar"],
-          ["Daily Bites", "https://placehold.co/300x300/e7dfe9/5a3d73?text=Daily+Bites"],
-          ["Sweet Corner", "https://placehold.co/300x300/f3ddd2/8f4b2b?text=Sweet+Corner"],
-        ],
-        Chill: [
-          ["Quiet Cafe", "https://placehold.co/300x300/ece6da/574333?text=Quiet+Cafe"],
-          ["Park Bench", "https://placehold.co/300x300/dfe8da/35543a?text=Park+Bench"],
-          ["Book Nook", "https://placehold.co/300x300/e6eef6/232d4a?text=Book+Nook"],
-          ["Tea House", "https://placehold.co/300x300/f5e7da/704d37?text=Tea+House"],
-          ["Slow Mornings", "https://placehold.co/300x300/e9e1f0/5a3d73?text=Slow+Mornings"],
-          ["Courtyard", "https://placehold.co/300x300/e6ddd0/5f4939?text=Courtyard"],
-        ],
-      };
-      let collectionNames = Object.keys(collectionGridItemsByName);
-      let activeCollectionName = "Hype";
-      const reviewsMarkup = `
-        <div class="reviews-grid">
-          <article class="review-card">
-            <div class="review-card-top">
-              <div class="review-card-meta">
-                <div class="review-card-title">Austin's Bagels</div>
-                <div class="review-card-date">03/10/05</div>
-                <div class="review-card-stars">★★★★☆</div>
-              </div>
-              <button class="review-card-edit" type="button" aria-label="Edit review">
-                <i class="fa-regular fa-pen-to-square"></i>
-              </button>
-            </div>
-            <p class="review-card-body">Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight.</p>
-            <div class="review-card-bottom">
-              <div class="review-card-rating">10</div>
-              <button class="review-card-delete" type="button" aria-label="Delete review">
-                <i class="fa-solid fa-trash-can"></i>
-              </button>
-            </div>
-          </article>
-          <article class="review-card">
-            <div class="review-card-top">
-              <div class="review-card-meta">
-                <div class="review-card-title">Austin's Bagels</div>
-                <div class="review-card-date">03/10/05</div>
-                <div class="review-card-stars">★★★★☆</div>
-              </div>
-              <button class="review-card-edit" type="button" aria-label="Edit review">
-                <i class="fa-regular fa-pen-to-square"></i>
-              </button>
-            </div>
-            <p class="review-card-body">Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight.</p>
-            <div class="review-card-bottom">
-              <div class="review-card-rating">10</div>
-              <button class="review-card-delete" type="button" aria-label="Delete review">
-                <i class="fa-solid fa-trash-can"></i>
-              </button>
-            </div>
-          </article>
-          <article class="review-card">
-            <div class="review-card-top">
-              <div class="review-card-meta">
-                <div class="review-card-title">Austin's Bagels</div>
-                <div class="review-card-date">03/10/05</div>
-                <div class="review-card-stars">★★★★☆</div>
-              </div>
-              <button class="review-card-edit" type="button" aria-label="Edit review">
-                <i class="fa-regular fa-pen-to-square"></i>
-              </button>
-            </div>
-            <p class="review-card-body">Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight.</p>
-            <div class="review-card-bottom">
-              <div class="review-card-rating">10</div>
-              <button class="review-card-delete" type="button" aria-label="Delete review">
-                <i class="fa-solid fa-trash-can"></i>
-              </button>
-            </div>
-          </article>
-          <article class="review-card">
-            <div class="review-card-top">
-              <div class="review-card-meta">
-                <div class="review-card-title">Austin's Bagels</div>
-                <div class="review-card-date">03/10/05</div>
-                <div class="review-card-stars">★★★★☆</div>
-              </div>
-              <button class="review-card-edit" type="button" aria-label="Edit review">
-                <i class="fa-regular fa-pen-to-square"></i>
-              </button>
-            </div>
-            <p class="review-card-body">Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight.</p>
-            <div class="review-card-bottom">
-              <div class="review-card-rating">10</div>
-              <button class="review-card-delete" type="button" aria-label="Delete review">
-                <i class="fa-solid fa-trash-can"></i>
-              </button>
-            </div>
-          </article>
-          <article class="review-card">
-            <div class="review-card-top">
-              <div class="review-card-meta">
-                <div class="review-card-title">Austin's Bagels</div>
-                <div class="review-card-date">03/10/05</div>
-                <div class="review-card-stars">★★★★☆</div>
-              </div>
-              <button class="review-card-edit" type="button" aria-label="Edit review">
-                <i class="fa-regular fa-pen-to-square"></i>
-              </button>
-            </div>
-            <p class="review-card-body">Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight.</p>
-            <div class="review-card-bottom">
-              <div class="review-card-rating">10</div>
-              <button class="review-card-delete" type="button" aria-label="Delete review">
-                <i class="fa-solid fa-trash-can"></i>
-              </button>
-            </div>
-          </article>
-          <article class="review-card">
-            <div class="review-card-top">
-              <div class="review-card-meta">
-                <div class="review-card-title">Austin's Bagels</div>
-                <div class="review-card-date">03/10/05</div>
-                <div class="review-card-stars">★★★★☆</div>
-              </div>
-              <button class="review-card-edit" type="button" aria-label="Edit review">
-                <i class="fa-regular fa-pen-to-square"></i>
-              </button>
-            </div>
-            <p class="review-card-body">Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight. Its ight.</p>
-            <div class="review-card-bottom">
-              <div class="review-card-rating">10</div>
-              <button class="review-card-delete" type="button" aria-label="Delete review">
-                <i class="fa-solid fa-trash-can"></i>
-              </button>
-            </div>
-          </article>
-        </div>
-      `;
-      const sharedGridMarkup = `
-        <div class="grid">
-          <div class="grid-item">
-            <img
-              src="https://placehold.co/300x300/f5e7da/232d4a?text=Rayyan%27s+List"
-              alt="Rayyan's List"
-              class="grid-item-image"
-            />
-            <div class="grid-item-label">Rayyan's List</div>
-          </div>
-          <div class="grid-item">
-            <img
-              src="https://placehold.co/300x300/e6eef6/232d4a?text=Roommate+Recs"
-              alt="Roommate Recs"
-              class="grid-item-image"
-            />
-            <div class="grid-item-label">Roommate Recs</div>
-          </div>
-          <div class="grid-item">
-            <img
-              src="https://placehold.co/300x300/faddc1/7a481e?text=Food+Crawl"
-              alt="Food Crawl"
-              class="grid-item-image"
-            />
-            <div class="grid-item-label">Food Crawl</div>
-          </div>
-          <div class="grid-item">
-            <img
-              src="https://placehold.co/300x300/dfe8da/35543a?text=Outdoor+Picks"
-              alt="Outdoor Picks"
-              class="grid-item-image"
-            />
-            <div class="grid-item-label">Outdoor Picks</div>
-          </div>
-          <div class="grid-item">
-            <img
-              src="https://placehold.co/300x300/eadff0/5a3d73?text=Date+Night"
-              alt="Date Night"
-              class="grid-item-image"
-            />
-            <div class="grid-item-label">Date Night</div>
-          </div>
-          <div class="grid-item">
-            <img
-              src="https://placehold.co/300x300/f1e2d6/704d37?text=Hidden+Gems"
-              alt="Hidden Gems"
-              class="grid-item-image"
-            />
-            <div class="grid-item-label">Hidden Gems</div>
-          </div>
-        </div>
-      `;
-
-      function buildCollectionGridMarkup(collectionName) {
-        const items = collectionGridItemsByName[collectionName] || [];
-
-        return items
-          .map(
-            ([label, imageUrl]) => `
-              <div class="grid-item">
-                <img
-                  src="${imageUrl}"
-                  alt="${label}"
-                  class="grid-item-image"
-                />
-                <div class="grid-item-label">${label}</div>
-              </div>
-            `
-          )
-          .join("");
-      }
-
-      function buildCollectionsMarkup() {
-        const collectionButtonsMarkup = collectionNames
-          .map(
-            (name) => `
-              <button
-                class="collection-option ${name === activeCollectionName ? "collection-option--active" : ""}"
-                type="button"
-                data-collection-name="${name}"
-              >
-                <span class="collection-option-dot"></span>
-                <span>${name}</span>
-              </button>
-            `
-          )
-          .join("");
-
-        return `
-          <div class="collections-layout">
-            <aside class="collections-sidebar">
-              <div class="collections-sidebar-group">
-                <h2 class="collections-sidebar-title">Collection Name</h2>
-                <div class="collections-sidebar-list">
-                  ${collectionButtonsMarkup}
-                  <div class="collection-create-row">
-                    <input
-                      class="collection-create-input"
-                      id="newCollectionInput"
-                      type="text"
-                      placeholder="New Collection"
-                    />
-                    <button class="collection-create-button" id="createCollectionButton" type="button" aria-label="Create collection">
-                      <i class="fa-solid fa-plus"></i>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </aside>
-            <div class="grid grid--collections">
-              ${buildCollectionGridMarkup(activeCollectionName)}
-            </div>
-          </div>
-        `;
-      }
-
-      function renderCollectionsView() {
-        profileContent.innerHTML = buildCollectionsMarkup();
-      }
-
-      function attachCollectionsHandlers() {
+        const editAvatarButton = document.getElementById("editAvatarButton");
+        const avatarFileInput = document.getElementById("avatarFileInput");
+        const avatarImage = document.getElementById("avatarImage");
+        const tabButtons = document.querySelectorAll(".profile-options .button");
+        const tabContents = document.querySelectorAll(".profile-tab-content");
         const createCollectionButton = document.getElementById("createCollectionButton");
         const newCollectionInput = document.getElementById("newCollectionInput");
+        const collectionOptions = document.querySelectorAll(".collection-option");
+        const reviewLikeButtons = document.querySelectorAll(".review-card-like");
 
-        profileContent.querySelectorAll(".collection-option").forEach((button) => {
-          button.addEventListener("click", () => {
-            activeCollectionName = button.dataset.collectionName;
-            renderCollectionsView();
-            attachCollectionsHandlers();
-          });
-        });
+        function setActiveTab(activeButton) {
+            tabButtons.forEach((button) => {
+                button.classList.remove("button--medium-gray");
 
-        if (!createCollectionButton || !newCollectionInput) {
-          return;
+                if (button !== activeButton) {
+                    button.classList.add("button--medium-gray");
+                }
+            });
         }
 
+        function showTab(tabName) {
+            tabContents.forEach((content) => {
+                const isActive = content.dataset.content === tabName;
+                content.hidden = !isActive;
+                content.classList.toggle("profile-tab-content--active", isActive);
+            });
+        }
+
+        function setActiveCollection(activeButton) {
+            collectionOptions.forEach((button) => {
+                button.classList.remove("collection-option--active");
+            });
+
+            activeButton.classList.add("collection-option--active");
+        }
+
+        editAvatarButton.addEventListener("click", () => {
+            avatarFileInput.click();
+        });
+
+        avatarFileInput.addEventListener("change", (event) => {
+            const [selectedFile] = event.target.files;
+
+            if (!selectedFile) {
+                return;
+            }
+
+            const reader = new FileReader();
+
+            reader.addEventListener("load", () => {
+                avatarImage.src = reader.result;
+            });
+
+            reader.readAsDataURL(selectedFile);
+        });
+
+        tabButtons.forEach((button) => {
+            button.addEventListener("click", () => {
+                const scrollX = window.scrollX;
+                const scrollY = window.scrollY;
+
+                setActiveTab(button);
+                showTab(button.dataset.tab);
+
+                window.scrollTo(scrollX, scrollY);
+            });
+        });
+
+        collectionOptions.forEach((button) => {
+            button.addEventListener("click", () => {
+                setActiveCollection(button);
+            });
+        });
+
+        reviewLikeButtons.forEach((button) => {
+            const icon = button.querySelector(".fa-thumbs-up");
+
+            button.addEventListener("click", () => {
+                icon.classList.toggle("fa-regular");
+                icon.classList.toggle("fa-solid");
+            });
+        });
+
         function createCollection() {
-          const newCollectionName = newCollectionInput.value.trim();
+            const newCollectionName = newCollectionInput.value.trim();
 
-          if (!newCollectionName) {
-            return;
-          }
+            if (!newCollectionName) {
+                return;
+            }
 
-          if (!collectionGridItemsByName[newCollectionName]) {
-            collectionGridItemsByName[newCollectionName] = [
-              [newCollectionName, `https://placehold.co/300x300/f2f2f0/232d4a?text=${encodeURIComponent(newCollectionName)}`],
-              [`${newCollectionName} Pick 2`, "https://placehold.co/300x300/faddc1/e57200?text=New+Spot"],
-              [`${newCollectionName} Pick 3`, "https://placehold.co/300x300/c7cad1/232d4a?text=Saved+Spot"],
-            ];
-            collectionNames = [...collectionNames, newCollectionName];
-          }
-
-          activeCollectionName = newCollectionName;
-          renderCollectionsView();
-          attachCollectionsHandlers();
+            newCollectionInput.value = "";
         }
 
         createCollectionButton.addEventListener("click", createCollection);
+
         newCollectionInput.addEventListener("keydown", (event) => {
-          if (event.key === "Enter") {
-            createCollection();
-          }
+            if (event.key === "Enter") {
+                createCollection();
+            }
         });
-      }
-
-      function setActiveTab(activeButton) {
-        tabButtons.forEach((button) => {
-          button.classList.remove("button--medium-gray");
-
-          if (button !== activeButton) {
-            button.classList.add("button--medium-gray");
-          }
-        });
-      }
-
-      function updateGrid(tabName) {
-        if (tabName === "collections") {
-          renderCollectionsView();
-          attachCollectionsHandlers();
-          return;
-        }
-
-        if (tabName === "reviews") {
-          profileContent.innerHTML = reviewsMarkup;
-          return;
-        }
-
-        if (tabName === "shared") {
-          profileContent.innerHTML = sharedGridMarkup;
-          return;
-        }
-
-        profileContent.innerHTML = originalContentMarkup;
-      }
-
-      editAvatarButton.addEventListener("click", () => {
-        avatarFileInput.click();
-      });
-
-      avatarFileInput.addEventListener("change", (event) => {
-        const [selectedFile] = event.target.files;
-
-        if (!selectedFile) {
-          return;
-        }
-
-        const reader = new FileReader();
-
-        reader.addEventListener("load", () => {
-          avatarImage.src = reader.result;
-        });
-
-        reader.readAsDataURL(selectedFile);
-      });
-
-      tabButtons.forEach((button) => {
-        button.addEventListener("click", () => {
-          const scrollX = window.scrollX;
-          const scrollY = window.scrollY;
-
-          setActiveTab(button);
-          updateGrid(button.dataset.tab);
-
-          window.scrollTo(scrollX, scrollY);
-        });
-      });
     </script>
-  </body>
+</body>
+
 </html>
