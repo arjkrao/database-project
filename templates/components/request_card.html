@@ -12,17 +12,14 @@
                     src="{{ request.image }}"
                     alt="{{ request.name }}"
                 >
-
-                <div class="heading-1 text-primary-dark">{{ request.name }}</div>
-
+                <div class="heading-2 text-primary-dark">{{ request.name }}</div>
                 <div class="request-user">
-                    <div class="heading-3" style="white-space: nowrap;">Requested By:</div>
-                    <div class="heading-3">{{ request.requested_by }}</div>
+                    <div class="heading-4" style="white-space: nowrap;">Requested By:</div>
+                    <div class="heading-4">{{ request.requested_by }}</div>
                 </div>
-
                 <div class="request-coord-price">
                     <div>
-                        <div class="heading-4 text-gray">{{ request.coordinates }}</div>
+                        <div class="text text-gray">{{ request.coordinates }}</div>
                     </div>
                     <div class="heading-4 text-secondary-dark">{{ request.price }}</div>
                 </div>
