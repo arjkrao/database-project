@@ -35,6 +35,41 @@
                     </form>
                     <button class="button button--secondary">Add Spot <i class="fa-solid fa-plus icon-add"></i></button>
                 </div>
+                <div class="bookmark-popup-backdrop" id="bookmarkPopupBackdrop" hidden></div>
+                <div class="bookmark-popup" id="bookmarkPopup" hidden aria-hidden="true">
+                    <div class="bookmark-popup__panel">
+                        <div class="bookmark-popup__title heading-2 text-black">
+                            Add <span class="text-secondary-dark" id="bookmarkSpotName">Spot Name</span> To:
+                        </div>
+                        <div class="bookmark-popup__collections">
+                            <label class="bookmark-collection">
+                                <input type="checkbox" class="bookmark-collection__input">
+                                <span class="bookmark-collection__box"></span>
+                                <span class="bookmark-collection__label heading-3 text-black">Hype</span>
+                            </label>
+                            <label class="bookmark-collection">
+                                <input type="checkbox" class="bookmark-collection__input">
+                                <span class="bookmark-collection__box"></span>
+                                <span class="bookmark-collection__label heading-3 text-black">Yummers</span>
+                            </label>
+
+                            <label class="bookmark-collection">
+                                <input type="checkbox" class="bookmark-collection__input">
+                                <span class="bookmark-collection__box"></span>
+                                <span class="bookmark-collection__label heading-3 text-black">Chill</span>
+                            </label>
+                        </div>
+
+                        <div class="bookmark-popup__actions">
+                            <button class="button button--secondary" id="bookmarkSaveButton" type="button">
+                                Save
+                            </button>
+                            <button class="button button--error" id="bookmarkClearButton" type="button">
+                                Clear
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="home-right">
                 <div class="right-panel right-panel--active" id="welcomePanel">
@@ -47,7 +82,7 @@
                 </div>
                 <div class="right-panel right-panel--hidden" id="spotsPanel">
                     <div class="spot-buttons">
-                        <button class="button button--primary">
+                        <button class="button button--primary" id="filtersButton" type="button" aria-expanded="false">
                             Filters <i class="fa-solid fa-filter"></i>
                         </button>
                         <button class="button button--primary" id="dateSortButton" type="button">
@@ -92,6 +127,96 @@
                                         </button>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="filter-popup-backdrop" id="filterBackdrop" hidden></div>
+
+                    <div class="filter-popup" id="filterPopup" hidden aria-hidden="true">
+                        <div class="button filter-popup__tab" id="filterPopupTab" type="button" role="button"
+                            tabindex="0">
+                            <span>Filters</span>
+                            <i class="fa-solid fa-filter"></i>
+                        </div>
+
+                        <div class="filter-popup__panel">
+                            <div class="filter-popup__icons">
+                                <button class="filter-icon" type="button" aria-pressed="true">
+                                    <i class="fa-solid fa-utensils"></i>
+                                </button>
+                                <button class="filter-icon" type="button" aria-pressed="true">
+                                    <i class="fa-solid fa-utensils"></i>
+                                </button>
+                                <button class="filter-icon" type="button" aria-pressed="true">
+                                    <i class="fa-solid fa-utensils"></i>
+                                </button>
+                                <button class="filter-icon" type="button" aria-pressed="true">
+                                    <i class="fa-solid fa-utensils"></i>
+                                </button>
+                                <button class="filter-icon" type="button" aria-pressed="true">
+                                    <i class="fa-solid fa-utensils"></i>
+                                </button>
+                                <button class="filter-icon" type="button" aria-pressed="true">
+                                    <i class="fa-solid fa-utensils"></i>
+                                </button>
+                                <button class="filter-icon" type="button" aria-pressed="true">
+                                    <i class="fa-solid fa-utensils"></i>
+                                </button>
+                                <button class="filter-icon" type="button" aria-pressed="true">
+                                    <i class="fa-solid fa-utensils"></i>
+                                </button>
+                                <button class="filter-icon" type="button" aria-pressed="true">
+                                    <i class="fa-solid fa-utensils"></i>
+                                </button>
+                                <button class="filter-icon" type="button" aria-pressed="true">
+                                    <i class="fa-solid fa-utensils"></i>
+                                </button>
+                                <button class="filter-icon" type="button" aria-pressed="true">
+                                    <i class="fa-solid fa-utensils"></i>
+                                </button>
+                                <button class="filter-icon" type="button" aria-pressed="true">
+                                    <i class="fa-solid fa-utensils"></i>
+                                </button>
+                                <button class="filter-icon" type="button" aria-pressed="true">
+                                    <i class="fa-solid fa-utensils"></i>
+                                </button>
+                                <button class="filter-icon" type="button" aria-pressed="true">
+                                    <i class="fa-solid fa-utensils"></i>
+                                </button>
+                                <button class="filter-icon" type="button" aria-pressed="true">
+                                    <i class="fa-solid fa-utensils"></i>
+                                </button>
+                                <button class="filter-icon" type="button" aria-pressed="true">
+                                    <i class="fa-solid fa-utensils"></i>
+                                </button>
+                            </div>
+                            <div class="filter-popup__controls">
+                                <div class="filter-row">
+                                    <div class="filter-distance">
+                                        <label for="distanceInput" class="heading-3 text-black">Distance:</label>
+                                        <input id="distanceInput" class="distance-input heading-3 text-black"
+                                            type="number" min="0" step="1" placeholder="" />
+                                        <span class="heading-3 text-black">Miles</span>
+                                    </div>
+                                </div>
+                                <div class="filter-row">
+                                    <span class="heading-3 text-black">Price:</span>
+                                    <div class="price-selector" id="priceSelector">
+                                        <button class="price-free" id="priceFree" type="button"
+                                            aria-pressed="false">FREE</button>
+                                        <button class="price-dollar" type="button" data-price="1"
+                                            aria-pressed="false">$</button>
+                                        <button class="price-dollar" type="button" data-price="2"
+                                            aria-pressed="false">$$</button>
+                                        <button class="price-dollar" type="button" data-price="3"
+                                            aria-pressed="false">$$$</button>
+                                        <button class="price-dollar" type="button" data-price="4"
+                                            aria-pressed="false">$$$$</button>
+                                    </div>
+                                </div>
+                                <button class="button button--secondary filter-apply" type="button">
+                                    Apply Filters
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -174,14 +299,292 @@
             dateSortIcon.classList.add(iconStates[currentIconIndex]);
         });
 
-        // Handle the bookmark button toggle between regular and solid on click
+        // =========================
+        // BOOKMARK POPUP
+        // =========================
+        const bookmarkPopup = document.getElementById("bookmarkPopup");
+        const bookmarkPopupBackdrop = document.getElementById("bookmarkPopupBackdrop");
+        const bookmarkSpotName = document.getElementById("bookmarkSpotName");
+        const bookmarkSaveButton = document.getElementById("bookmarkSaveButton");
+        const bookmarkClearButton = document.getElementById("bookmarkClearButton");
+        const bookmarkCollectionInputs = Array.from(document.querySelectorAll(".bookmark-collection__input"));
+
+        let activeBookmarkIcon = null;
+        let activeBookmarkButton = null;
+
+        function getSavedCollections(button) {
+            const raw = button.dataset.savedCollections;
+            return raw ? JSON.parse(raw) : [];
+        }
+
+        function setSavedCollections(button, collections) {
+            button.dataset.savedCollections = JSON.stringify(collections);
+        }
+
+        function getCurrentCollectionLabels() {
+            return bookmarkCollectionInputs
+                .filter((input) => input.checked)
+                .map((input) => input.closest(".bookmark-collection").querySelector(".bookmark-collection__label").textContent.trim());
+        }
+
+        function applyCollectionsToPopup(savedCollections) {
+            bookmarkCollectionInputs.forEach((input) => {
+                const label = input.closest(".bookmark-collection").querySelector(".bookmark-collection__label").textContent.trim();
+                input.checked = savedCollections.includes(label);
+            });
+        }
+
+        function hasSelectedCollections() {
+            return bookmarkCollectionInputs.some((input) => input.checked);
+        }
+
+        function setBookmarkIconState(icon, isSaved) {
+            if (!icon) return;
+            icon.classList.toggle("fa-solid", isSaved);
+            icon.classList.toggle("fa-regular", !isSaved);
+        }
+
+        function openBookmarkPopup(spotName, button, icon) {
+            bookmarkSpotName.textContent = spotName;
+            activeBookmarkButton = button;
+            activeBookmarkIcon = icon;
+
+            const savedCollections = getSavedCollections(button);
+            applyCollectionsToPopup(savedCollections);
+
+            bookmarkPopup.hidden = false;
+            bookmarkPopupBackdrop.hidden = false;
+
+            requestAnimationFrame(() => {
+                bookmarkPopup.classList.add("bookmark-popup--open");
+                bookmarkPopupBackdrop.classList.add("bookmark-popup-backdrop--open");
+            });
+
+            bookmarkPopup.setAttribute("aria-hidden", "false");
+        }
+
+        function closeBookmarkPopup() {
+            if (!bookmarkPopup.classList.contains("bookmark-popup--open")) return;
+
+            bookmarkPopup.classList.remove("bookmark-popup--open");
+            bookmarkPopupBackdrop.classList.remove("bookmark-popup-backdrop--open");
+            bookmarkPopup.setAttribute("aria-hidden", "true");
+
+            window.setTimeout(() => {
+                bookmarkPopup.hidden = true;
+                bookmarkPopupBackdrop.hidden = true;
+                activeBookmarkIcon = null;
+                activeBookmarkButton = null;
+            }, 220);
+        }
+
         document.querySelectorAll(".spot-bookmark").forEach((button) => {
             const icon = button.querySelector(".fa-bookmark");
+            setSavedCollections(button, []);
+            setBookmarkIconState(icon, false);
 
-            button.addEventListener("click", () => {
-                icon.classList.toggle("fa-regular");
-                icon.classList.toggle("fa-solid");
+            button.addEventListener("click", (event) => {
+                event.stopPropagation();
+
+                const spotCard = button.closest(".spot-card");
+                const spotNameElement = spotCard.querySelector(".text-body");
+                const spotName = spotNameElement ? spotNameElement.textContent.trim() : "Spot";
+
+                openBookmarkPopup(spotName, button, icon);
             });
+        });
+
+        bookmarkPopupBackdrop.addEventListener("click", closeBookmarkPopup);
+
+        bookmarkPopup.addEventListener("click", (event) => {
+            event.stopPropagation();
+        });
+
+        bookmarkSaveButton.addEventListener("click", () => {
+            if (!activeBookmarkButton) return;
+
+            const selectedCollections = getCurrentCollectionLabels();
+            setSavedCollections(activeBookmarkButton, selectedCollections);
+            setBookmarkIconState(activeBookmarkIcon, selectedCollections.length > 0);
+            closeBookmarkPopup();
+        });
+
+        bookmarkClearButton.addEventListener("click", () => {
+            bookmarkCollectionInputs.forEach((input) => {
+                input.checked = false;
+            });
+        });
+
+        // =========================
+        // FILTER POPUP
+        // =========================
+        const filtersButton = document.getElementById("filtersButton");
+        const filterPopup = document.getElementById("filterPopup");
+        const filterBackdrop = document.getElementById("filterBackdrop");
+        const filterPopupTab = document.getElementById("filterPopupTab");
+        const filterApplyButton = document.querySelector(".filter-apply");
+        const filterIcons = Array.from(document.querySelectorAll(".filter-icon"));
+        const distanceInput = document.getElementById("distanceInput");
+        const priceFree = document.getElementById("priceFree");
+        const priceButtons = Array.from(document.querySelectorAll(".price-dollar"));
+
+        let filterCloseTimeout = null;
+
+        // Saved filter state
+        let appliedFilterIconStates = filterIcons.map((button) => button.classList.contains("filter-icon--active"));
+        let appliedDistanceValue = "";
+        let appliedPriceOption = "none";
+
+        // Draft filter state
+        let draftFilterIconStates = [...appliedFilterIconStates];
+        let draftDistanceValue = appliedDistanceValue;
+        let draftPriceOption = appliedPriceOption;
+
+        function renderFilterIcons() {
+            filterIcons.forEach((button, index) => {
+                const isActive = draftFilterIconStates[index];
+                button.classList.toggle("filter-icon--active", isActive);
+                button.setAttribute("aria-pressed", String(isActive));
+            });
+        }
+
+        function renderPriceSelection() {
+            const freeSelected = draftPriceOption === "free";
+
+            priceFree.classList.toggle("price-free--active", freeSelected);
+            priceFree.setAttribute("aria-pressed", String(freeSelected));
+
+            priceButtons.forEach((button) => {
+                const value = button.dataset.price;
+                const isActive = draftPriceOption === value;
+                button.classList.toggle("price-dollar--active", isActive);
+                button.setAttribute("aria-pressed", String(isActive));
+            });
+        }
+
+        function renderDraftFilters() {
+            renderFilterIcons();
+            distanceInput.value = draftDistanceValue;
+            renderPriceSelection();
+        }
+
+        function loadAppliedFiltersIntoDraft() {
+            draftFilterIconStates = [...appliedFilterIconStates];
+            draftDistanceValue = appliedDistanceValue;
+            draftPriceOption = appliedPriceOption;
+            renderDraftFilters();
+        }
+
+        function saveDraftFiltersAsApplied() {
+            appliedFilterIconStates = [...draftFilterIconStates];
+            appliedDistanceValue = draftDistanceValue;
+            appliedPriceOption = draftPriceOption;
+        }
+
+        function openFilterPopup() {
+            if (filterCloseTimeout) {
+                clearTimeout(filterCloseTimeout);
+                filterCloseTimeout = null;
+            }
+
+            loadAppliedFiltersIntoDraft();
+
+            filterPopup.hidden = false;
+            filterBackdrop.hidden = false;
+
+            requestAnimationFrame(() => {
+                filterPopup.classList.add("filter-popup--open");
+                filterBackdrop.classList.add("filter-popup-backdrop--open");
+            });
+
+            filterPopup.setAttribute("aria-hidden", "false");
+            filtersButton.setAttribute("aria-expanded", "true");
+        }
+
+        function closeFilterPopup() {
+            if (!filterPopup.classList.contains("filter-popup--open")) return;
+
+            filterPopup.classList.remove("filter-popup--open");
+            filterBackdrop.classList.remove("filter-popup-backdrop--open");
+            filterPopup.setAttribute("aria-hidden", "true");
+            filtersButton.setAttribute("aria-expanded", "false");
+
+            filterCloseTimeout = window.setTimeout(() => {
+                filterPopup.hidden = true;
+                filterBackdrop.hidden = true;
+                filterCloseTimeout = null;
+            }, 220);
+        }
+
+        function toggleFilterPopup() {
+            const isOpen = filterPopup.classList.contains("filter-popup--open");
+            if (isOpen) {
+                closeFilterPopup();
+            } else {
+                openFilterPopup();
+            }
+        }
+
+        filtersButton.addEventListener("click", (event) => {
+            event.stopPropagation();
+            toggleFilterPopup();
+        });
+
+        filterPopupTab.addEventListener("click", (event) => {
+            event.stopPropagation();
+            closeFilterPopup();
+        });
+
+        filterApplyButton.addEventListener("click", () => {
+            saveDraftFiltersAsApplied();
+            closeFilterPopup();
+        });
+
+        filterPopupTab.addEventListener("keydown", (event) => {
+            if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                closeFilterPopup();
+            }
+        });
+
+        filterBackdrop.addEventListener("click", closeFilterPopup);
+
+        filterPopup.addEventListener("click", (event) => {
+            event.stopPropagation();
+        });
+
+        filterIcons.forEach((button, index) => {
+            button.addEventListener("click", () => {
+                draftFilterIconStates[index] = !draftFilterIconStates[index];
+                renderFilterIcons();
+            });
+        });
+
+        distanceInput.addEventListener("input", () => {
+            draftDistanceValue = distanceInput.value;
+        });
+
+        priceFree.addEventListener("click", () => {
+            draftPriceOption = draftPriceOption === "free" ? "none" : "free";
+            renderPriceSelection();
+        });
+
+        priceButtons.forEach((button) => {
+            button.addEventListener("click", () => {
+                const value = button.dataset.price;
+                draftPriceOption = draftPriceOption === value ? "none" : value;
+                renderPriceSelection();
+            });
+        });
+
+        renderDraftFilters();
+
+        // Escape closes both popups without saving drafts
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape") {
+                closeBookmarkPopup();
+                closeFilterPopup();
+            }
         });
     </script>
 </body>
