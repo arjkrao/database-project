@@ -215,7 +215,7 @@ def home():
             "reviews": [
                 {
                     "id": 3,
-                    "author": "Austin Trinh",
+                    "author": "Austin Kim",
                     "rating": 4.5,
                     "body": "Amazing pancakes and really nice vibe.",
                     "date": "04/02/05",
@@ -224,7 +224,7 @@ def home():
                 },
                 {
                     "id": 4,
-                    "author": "Raheel Syed",
+                    "author": "Maya Patel",
                     "rating": 4.0,
                     "body": "Great brunch spot but it gets busy fast.",
                     "date": "04/05/05",
@@ -233,7 +233,7 @@ def home():
                 },
                 {
                     "id": 5,
-                    "author": "Arjun Rao",
+                    "author": "Chris Lee",
                     "rating": 5.0,
                     "body": "One of my favorite diner spots in town.",
                     "date": "04/09/05",
@@ -261,7 +261,7 @@ def home():
             "id": 2,
             "name": "The Lawn",
             "image": "https://placehold.co/376x282/f2f2f0/232d4a?text=The+Lawn",
-            "requested_by": "Arjun Rao",
+            "requested_by": "Maya Patel",
             "coordinates": "38.0356, -78.5034",
             "price": "FREE",
             "icons": [
@@ -274,7 +274,7 @@ def home():
             "id": 3,
             "name": "Memorial Gym",
             "image": "https://placehold.co/376x282/c7cad1/232d4a?text=Memorial+Gym",
-            "requested_by": "Austin Trinh",
+            "requested_by": "Austin Kim",
             "coordinates": "38.0392, -78.5061",
             "price": "$",
             "icons": [
@@ -284,12 +284,14 @@ def home():
         },
     ]
 
+    bookmark_collections = ["Hype", "Yummers", "Chill"]
+
     return render_template(
         "home.html",
         spots=spots,
         requested_spots=requested_spots,
+        bookmark_collections=bookmark_collections,
     )
-
 
 @app.route("/profile")
 def profile():
@@ -329,7 +331,7 @@ def profile():
             {
                 "id": 3,
                 "name": "Shared Spot",
-                "image": "https://placehold.co/300x300/f5e7da/232d4a?text=Shared+Spot",
+                "image": "https://placehold.co/300x300/f5e7da/232d4a?text=Shared+List",
             },
         ],
         "available_collections": [
@@ -340,7 +342,6 @@ def profile():
     }
 
     return render_template("profile.html", profile=profile_data)
-
 @app.route("/test")
 def test():
     return render_template("test.html")

@@ -95,35 +95,14 @@
         </div>
     </div>
 </div>
-
-<div class="bookmark-popup-backdrop" id="addToCollectionsBackdrop" hidden></div>
-
-<div class="bookmark-popup add-to-collections-popup" id="addToCollectionsPopup" hidden aria-hidden="true">
-        <div class="bookmark-popup__panel">
-        <div class="bookmark-popup__title heading-2 text-black">
-            Add <span class="text-secondary-dark" id="addToCollectionsSpotName">Spot Name</span> To:
-        </div>
-
-        <div class="bookmark-popup__collections">
-            {% for collection_name in profile.available_collections %}
-            <label class="bookmark-collection">
-                <input type="checkbox" class="add-to-collections__input bookmark-collection__input">
-                <span class="bookmark-collection__box"></span>
-                <span class="bookmark-collection__label heading-3 text-black">{{ collection_name }}</span>
-            </label>
-            {% endfor %}
-        </div>
-
-        <div class="bookmark-popup__actions">
-            <button class="button button--secondary" id="addToCollectionsSaveButton" type="button">
-                Save
-            </button>
-            <button class="button button--error" id="addToCollectionsCloseButton" type="button">
-                Close
-            </button>
-        </div>
-    </div>
-</div>
-
+{% with
+    popup_id="addToCollectionsPopup",
+    collections=profile.available_collections,
+    input_class="add-to-collections__input",
+    extra_class="add-to-collections-popup profile-bookmark-popup"
+%}
+    {% include "components/bookmark_popup.html" %}
+{% endwith %}
 <script src="{{ url_for('static', filename='js/profile.js') }}"></script>
+<script src="{{ url_for('static', filename='js/bookmark_popup.js') }}"></script>
 {% endblock %}

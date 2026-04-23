@@ -23,41 +23,14 @@
                     Add Spot <i class="fa-solid fa-plus icon-add"></i>
                 </button>
             </div>
-            <div class="bookmark-popup-backdrop" id="bookmarkPopupBackdrop" hidden></div>
-            <div class="bookmark-popup" id="bookmarkPopup" hidden aria-hidden="true">
-                <div class="bookmark-popup__panel">
-                    <div class="bookmark-popup__title heading-2 text-black">
-                        Add <span class="text-secondary-dark" id="bookmarkSpotName">Spot Name</span> To:
-                    </div>
-                    <div class="bookmark-popup__collections">
-                        <label class="bookmark-collection">
-                            <input type="checkbox" class="bookmark-collection__input">
-                            <span class="bookmark-collection__box"></span>
-                            <span class="bookmark-collection__label heading-3 text-black">Hype</span>
-                        </label>
-                        <label class="bookmark-collection">
-                            <input type="checkbox" class="bookmark-collection__input">
-                            <span class="bookmark-collection__box"></span>
-                            <span class="bookmark-collection__label heading-3 text-black">Yummers</span>
-                        </label>
-
-                        <label class="bookmark-collection">
-                            <input type="checkbox" class="bookmark-collection__input">
-                            <span class="bookmark-collection__box"></span>
-                            <span class="bookmark-collection__label heading-3 text-black">Chill</span>
-                        </label>
-                    </div>
-
-                    <div class="bookmark-popup__actions">
-                        <button class="button button--secondary" id="bookmarkSaveButton" type="button">
-                            Save
-                        </button>
-                        <button class="button button--error" id="bookmarkClearButton" type="button">
-                            Clear
-                        </button>
-                    </div>
-                </div>
-            </div>
+            {% with
+            popup_id="bookmarkPopup",
+            collections=bookmark_collections,
+            input_class="bookmark-collection__input-home",
+            extra_class=""
+            %}
+            {% include "components/bookmark_popup.html" %}
+            {% endwith %}
         </div>
         <div class="home-right">
             <div class="right-panel right-panel--active" id="welcomePanel">
@@ -104,6 +77,7 @@
 <script src="{{ url_for('static', filename='js/request_card.js') }}"></script>
 <script src="{{ url_for('static', filename='js/add_spot.js') }}"></script>
 <script src="{{ url_for('static', filename='js/filters.js') }}"></script>
+<script src="{{ url_for('static', filename='js/bookmark_popup.js') }}"></script>
 <script>
     // Handle the transition from the welcome panel to the spots panel when the "Find Spots" button is clicked
     const findSpotsButton = document.getElementById("findSpotsButton");
@@ -134,126 +108,9 @@
         dateSortIcon.classList.add(iconStates[currentIconIndex]);
     });
 
-    // =========================
-    // BOOKMARK POPUP
-    // =========================
-    const bookmarkPopup = document.getElementById("bookmarkPopup");
-    const bookmarkPopupBackdrop = document.getElementById("bookmarkPopupBackdrop");
-    const bookmarkSpotName = document.getElementById("bookmarkSpotName");
-    const bookmarkSaveButton = document.getElementById("bookmarkSaveButton");
-    const bookmarkClearButton = document.getElementById("bookmarkClearButton");
-    const bookmarkCollectionInputs = Array.from(document.querySelectorAll(".bookmark-collection__input"));
-
-    let activeBookmarkIcon = null;
-    let activeBookmarkButton = null;
-
-    function getSavedCollections(button) {
-        const raw = button.dataset.savedCollections;
-        return raw ? JSON.parse(raw) : [];
-    }
-
-    function setSavedCollections(button, collections) {
-        button.dataset.savedCollections = JSON.stringify(collections);
-    }
-
-    function getCurrentCollectionLabels() {
-        return bookmarkCollectionInputs
-            .filter((input) => input.checked)
-            .map((input) => input.closest(".bookmark-collection").querySelector(".bookmark-collection__label").textContent.trim());
-    }
-
-    function applyCollectionsToPopup(savedCollections) {
-        bookmarkCollectionInputs.forEach((input) => {
-            const label = input.closest(".bookmark-collection").querySelector(".bookmark-collection__label").textContent.trim();
-            input.checked = savedCollections.includes(label);
-        });
-    }
-
-    function hasSelectedCollections() {
-        return bookmarkCollectionInputs.some((input) => input.checked);
-    }
-
-    function setBookmarkIconState(icon, isSaved) {
-        if (!icon) return;
-        icon.classList.toggle("fa-solid", isSaved);
-        icon.classList.toggle("fa-regular", !isSaved);
-    }
-
-    function openBookmarkPopup(spotName, button, icon) {
-        bookmarkSpotName.textContent = spotName;
-        activeBookmarkButton = button;
-        activeBookmarkIcon = icon;
-
-        const savedCollections = getSavedCollections(button);
-        applyCollectionsToPopup(savedCollections);
-
-        bookmarkPopup.hidden = false;
-        bookmarkPopupBackdrop.hidden = false;
-
-        requestAnimationFrame(() => {
-            bookmarkPopup.classList.add("bookmark-popup--open");
-            bookmarkPopupBackdrop.classList.add("bookmark-popup-backdrop--open");
-        });
-
-        bookmarkPopup.setAttribute("aria-hidden", "false");
-    }
-
-    function closeBookmarkPopup() {
-        if (!bookmarkPopup.classList.contains("bookmark-popup--open")) return;
-
-        bookmarkPopup.classList.remove("bookmark-popup--open");
-        bookmarkPopupBackdrop.classList.remove("bookmark-popup-backdrop--open");
-        bookmarkPopup.setAttribute("aria-hidden", "true");
-
-        window.setTimeout(() => {
-            bookmarkPopup.hidden = true;
-            bookmarkPopupBackdrop.hidden = true;
-            activeBookmarkIcon = null;
-            activeBookmarkButton = null;
-        }, 220);
-    }
-
-    document.querySelectorAll(".spot-bookmark").forEach((button) => {
-        const icon = button.querySelector(".fa-bookmark");
-        setSavedCollections(button, []);
-        setBookmarkIconState(icon, false);
-
-        button.addEventListener("click", (event) => {
-            event.stopPropagation();
-
-            const spotCard = button.closest(".spot-card");
-            const spotNameElement = spotCard.querySelector(".text");
-            const spotName = spotNameElement ? spotNameElement.textContent.trim() : "Spot";
-
-            openBookmarkPopup(spotName, button, icon);
-        });
-    });
-
-    bookmarkPopupBackdrop.addEventListener("click", closeBookmarkPopup);
-
-    bookmarkPopup.addEventListener("click", (event) => {
-        event.stopPropagation();
-    });
-
-    bookmarkSaveButton.addEventListener("click", () => {
-        if (!activeBookmarkButton) return;
-
-        const selectedCollections = getCurrentCollectionLabels();
-        setSavedCollections(activeBookmarkButton, selectedCollections);
-        setBookmarkIconState(activeBookmarkIcon, selectedCollections.length > 0);
-        closeBookmarkPopup();
-    });
-
-    bookmarkClearButton.addEventListener("click", () => {
-        bookmarkCollectionInputs.forEach((input) => {
-            input.checked = false;
-        });
-    });
-
     // Escape key handler to close popups
     document.addEventListener("keydown", (event) => {
         if (event.key === "Escape") {
-            closeBookmarkPopup();
             closeFilterPopup();
             closeAddSpotPopup({ saveBeforeClose: true });
         }
