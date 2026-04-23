@@ -1426,6 +1426,13 @@ p {
   justify-content: center;
 }
 
+.filter-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
 /* =========================================================
    BOOKMARK POPUP
    ========================================================= */
