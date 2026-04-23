@@ -1686,6 +1686,23 @@ p {
   cursor: not-allowed;
 }
 
+.add-spot-price-free,
+.add-spot-price-dollar {
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  font-family: var(--font-display);
+  font-size: var(--text-h3);
+  line-height: 1;
+  color: var(--color-medium-gray);
+}
+
+.add-spot-price-free--active,
+.add-spot-price-dollar--active {
+  color: var(--color-secondary-dark);
+}
+
 /* =========================================================
    PROFILE
    ========================================================= */
@@ -2042,5 +2059,38 @@ p {
 }
 
 .add-to-collections-popup.bookmark-popup--open {
+  transform: translate(-50%, -50%) translateY(0);
+}
+
+.profile-page {
+  position: relative;
+}
+
+#addToCollectionsPopupBackdrop {
+  position: absolute;
+  top: 160px;
+  left: 50%;
+  width: 1440px;
+  height: 100%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.28);
+  opacity: 0;
+  transition: opacity 0.22s ease;
+  z-index: 29;
+}
+
+#addToCollectionsPopupBackdrop.bookmark-popup-backdrop--open {
+  opacity: 1;
+}
+
+.profile-bookmark-popup {
+  position: fixed;
+  top: calc(160px + ((100vh - 160px) / 2));
+  left: 50%;
+  width: min(830px, calc(100% - 72px));
+  transform: translate(-50%, -50%) translateY(-8px);
+}
+
+.profile-bookmark-popup.bookmark-popup--open {
   transform: translate(-50%, -50%) translateY(0);
 }

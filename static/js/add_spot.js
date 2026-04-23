@@ -13,7 +13,7 @@
 
     const addSpotPriceFree = document.getElementById("addSpotPriceFree");
     const addSpotPriceButtons = Array.from(
-      document.querySelectorAll("[data-add-spot-price]"),
+      document.querySelectorAll("#addSpotPopup .add-spot-price-dollar"),
     );
     const addSpotTagButtons = Array.from(
       document.querySelectorAll(".add-spot-tag"),
@@ -65,14 +65,17 @@
     function renderAddSpotPrice() {
       const freeSelected = addSpotDraft.price === "free";
 
-      addSpotPriceFree.classList.toggle("price-free--active", freeSelected);
+      addSpotPriceFree.classList.toggle(
+        "add-spot-price-free--active",
+        freeSelected,
+      );
       addSpotPriceFree.setAttribute("aria-pressed", String(freeSelected));
 
       addSpotPriceButtons.forEach((button) => {
         const value = button.dataset.addSpotPrice;
         const isActive = addSpotDraft.price === value;
 
-        button.classList.toggle("price-dollar--active", isActive);
+        button.classList.toggle("add-spot-price-dollar--active", isActive);
         button.setAttribute("aria-pressed", String(isActive));
       });
     }
