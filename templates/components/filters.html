@@ -1,0 +1,78 @@
+<div class="filter-popup-backdrop" id="filterBackdrop" hidden></div>
+<div class="filter-popup" id="filterPopup" hidden aria-hidden="true">
+    <div class="button filter-popup__tab" id="filterPopupTab" type="button" role="button" tabindex="0">
+        <span>Filters</span>
+        <i class="fa-solid fa-filter"></i>
+    </div>
+    <div class="filter-popup__panel">
+        <div class="filter-popup__icons">
+            <button class="filter-icon" data-tooltip="Food" type="button" aria-pressed="false">
+                <i class="fa-solid fa-utensils"></i>
+            </button>
+            <button class="filter-icon" data-tooltip="Drink" type="button" aria-pressed="false">
+                <i class="fa-solid fa-mug-hot"></i>
+            </button>
+            <button class="filter-icon" data-tooltip="Casual" type="button" aria-pressed="false">
+                <i class="fa-solid fa-shirt"></i>
+            </button>
+            <button class="filter-icon" data-tooltip="Formal" type="button" aria-pressed="false">
+                <i class="fa-brands fa-black-tie"></i>
+            </button>
+            <button class="filter-icon" data-tooltip="Nature" type="button" aria-pressed="false">
+                <i class="fa-solid fa-tree"></i>
+            </button>
+            <button class="filter-icon" data-tooltip="Sports" type="button" aria-pressed="false">
+                <i class="fa-solid fa-football"></i>
+            </button>
+            <button class="filter-icon" data-tooltip="Recreation" type="button" aria-pressed="false">
+                <i class="fa-solid fa-person-running"></i>
+            </button>
+            <button class="filter-icon" data-tooltip="Study" type="button" aria-pressed="false">
+                <i class="fa-solid fa-book"></i>
+            </button>
+            <button class="filter-icon" data-tooltip="Historic" type="button" aria-pressed="false">
+                <i class="fa-solid fa-landmark"></i>
+            </button>
+            <button class="filter-icon" data-tooltip="Religious" type="button" aria-pressed="false">
+                <i class="fa-solid fa-person-praying"></i>
+            </button>
+            <button class="filter-icon" data-tooltip="Sightseeing" type="button" aria-pressed="false">
+                <i class="fa-solid fa-binoculars"></i>
+            </button>
+            <button class="filter-icon" data-tooltip="Tourist Attraction" type="button" aria-pressed="false">
+                <i class="fa-solid fa-camera"></i>
+            </button>
+            <button class="filter-icon" data-tooltip="Other" type="button" aria-pressed="false">
+                <i class="fa-solid fa-ellipsis"></i>
+            </button>
+        </div>
+        <div class="filter-popup__controls">
+            <div class="filter-row">
+                <div class="filter-distance">
+                    <label for="distanceInput" class="heading-3 text-black">Distance:</label>
+                    <input id="distanceInput" class="distance-input heading-3 text-black" type="number" min="0" step="1"
+                        placeholder="">
+                    <span class="heading-3 text-black">Miles</span>
+                </div>
+            </div>
+            <div class="filter-row">
+                <span class="heading-3 text-black">Price:</span>
+                <div class="price-selector" id="priceSelector">
+                    <button class="price-free" id="priceFree" type="button" aria-pressed="false">FREE</button>
+                    <button class="price-dollar" type="button" data-price="1" aria-pressed="false">$</button>
+                    <button class="price-dollar" type="button" data-price="2" aria-pressed="false">$$</button>
+                    <button class="price-dollar" type="button" data-price="3" aria-pressed="false">$$$</button>
+                    <button class="price-dollar" type="button" data-price="4" aria-pressed="false">$$$$</button>
+                </div>
+            </div>
+            <div class="filter-actions">
+                <button class="button button--secondary filter-apply" type="button">
+                    Apply Filters
+                </button>
+                <button class="button button--error filter-reset" type="button">
+                    Reset
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

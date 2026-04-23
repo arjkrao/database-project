@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% from "components/profile_spot.html" import profile_spot %}
+{% from "components/profile_review.html" import profile_review %}
+
+{% block content %}
+<div class="profile-page">
+    <div class="profile-card">
+        <div class="profile-header">
+            <div class="person-circle">
+                <div class="person-inner">
+                    <img src="{{ profile.avatar_image }}" alt="Profile picture" class="avatar-image" id="avatarImage">
+                </div>
+                <button class="edit-icon" id="editAvatarButton" type="button" aria-label="Choose profile picture">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                </button>
+            </div>
+
+            <input type="file" id="avatarFileInput" accept="image/*" hidden>
+
+            <div class="profile-name display-3 text-black">{{ profile.name }}</div>
+            <div class="profile-email heading-4 text-gray">{{ profile.email }}</div>
+        </div>
+
+        <div class="bottom-container">
+            <div class="profile-options">
+                <button class="button" type="button" data-tab="private">Private</button>
+                <span class="profile-divider text-black text">|</span>
+                <button class="button button--medium-gray" type="button" data-tab="collections">Collections</button>
+                <span class="profile-divider text-black text">|</span>
+                <button class="button button--medium-gray" type="button" data-tab="reviews">Reviews</button>
+                <span class="profile-divider text-black text">|</span>
+                <button class="button button--medium-gray" type="button" data-tab="shared">Shared</button>
+            </div>
+
+            <div id="profileContent">
+                <div class="profile-tab-content profile-tab-content--active" data-content="private">
+                    <div class="grid">
+                        {% for spot in profile.private_spots %}
+                        {{ profile_spot(spot) }}
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="profile-tab-content" data-content="collections" hidden>
+                    <div class="collections-layout">
+                        <aside class="collections-sidebar">
+                            <div class="collections-sidebar-group">
+                                <div class="collections-sidebar-title heading-1 text-black">Collection Name</div>
+                                <div class="collections-sidebar-list">
+                                    {% for collection_name in profile.collection_names %}
+                                    <button
+                                        class="collection-option text-black {% if loop.first %}collection-option--active{% endif %}"
+                                        type="button" data-collection-name="{{ collection_name }}">
+                                        <span class="collection-option-dot"></span>
+                                        <span class="heading-4">{{ collection_name }}</span>
+                                    </button>
+                                    {% endfor %}
+
+                                    <div class="collection-create-row">
+                                        <input class="collection-create-input text-black text" id="newCollectionInput"
+                                            type="text" placeholder="New Collection">
+                                        <button class="button button--primary collection-create-button"
+                                            id="createCollectionButton" type="button" aria-label="Create collection">
+                                            <i class="fa-solid fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </aside>
+
+                        <div class="grid grid--collections">
+                            {% for spot in profile.collection_spots %}
+                            {{ profile_spot(spot) }}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-tab-content" data-content="reviews" hidden>
+                    <div class="reviews-grid">
+                        {% for review in profile.reviews %}
+                        {{ profile_review(review) }}
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="profile-tab-content" data-content="shared" hidden>
+                    <div class="grid">
+                        {% for spot in profile.shared_spots %}
+                        {{ profile_spot(spot) }}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="bookmark-popup-backdrop" id="addToCollectionsBackdrop" hidden></div>
+
+<div class="bookmark-popup add-to-collections-popup" id="addToCollectionsPopup" hidden aria-hidden="true">
+        <div class="bookmark-popup__panel">
+        <div class="bookmark-popup__title heading-2 text-black">
+            Add <span class="text-secondary-dark" id="addToCollectionsSpotName">Spot Name</span> To:
+        </div>
+
+        <div class="bookmark-popup__collections">
+            {% for collection_name in profile.available_collections %}
+            <label class="bookmark-collection">
+                <input type="checkbox" class="add-to-collections__input bookmark-collection__input">
+                <span class="bookmark-collection__box"></span>
+                <span class="bookmark-collection__label heading-3 text-black">{{ collection_name }}</span>
+            </label>
+            {% endfor %}
+        </div>
+
+        <div class="bookmark-popup__actions">
+            <button class="button button--secondary" id="addToCollectionsSaveButton" type="button">
+                Save
+            </button>
+            <button class="button button--error" id="addToCollectionsCloseButton" type="button">
+                Close
+            </button>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/profile.js') }}"></script>
+{% endblock %}
