@@ -1,4 +1,6 @@
 {% extends "base.html" %}
+{% from "components/profile_spot.html" import profile_spot %}
+{% from "components/profile_review.html" import profile_review %}
 
 {% block content %}
 <div class="profile-page">
@@ -6,7 +8,7 @@
         <div class="profile-header">
             <div class="person-circle">
                 <div class="person-inner">
-                    <img src="https://placehold.co/384x384" alt="Profile picture" class="avatar-image" id="avatarImage">
+                    <img src="{{ profile.avatar_image }}" alt="Profile picture" class="avatar-image" id="avatarImage">
                 </div>
                 <button class="edit-icon" id="editAvatarButton" type="button" aria-label="Choose profile picture">
                     <i class="fa-solid fa-pen-to-square"></i>
@@ -15,8 +17,8 @@
 
             <input type="file" id="avatarFileInput" accept="image/*" hidden>
 
-            <div class="profile-name heading-1 text-black">Raheel Syed</div>
-            <div class="profile-email small text-gray">email@gmail.com</div>
+            <div class="profile-name display-3 text-black">{{ profile.name }}</div>
+            <div class="profile-email heading-4 text-gray">{{ profile.email }}</div>
         </div>
 
         <div class="bottom-container">
@@ -33,11 +35,9 @@
             <div id="profileContent">
                 <div class="profile-tab-content profile-tab-content--active" data-content="private">
                     <div class="grid">
-                        <div class="grid-item">
-                            <img src="https://placehold.co/300x300" alt="Austin's Bagels" class="grid-item-image">
-                            <div class="grid-item-label text text-black" style="text-align: center; font-weight: 700;">
-                                Austin's Bagels</div>
-                        </div>
+                        {% for spot in profile.private_spots %}
+                        {{ profile_spot(spot) }}
+                        {% endfor %}
                     </div>
                 </div>
 
@@ -47,16 +47,15 @@
                             <div class="collections-sidebar-group">
                                 <div class="collections-sidebar-title heading-1 text-black">Collection Name</div>
                                 <div class="collections-sidebar-list">
-                                    <button class="collection-option collection-option--active text-black" type="button"
-                                        data-collection-name="Hype">
+                                    {% for collection_name in profile.collection_names %}
+                                    <button
+                                        class="collection-option text-black {% if loop.first %}collection-option--active{% endif %}"
+                                        type="button" data-collection-name="{{ collection_name }}">
                                         <span class="collection-option-dot"></span>
-                                        <span class="heading-4">Hype</span>
+                                        <span class="heading-4">{{ collection_name }}</span>
                                     </button>
-                                    <button class="collection-option collection-option text-black" type="button"
-                                        data-collection-name="Hype">
-                                        <span class="collection-option-dot"></span>
-                                        <span class="heading-4">Hype</span>
-                                    </button>
+                                    {% endfor %}
+
                                     <div class="collection-create-row">
                                         <input class="collection-create-input text-black text" id="newCollectionInput"
                                             type="text" placeholder="New Collection">
@@ -68,166 +67,63 @@
                                 </div>
                             </div>
                         </aside>
+
                         <div class="grid grid--collections">
-                            <div class="grid-item">
-                                <img src="https://placehold.co/300x300/f2f2f0/232d4a?text=Hype" alt="Hype Collection"
-                                    class="grid-item-image">
-                                <div class="grid-item-label text text-black"
-                                    style="text-align: center; font-weight: 700;">Hype Collection</div>
-                            </div>
+                            {% for spot in profile.collection_spots %}
+                            {{ profile_spot(spot) }}
+                            {% endfor %}
                         </div>
                     </div>
                 </div>
+
                 <div class="profile-tab-content" data-content="reviews" hidden>
                     <div class="reviews-grid">
-                        <article class="review-card">
-                            <div class="review-card-top">
-                                <div class="review-card-title heading-4 text-primary-dark">Austin's Bagels</div>
-                                <div class="review-card-date small text-gray">03/10/05</div>
-                                <div class="spot-stars">
-                                    <i class="fa-solid fa-star icon-star"></i>
-                                    <i class="fa-solid fa-star icon-star"></i>
-                                    <i class="fa-solid fa-star icon-star"></i>
-                                    <i class="fa-solid fa-star icon-star"></i>
-                                    <i class="fa-regular fa-star icon-star"></i>
-                                </div>
-                                <button class="review-card-edit" type="button" aria-label="Edit review">
-                                    <i class="fa-regular fa-pen-to-square"></i>
-                                </button>
-                            </div>
-                            <p class="review-card-body text text-black">
-                                Its ight. Its ight. Its ight. Its ight. Its ight.
-                            </p>
-                            <div class="review-card-bottom">
-                                <div class="review-card-interactions">
-                                    <div class="review-card-rating text text-secondary-dark">10</div>
-                                    <button class="review-card-like" type="button" aria-label="Like review">
-                                        <i class="fa-regular fa-thumbs-up"></i>
-                                    </button>
-                                </div>
-                                <button class="review-card-delete" type="button" aria-label="Delete review">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
-                            </div>
-                        </article>
+                        {% for review in profile.reviews %}
+                        {{ profile_review(review) }}
+                        {% endfor %}
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <div class="profile-tab-content" data-content="shared" hidden>
-            <div class="grid">
-                <div class="grid-item">
-                    <img src="https://placehold.co/300x300/f5e7da/232d4a?text=Shared+List" alt="Shared List"
-                        class="grid-item-image">
-                    <div class="grid-item-label text text-black" style="text-align: center; font-weight: 700;">Shared
-                        List</div>
+                <div class="profile-tab-content" data-content="shared" hidden>
+                    <div class="grid">
+                        {% for spot in profile.shared_spots %}
+                        {{ profile_spot(spot) }}
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<script>
-    const editAvatarButton = document.getElementById("editAvatarButton");
-    const avatarFileInput = document.getElementById("avatarFileInput");
-    const avatarImage = document.getElementById("avatarImage");
-    const tabButtons = document.querySelectorAll(".profile-options .button");
-    const tabContents = document.querySelectorAll(".profile-tab-content");
-    const createCollectionButton = document.getElementById("createCollectionButton");
-    const newCollectionInput = document.getElementById("newCollectionInput");
-    const collectionOptions = document.querySelectorAll(".collection-option");
-    const reviewLikeButtons = document.querySelectorAll(".review-card-like");
+<div class="bookmark-popup-backdrop" id="addToCollectionsBackdrop" hidden></div>
 
-    function setActiveTab(activeButton) {
-        tabButtons.forEach((button) => {
-            button.classList.remove("button--medium-gray");
+<div class="bookmark-popup add-to-collections-popup" id="addToCollectionsPopup" hidden aria-hidden="true">
+        <div class="bookmark-popup__panel">
+        <div class="bookmark-popup__title heading-2 text-black">
+            Add <span class="text-secondary-dark" id="addToCollectionsSpotName">Spot Name</span> To:
+        </div>
 
-            if (button !== activeButton) {
-                button.classList.add("button--medium-gray");
-            }
-        });
-    }
+        <div class="bookmark-popup__collections">
+            {% for collection_name in profile.available_collections %}
+            <label class="bookmark-collection">
+                <input type="checkbox" class="add-to-collections__input bookmark-collection__input">
+                <span class="bookmark-collection__box"></span>
+                <span class="bookmark-collection__label heading-3 text-black">{{ collection_name }}</span>
+            </label>
+            {% endfor %}
+        </div>
 
-    function showTab(tabName) {
-        tabContents.forEach((content) => {
-            const isActive = content.dataset.content === tabName;
-            content.hidden = !isActive;
-            content.classList.toggle("profile-tab-content--active", isActive);
-        });
-    }
+        <div class="bookmark-popup__actions">
+            <button class="button button--secondary" id="addToCollectionsSaveButton" type="button">
+                Save
+            </button>
+            <button class="button button--error" id="addToCollectionsCloseButton" type="button">
+                Close
+            </button>
+        </div>
+    </div>
+</div>
 
-    function setActiveCollection(activeButton) {
-        collectionOptions.forEach((button) => {
-            button.classList.remove("collection-option--active");
-        });
-
-        activeButton.classList.add("collection-option--active");
-    }
-
-    editAvatarButton.addEventListener("click", () => {
-        avatarFileInput.click();
-    });
-
-    avatarFileInput.addEventListener("change", (event) => {
-        const [selectedFile] = event.target.files;
-
-        if (!selectedFile) {
-            return;
-        }
-
-        const reader = new FileReader();
-
-        reader.addEventListener("load", () => {
-            avatarImage.src = reader.result;
-        });
-
-        reader.readAsDataURL(selectedFile);
-    });
-
-    tabButtons.forEach((button) => {
-        button.addEventListener("click", () => {
-            const scrollX = window.scrollX;
-            const scrollY = window.scrollY;
-
-            setActiveTab(button);
-            showTab(button.dataset.tab);
-
-            window.scrollTo(scrollX, scrollY);
-        });
-    });
-
-    collectionOptions.forEach((button) => {
-        button.addEventListener("click", () => {
-            setActiveCollection(button);
-        });
-    });
-
-    reviewLikeButtons.forEach((button) => {
-        const icon = button.querySelector(".fa-thumbs-up");
-
-        button.addEventListener("click", () => {
-            icon.classList.toggle("fa-regular");
-            icon.classList.toggle("fa-solid");
-        });
-    });
-
-    function createCollection() {
-        const newCollectionName = newCollectionInput.value.trim();
-
-        if (!newCollectionName) {
-            return;
-        }
-
-        newCollectionInput.value = "";
-    }
-
-    createCollectionButton.addEventListener("click", createCollection);
-
-    newCollectionInput.addEventListener("keydown", (event) => {
-        if (event.key === "Enter") {
-            createCollection();
-        }
-    });
-</script>
+<script src="{{ url_for('static', filename='js/profile.js') }}"></script>
 {% endblock %}

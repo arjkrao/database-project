@@ -249,7 +249,53 @@ def home():
 
 @app.route("/profile")
 def profile():
-    return render_template("profile.html")
+    profile_data = {
+        "name": "Raheel Syed",
+        "email": "email@gmail.com",
+        "avatar_image": "https://placehold.co/384x384",
+        "private_spots": [
+            {
+                "id": 1,
+                "name": "Austin's Bagels",
+                "image": "https://placehold.co/300x300",
+            },
+        ],
+        "collection_names": [
+            "Hype",
+            "Yummers",
+        ],
+        "collection_spots": [
+            {
+                "id": 2,
+                "name": "Hype Spot",
+                "image": "https://placehold.co/300x300/f2f2f0/232d4a?text=Hype",
+            },
+        ],
+        "reviews": [
+            {
+                "spot_name": "Austin's Bagels",
+                "date": "03/10/05",
+                "rating": 4.0,
+                "body": "Its ight. Its ight. Its ight. Its ight. Its ight.",
+                "likes": 10,
+                "liked": False,
+            },
+        ],
+        "shared_spots": [
+            {
+                "id": 3,
+                "name": "Shared Spot",
+                "image": "https://placehold.co/300x300/f5e7da/232d4a?text=Shared+Spot",
+            },
+        ],
+        "available_collections": [
+            "Hype",
+            "Yummers",
+            "Chill",
+        ],
+    }
+
+    return render_template("profile.html", profile=profile_data)
 
 @app.route("/test")
 def test():
