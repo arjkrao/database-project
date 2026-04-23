@@ -1,254 +1,233 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Emilys+Candy&family=IBM+Plex+Serif:wght@400&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
-</head>
-
-<body>
-    <header class="header">
-        <div class="header-inner">
-            <div class="logo-group">
-                <div class="logo-text">Third</div>
-                <div class="logo-text">Spots</div>
+{% block content %}
+<div class="profile-page">
+    <div class="profile-card">
+        <div class="profile-header">
+            <div class="person-circle">
+                <div class="person-inner">
+                    <img src="https://placehold.co/384x384" alt="Profile picture" class="avatar-image" id="avatarImage">
+                </div>
+                <button class="edit-icon" id="editAvatarButton" type="button" aria-label="Choose profile picture">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                </button>
             </div>
-            <i class="fa-solid fa-circle-user icon-profile"></i>
+
+            <input type="file" id="avatarFileInput" accept="image/*" hidden>
+
+            <div class="profile-name heading-1 text-black">Raheel Syed</div>
+            <div class="profile-email small text-gray">email@gmail.com</div>
         </div>
-    </header>
 
-    <div class="profile-page">
-        <div class="profile-card">
-            <div class="profile-header">
-                <div class="person-circle">
-                    <div class="person-inner">
-                        <img src="https://placehold.co/384x384" alt="Profile picture" class="avatar-image"
-                            id="avatarImage">
-                    </div>
-                    <button class="edit-icon" id="editAvatarButton" type="button" aria-label="Choose profile picture">
-                        <i class="fa-solid fa-pen-to-square"></i>
-                    </button>
-                </div>
-
-                <input type="file" id="avatarFileInput" accept="image/*" hidden>
-
-                <div class="profile-name heading-1 text-black">Raheel Syed</div>
-                <div class="profile-email small text-gray">email@gmail.com</div>
+        <div class="bottom-container">
+            <div class="profile-options">
+                <button class="button" type="button" data-tab="private">Private</button>
+                <span class="profile-divider text-black text">|</span>
+                <button class="button button--medium-gray" type="button" data-tab="collections">Collections</button>
+                <span class="profile-divider text-black text">|</span>
+                <button class="button button--medium-gray" type="button" data-tab="reviews">Reviews</button>
+                <span class="profile-divider text-black text">|</span>
+                <button class="button button--medium-gray" type="button" data-tab="shared">Shared</button>
             </div>
 
-            <div class="bottom-container">
-                <div class="profile-options">
-                    <button class="button" type="button" data-tab="private">Private</button>
-                    <span class="profile-divider text-black text">|</span>
-                    <button class="button button--medium-gray" type="button" data-tab="collections">Collections</button>
-                    <span class="profile-divider text-black text">|</span>
-                    <button class="button button--medium-gray" type="button" data-tab="reviews">Reviews</button>
-                    <span class="profile-divider text-black text">|</span>
-                    <button class="button button--medium-gray" type="button" data-tab="shared">Shared</button>
+            <div id="profileContent">
+                <div class="profile-tab-content profile-tab-content--active" data-content="private">
+                    <div class="grid">
+                        <div class="grid-item">
+                            <img src="https://placehold.co/300x300" alt="Austin's Bagels" class="grid-item-image">
+                            <div class="grid-item-label text text-black" style="text-align: center; font-weight: 700;">
+                                Austin's Bagels</div>
+                        </div>
+                    </div>
                 </div>
 
-                <div id="profileContent">
-                    <div class="profile-tab-content profile-tab-content--active" data-content="private">
-                        <div class="grid">
+                <div class="profile-tab-content" data-content="collections" hidden>
+                    <div class="collections-layout">
+                        <aside class="collections-sidebar">
+                            <div class="collections-sidebar-group">
+                                <div class="collections-sidebar-title heading-1 text-black">Collection Name</div>
+                                <div class="collections-sidebar-list">
+                                    <button class="collection-option collection-option--active text-black" type="button"
+                                        data-collection-name="Hype">
+                                        <span class="collection-option-dot"></span>
+                                        <span class="heading-4">Hype</span>
+                                    </button>
+                                    <button class="collection-option collection-option text-black" type="button"
+                                        data-collection-name="Hype">
+                                        <span class="collection-option-dot"></span>
+                                        <span class="heading-4">Hype</span>
+                                    </button>
+                                    <div class="collection-create-row">
+                                        <input class="collection-create-input text-black text" id="newCollectionInput"
+                                            type="text" placeholder="New Collection">
+                                        <button class="button button--primary collection-create-button"
+                                            id="createCollectionButton" type="button" aria-label="Create collection">
+                                            <i class="fa-solid fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </aside>
+                        <div class="grid grid--collections">
                             <div class="grid-item">
-                                <img src="https://placehold.co/300x300" alt="Austin's Bagels" class="grid-item-image">
-                                <div class="grid-item-label text text-black" style="text-align: center; font-weight: 700;">Austin's Bagels</div>
+                                <img src="https://placehold.co/300x300/f2f2f0/232d4a?text=Hype" alt="Hype Collection"
+                                    class="grid-item-image">
+                                <div class="grid-item-label text text-black"
+                                    style="text-align: center; font-weight: 700;">Hype Collection</div>
                             </div>
-                        </div>
-                    </div>
-
-                    <div class="profile-tab-content" data-content="collections" hidden>
-                        <div class="collections-layout">
-                            <aside class="collections-sidebar">
-                                <div class="collections-sidebar-group">
-                                    <div class="collections-sidebar-title heading-1 text-black">Collection Name</div>
-                                    <div class="collections-sidebar-list">
-                                        <button class="collection-option collection-option--active text-black"
-                                            type="button" data-collection-name="Hype">
-                                            <span class="collection-option-dot"></span>
-                                            <span class="heading-4">Hype</span>
-                                        </button>
-                                        <button class="collection-option collection-option text-black"
-                                            type="button" data-collection-name="Hype">
-                                            <span class="collection-option-dot"></span>
-                                            <span class="heading-4">Hype</span>
-                                        </button>
-                                        <div class="collection-create-row">
-                                            <input class="collection-create-input text-black text"
-                                                id="newCollectionInput" type="text" placeholder="New Collection">
-                                            <button class="button button--primary collection-create-button"
-                                                id="createCollectionButton" type="button"
-                                                aria-label="Create collection">
-                                                <i class="fa-solid fa-plus"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </aside>
-                            <div class="grid grid--collections">
-                                <div class="grid-item">
-                                    <img src="https://placehold.co/300x300/f2f2f0/232d4a?text=Hype"
-                                        alt="Hype Collection" class="grid-item-image">
-                                    <div class="grid-item-label text text-black" style="text-align: center; font-weight: 700;">Hype Collection</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="profile-tab-content" data-content="reviews" hidden>
-                        <div class="reviews-grid">
-                            <article class="review-card">
-                                <div class="review-card-top">
-                                    <div class="review-card-title heading-4 text-primary-dark">Austin's Bagels</div>
-                                    <div class="review-card-date small text-gray">03/10/05</div>
-                                    <div class="spot-stars">
-                                        <i class="fa-solid fa-star icon-star"></i>
-                                        <i class="fa-solid fa-star icon-star"></i>
-                                        <i class="fa-solid fa-star icon-star"></i>
-                                        <i class="fa-solid fa-star icon-star"></i>
-                                        <i class="fa-regular fa-star icon-star"></i>
-                                    </div>
-                                    <button class="review-card-edit" type="button" aria-label="Edit review">
-                                        <i class="fa-regular fa-pen-to-square"></i>
-                                    </button>
-                                </div>
-                                <p class="review-card-body text text-black">
-                                    Its ight. Its ight. Its ight. Its ight. Its ight.
-                                </p>
-                                <div class="review-card-bottom">
-                                    <div class="review-card-interactions">
-                                        <div class="review-card-rating text text-secondary-dark">10</div>
-                                        <button class="review-card-like" type="button" aria-label="Like review">
-                                            <i class="fa-regular fa-thumbs-up"></i>
-                                        </button>
-                                    </div>
-                                    <button class="review-card-delete" type="button" aria-label="Delete review">
-                                        <i class="fa-solid fa-trash"></i>
-                                    </button>
-                                </div>
-                            </article>
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <div class="profile-tab-content" data-content="shared" hidden>
-                <div class="grid">
-                    <div class="grid-item">
-                        <img src="https://placehold.co/300x300/f5e7da/232d4a?text=Shared+List" alt="Shared List"
-                            class="grid-item-image">
-                        <div class="grid-item-label text text-black" style="text-align: center; font-weight: 700;">Shared List</div>
+                <div class="profile-tab-content" data-content="reviews" hidden>
+                    <div class="reviews-grid">
+                        <article class="review-card">
+                            <div class="review-card-top">
+                                <div class="review-card-title heading-4 text-primary-dark">Austin's Bagels</div>
+                                <div class="review-card-date small text-gray">03/10/05</div>
+                                <div class="spot-stars">
+                                    <i class="fa-solid fa-star icon-star"></i>
+                                    <i class="fa-solid fa-star icon-star"></i>
+                                    <i class="fa-solid fa-star icon-star"></i>
+                                    <i class="fa-solid fa-star icon-star"></i>
+                                    <i class="fa-regular fa-star icon-star"></i>
+                                </div>
+                                <button class="review-card-edit" type="button" aria-label="Edit review">
+                                    <i class="fa-regular fa-pen-to-square"></i>
+                                </button>
+                            </div>
+                            <p class="review-card-body text text-black">
+                                Its ight. Its ight. Its ight. Its ight. Its ight.
+                            </p>
+                            <div class="review-card-bottom">
+                                <div class="review-card-interactions">
+                                    <div class="review-card-rating text text-secondary-dark">10</div>
+                                    <button class="review-card-like" type="button" aria-label="Like review">
+                                        <i class="fa-regular fa-thumbs-up"></i>
+                                    </button>
+                                </div>
+                                <button class="review-card-delete" type="button" aria-label="Delete review">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </article>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-tab-content" data-content="shared" hidden>
+            <div class="grid">
+                <div class="grid-item">
+                    <img src="https://placehold.co/300x300/f5e7da/232d4a?text=Shared+List" alt="Shared List"
+                        class="grid-item-image">
+                    <div class="grid-item-label text text-black" style="text-align: center; font-weight: 700;">Shared
+                        List</div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <script>
-        const editAvatarButton = document.getElementById("editAvatarButton");
-        const avatarFileInput = document.getElementById("avatarFileInput");
-        const avatarImage = document.getElementById("avatarImage");
-        const tabButtons = document.querySelectorAll(".profile-options .button");
-        const tabContents = document.querySelectorAll(".profile-tab-content");
-        const createCollectionButton = document.getElementById("createCollectionButton");
-        const newCollectionInput = document.getElementById("newCollectionInput");
-        const collectionOptions = document.querySelectorAll(".collection-option");
-        const reviewLikeButtons = document.querySelectorAll(".review-card-like");
+<script>
+    const editAvatarButton = document.getElementById("editAvatarButton");
+    const avatarFileInput = document.getElementById("avatarFileInput");
+    const avatarImage = document.getElementById("avatarImage");
+    const tabButtons = document.querySelectorAll(".profile-options .button");
+    const tabContents = document.querySelectorAll(".profile-tab-content");
+    const createCollectionButton = document.getElementById("createCollectionButton");
+    const newCollectionInput = document.getElementById("newCollectionInput");
+    const collectionOptions = document.querySelectorAll(".collection-option");
+    const reviewLikeButtons = document.querySelectorAll(".review-card-like");
 
-        function setActiveTab(activeButton) {
-            tabButtons.forEach((button) => {
-                button.classList.remove("button--medium-gray");
-
-                if (button !== activeButton) {
-                    button.classList.add("button--medium-gray");
-                }
-            });
-        }
-
-        function showTab(tabName) {
-            tabContents.forEach((content) => {
-                const isActive = content.dataset.content === tabName;
-                content.hidden = !isActive;
-                content.classList.toggle("profile-tab-content--active", isActive);
-            });
-        }
-
-        function setActiveCollection(activeButton) {
-            collectionOptions.forEach((button) => {
-                button.classList.remove("collection-option--active");
-            });
-
-            activeButton.classList.add("collection-option--active");
-        }
-
-        editAvatarButton.addEventListener("click", () => {
-            avatarFileInput.click();
-        });
-
-        avatarFileInput.addEventListener("change", (event) => {
-            const [selectedFile] = event.target.files;
-
-            if (!selectedFile) {
-                return;
-            }
-
-            const reader = new FileReader();
-
-            reader.addEventListener("load", () => {
-                avatarImage.src = reader.result;
-            });
-
-            reader.readAsDataURL(selectedFile);
-        });
-
+    function setActiveTab(activeButton) {
         tabButtons.forEach((button) => {
-            button.addEventListener("click", () => {
-                const scrollX = window.scrollX;
-                const scrollY = window.scrollY;
+            button.classList.remove("button--medium-gray");
 
-                setActiveTab(button);
-                showTab(button.dataset.tab);
-
-                window.scrollTo(scrollX, scrollY);
-            });
-        });
-
-        collectionOptions.forEach((button) => {
-            button.addEventListener("click", () => {
-                setActiveCollection(button);
-            });
-        });
-
-        reviewLikeButtons.forEach((button) => {
-            const icon = button.querySelector(".fa-thumbs-up");
-
-            button.addEventListener("click", () => {
-                icon.classList.toggle("fa-regular");
-                icon.classList.toggle("fa-solid");
-            });
-        });
-
-        function createCollection() {
-            const newCollectionName = newCollectionInput.value.trim();
-
-            if (!newCollectionName) {
-                return;
+            if (button !== activeButton) {
+                button.classList.add("button--medium-gray");
             }
+        });
+    }
 
-            newCollectionInput.value = "";
+    function showTab(tabName) {
+        tabContents.forEach((content) => {
+            const isActive = content.dataset.content === tabName;
+            content.hidden = !isActive;
+            content.classList.toggle("profile-tab-content--active", isActive);
+        });
+    }
+
+    function setActiveCollection(activeButton) {
+        collectionOptions.forEach((button) => {
+            button.classList.remove("collection-option--active");
+        });
+
+        activeButton.classList.add("collection-option--active");
+    }
+
+    editAvatarButton.addEventListener("click", () => {
+        avatarFileInput.click();
+    });
+
+    avatarFileInput.addEventListener("change", (event) => {
+        const [selectedFile] = event.target.files;
+
+        if (!selectedFile) {
+            return;
         }
 
-        createCollectionButton.addEventListener("click", createCollection);
+        const reader = new FileReader();
 
-        newCollectionInput.addEventListener("keydown", (event) => {
-            if (event.key === "Enter") {
-                createCollection();
-            }
+        reader.addEventListener("load", () => {
+            avatarImage.src = reader.result;
         });
-    </script>
-</body>
 
-</html>
+        reader.readAsDataURL(selectedFile);
+    });
+
+    tabButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+            const scrollX = window.scrollX;
+            const scrollY = window.scrollY;
+
+            setActiveTab(button);
+            showTab(button.dataset.tab);
+
+            window.scrollTo(scrollX, scrollY);
+        });
+    });
+
+    collectionOptions.forEach((button) => {
+        button.addEventListener("click", () => {
+            setActiveCollection(button);
+        });
+    });
+
+    reviewLikeButtons.forEach((button) => {
+        const icon = button.querySelector(".fa-thumbs-up");
+
+        button.addEventListener("click", () => {
+            icon.classList.toggle("fa-regular");
+            icon.classList.toggle("fa-solid");
+        });
+    });
+
+    function createCollection() {
+        const newCollectionName = newCollectionInput.value.trim();
+
+        if (!newCollectionName) {
+            return;
+        }
+
+        newCollectionInput.value = "";
+    }
+
+    createCollectionButton.addEventListener("click", createCollection);
+
+    newCollectionInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+            createCollection();
+        }
+    });
+</script>
+{% endblock %}
