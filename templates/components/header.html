@@ -4,8 +4,10 @@
             <div class="logo-text">Third</div>
             <div class="logo-text">Spots</div>
         </a>
+        {% if show_profile_icon %}
         <a href="{{ url_for('profile') }}" aria-label="Go to profile">
             <i class="fa-solid fa-circle-user icon-profile"></i>
         </a>
+        {% endif %}
     </div>
 </header>

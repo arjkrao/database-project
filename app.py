@@ -112,11 +112,7 @@ db.init_app(app)
 
 @app.route("/")
 def index():
-    if config_error:
-        connected, message = False, config_error
-    else:
-        connected, message = test_db_connection()
-    return render_template("index.html", connected=connected, message=message)
+    return render_template("index.html", show_profile_icon=False)
 
 
 @app.route("/home")
