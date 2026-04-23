@@ -601,6 +601,14 @@ p {
   font-size: 64px;
 }
 
+.logo-group {
+  text-decoration: none;
+}
+
+.header-inner > a {
+  text-decoration: none;
+}
+
 /* =========================================================
    HOME
    ========================================================= */
