@@ -99,11 +99,23 @@ client_secrets_file = os.path.join(pathlib.Path(__file__).parent, "client_secret
 db = SQLAlchemy(app)
 
 # Login Functions
+
+# protect webpages with content required for login
 def login_is_required(function):
     @wraps(function)
     def wrapper(*args, **kwargs):
         if "google_id" not in session:
             return redirect(url_for('index')) # Authorization required
+        return function(*args, **kwargs)
+    return wrapper
+
+# protect admin endpoints
+def admin_required(function):
+    @wraps(function)
+    def wrapper(*args, **kwargs):
+        user = get_user(session.get('email'))
+        if not user or user.role != 'admin':
+            return abort(403)
         return function(*args, **kwargs)
     return wrapper
 
@@ -177,6 +189,21 @@ def logout():
 @app.route("/")
 def index():
     return render_template("index.html", show_header_buttons=False)
+
+@app.context_processor
+def inject_user():
+    email = session.get('email')
+    if(email == None): return {}
+
+    curr_user = get_user(email)
+    print(curr_user)
+    if(curr_user is None): return
+    return {
+        "curr_uid": curr_user.user_id,
+        "curr_username": curr_user.username,
+        "curr_displayname": curr_user.display_name,
+        "curr_role": curr_user.role,
+    }
 
 @app.route("/home/create_spot", methods=['POST'])
 @login_is_required
@@ -359,8 +386,6 @@ def home():
         spots=spots,
         requested_spots=requested_spots,
         bookmark_collections=bookmark_collections,
-        user_role=session.get('role'),
-        user_display_name=session.get('name')
     )
 
 @app.route("/user/<string:username>/pfp")

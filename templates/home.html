@@ -35,7 +35,7 @@
         <div class="home-right">
             <div class="right-panel right-panel--active" id="welcomePanel">
                 <div class="welcome-message">
-                    <div class="display-3 text-white">Welcome {{ user_display_name }}!</div>
+                    <div class="display-3 text-white">Welcome {{ curr_displayname }}!</div>
                     <button class="button button--secondary" id="findSpotsButton" type="button">
                         Find Spots <i class="fa-solid fa-location-dot"></i>
                     </button>
@@ -61,7 +61,7 @@
         </div>
         {% include "components/add_spot.html" %}
     </div>
-    {% if user_role == 'admin' %}
+    {% if curr_role == 'admin' %}
     <div class="home-bottom-container">
         <div class="home-bottom-inner">
             <div class="display-1 text-white">Requested Spots</div>
