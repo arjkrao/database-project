@@ -84,6 +84,47 @@
       createSpotButton.disabled = !isAddSpotDraftValid();
     }
 
+    function renderAddSpotImageButton() {
+      const hasImage = Boolean(addSpotDraft.imageFile);
+
+      addSpotImageButton.classList.toggle("button--primary", hasImage);
+      addSpotImageButton.classList.toggle("button--medium-gray", !hasImage);
+
+      if (hasImage) {
+        const fullName = addSpotDraft.imageFile.name;
+        const maxLength = 24;
+
+        if (fullName.length <= maxLength) {
+          addSpotImageButton.textContent = fullName;
+          return;
+        }
+
+        const lastDotIndex = fullName.lastIndexOf(".");
+
+        if (lastDotIndex <= 0 || lastDotIndex === fullName.length - 1) {
+          addSpotImageButton.textContent = `${fullName.slice(0, 8)}...${fullName.slice(-8)}`;
+          return;
+        }
+
+        const baseName = fullName.slice(0, lastDotIndex);
+        const extension = fullName.slice(lastDotIndex);
+
+        const endBaseLength = Math.min(8, baseName.length);
+        const startBaseLength = Math.min(
+          8,
+          Math.max(0, baseName.length - endBaseLength),
+        );
+
+        const startPart = baseName.slice(0, startBaseLength);
+        const endPart = baseName.slice(-endBaseLength);
+
+        addSpotImageButton.textContent = `${startPart}...${endPart}${extension}`;
+      } else {
+        addSpotImageButton.innerHTML =
+          'Upload Image <i class="fa-solid fa-upload"></i>';
+      }
+    }
+
     function renderAddSpotPrice() {
       const freeSelected = addSpotDraft.price === "free";
 
@@ -118,6 +159,7 @@
       newSpotDescriptionInput.value = addSpotDraft.description;
       renderAddSpotPrice();
       renderAddSpotTags();
+      renderAddSpotImageButton();
       updateCreateSpotButtonState();
     }
 
@@ -214,10 +256,12 @@
 
       if (!selectedFile) {
         addSpotDraft.imageFile = null;
+        renderAddSpotImageButton();
         return;
       }
 
       addSpotDraft.imageFile = selectedFile;
+      renderAddSpotImageButton();
     });
 
     createSpotButton.addEventListener("click", async () => {
@@ -308,6 +352,7 @@
       });
     });
 
+    renderAddSpotImageButton();
     updateCreateSpotButtonState();
 
     window.closeAddSpotPopup = closeAddSpotPopup;
