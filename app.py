@@ -8,6 +8,7 @@ from google_auth_oauthlib.flow import Flow
 from google.oauth2 import id_token
 from google.auth.transport import requests
 from functools import wraps
+import json
 
 ICON_OPTIONS = {
     "Food": {
@@ -180,13 +181,19 @@ def index():
 @app.route("/home/create_spot", methods=['POST'])
 @login_is_required
 def create_spot():
+    owner_id = get_user(session.get('email')).user_id
 
     name = request.form.get('name')
     description = request.form.get('description')
     price = request.form.get('price')
-    tags = request.form.get('tags')  # "Food,Study,Nature"
+    tags_raw = request.form.get('tags')  # "Food,Study,Nature"
+    try:
+        tags = json.loads(tags_raw) if tags_raw else []
+    except:
+        tags = []
+        
     lat = request.form.get('lat')
-    long = request.form.get('lon')
+    lon = request.form.get('lon')
 
     image_file = request.files.get('image')
     image_bytes = None
@@ -194,12 +201,27 @@ def create_spot():
         image_bytes = image_file.read()
 
     # not going to be able to add spot anywhere else so just include SQL functionality here
-    print("Name:", name)
-    print("Description:", description)
-    print("Price:", price)
-    print("Lat/Lon:", lat, long)
-    print("Tags:", tags)
-    print("Has image:", image_bytes is not None)
+    with db.engine.begin() as conn:
+        query = text('INSERT INTO locations (location_name, pricing_tier, description, latitude, longitude, location_photo_blob) \
+                     VALUES (:lname, :ptier, :desc, :lati, :longi, :img_file)')
+        result = conn.execute(query, {
+            "lname": name,
+            "ptier": price, 
+            "desc": description,
+            "lati": float(lat),
+            "longi": float(lon),
+            "img_file": image_bytes,
+        })
+
+        newid = result.lastrowid
+        print(newid)
+        for tag in tags:
+            query = text('INSERT INTO location_tags (location_id, tag) VALUES (:lid, :t)')
+            conn.execute(query, {"lid": newid, "t": tag})
+
+        query = text('INSERT INTO owns (user_id, location_id) VALUES (:uid, :lid)')
+        conn.execute(query, {"uid": owner_id, "lid": newid})
+        
 
     return jsonify({
         "status": "success",
