@@ -1905,8 +1905,8 @@ p {
 .profile-options .button--medium-gray:focus-visible {
   transform: scale(1.05);
   filter: brightness(1.06);
-  background: #e5e5e5;
-  color: var(--color-black);
+  background: var(--color-secondary-dark);
+  color: var(--color-white);
   border-color: transparent;
 }
 
