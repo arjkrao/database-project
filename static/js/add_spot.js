@@ -36,7 +36,8 @@
 
     let addSpotDraft = {
       name: "",
-      coordinates: "",
+      coordinatesInput: "",
+      coordinates: null,
       description: "",
       price: "none",
       tags: [],
@@ -44,7 +45,7 @@
 
     function isAddSpotDraftValid() {
       const hasName = addSpotDraft.name.trim().length > 0;
-      const hasCoordinates = addSpotDraft.coordinates.trim().length > 0;
+      const hasCoordinates = isValidCoordinates(addSpotDraft.coordinatesInput)
       const hasDescription = addSpotDraft.description.trim().length > 0;
       const hasPrice = addSpotDraft.price !== "none";
       const hasAtLeastOneTag = addSpotDraft.tags.length > 0;
@@ -91,7 +92,7 @@
 
     function renderAddSpotDraft() {
       newSpotNameInput.value = addSpotDraft.name;
-      newSpotCoordinatesInput.value = addSpotDraft.coordinates;
+      newSpotCoordinatesInput.value = addSpotDraft.coordinatesInput;
       newSpotDescriptionInput.value = addSpotDraft.description;
       renderAddSpotPrice();
       renderAddSpotTags();
@@ -100,14 +101,15 @@
 
     function readAddSpotDraftFromInputs() {
       addSpotDraft.name = newSpotNameInput.value;
-      addSpotDraft.coordinates = newSpotCoordinatesInput.value;
+      addSpotDraft.coordinatesInput = newSpotCoordinatesInput.value;
       addSpotDraft.description = newSpotDescriptionInput.value;
     }
 
     function resetAddSpotDraft() {
       addSpotDraft = {
         name: "",
-        coordinates: "",
+        coordinatesInput: "",
+        coordinates: null,
         description: "",
         price: "none",
         tags: [],
@@ -178,8 +180,48 @@
       event.stopPropagation();
     });
 
-    createSpotButton.addEventListener("click", () => {
-      closeAddSpotPopup({ clearAfterClose: true, saveBeforeClose: false });
+    function isValidCoordinates(input) {
+      const regex = /^\s*\(?\s*-?\d+(\.\d+)?\s*,\s*-?\d+(\.\d+)?\s*\)?\s*$/;
+      return regex.test(input);
+    }
+
+    function parseCoordinates(input) {
+      const match = input.match(/-?\d+(\.\d+)?/g);
+      if (!match || match.length !== 2) return null;
+
+      return {
+        lat: parseFloat(match[0]),
+        lon: parseFloat(match[1])
+      };
+    }
+
+    createSpotButton.addEventListener("click", async () => {
+      readAddSpotDraftFromInputs();
+
+      // validate coordinates BEFORE sending
+      if (!isValidCoordinates(addSpotDraft.coordinatesInput)) {
+        alert("Invalid coordinates format. Use (lat, lon).");
+        return;
+      }
+
+      const coords = parseCoordinates(addSpotDraft.coordinatesInput);
+      if (!coords) {
+        alert("Invalid coordinates");
+        return;
+      }
+      addSpotDraft.coordinates = coords;
+
+      const response = await fetch("/home/create_spot", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(addSpotDraft)
+      });
+
+      const result = await response.json();
+      console.log(result);
+      closeAddSpotPopup();
     });
 
     newSpotNameInput.addEventListener("input", () => {
@@ -188,7 +230,7 @@
     });
 
     newSpotCoordinatesInput.addEventListener("input", () => {
-      addSpotDraft.coordinates = newSpotCoordinatesInput.value;
+      addSpotDraft.coordinatesInput = newSpotCoordinatesInput.value;
       updateCreateSpotButtonState();
     });
 
@@ -214,12 +256,14 @@
 
     addSpotTagButtons.forEach((button, index) => {
       button.addEventListener("click", () => {
-        if (addSpotDraft.tags.includes(index)) {
+        const tagName = button.dataset.tooltip; // food, drink, etc.
+
+        if (addSpotDraft.tags.includes(tagName)) {
           addSpotDraft.tags = addSpotDraft.tags.filter(
-            (tagIndex) => tagIndex !== index,
+            (t) => t !== tagName,
           );
         } else {
-          addSpotDraft.tags.push(index);
+          addSpotDraft.tags.push(tagName);
         }
 
         renderAddSpotTags();

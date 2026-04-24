@@ -1,6 +1,6 @@
 import os
 import pathlib
-from flask import Flask, render_template, request, session, abort, redirect, url_for, Response, send_file
+from flask import Flask, jsonify, render_template, request, session, abort, redirect, url_for, Response, send_file
 from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text, URL
@@ -177,6 +177,27 @@ def logout():
 def index():
     return render_template("index.html", show_header_buttons=False)
 
+@app.route("/home/create_spot", methods=['POST'])
+@login_is_required
+def create_spot():
+    data = request.get_json()
+
+    name = data.get('newSpotName')
+    coordinates = data.get('newSpotCoordinates')
+    description = data.get('newSpotDescription')
+    price = data.get('price')
+    tags = data.get('tags')  # "Food,Study,Nature"
+
+    # not going to be able to add spot anywhere else so just include SQL functionality here
+
+
+    print("Received spot: ", data)
+
+    return jsonify({
+        "status": "success",
+        "message": "Spot created successfully",
+        "spot": data
+    })
 
 @app.route("/home")
 @login_is_required
@@ -326,7 +347,6 @@ def user_profile_image(username):
 
     return Response(image_bytes, mimetype="image/jpeg")
             
-
 
 @app.route("/profile")
 @login_is_required
