@@ -176,7 +176,7 @@ def logout():
 
 @app.route("/")
 def index():
-    return "<p>Hello world <a href='/login'><button>Login</button></a></p>" 
+    return render_template("index.html", show_header_buttons=False)
 
 
 @app.route("/home")

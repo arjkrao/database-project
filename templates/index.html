@@ -1,101 +1,22 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Database Project</title>
-    <style>
-      :root {
-        --bg: #f5efe6;
-        --panel: #fffaf3;
-        --text: #1f2937;
-        --muted: #6b7280;
-        --success: #166534;
-        --success-bg: #dcfce7;
-        --error: #991b1b;
-        --error-bg: #fee2e2;
-        --border: #e5dccf;
-      }
-
-      * {
-        box-sizing: border-box;
-      }
-
-      body {
-        margin: 0;
-        font-family: Georgia, "Times New Roman", serif;
-        background:
-          radial-gradient(circle at top, #fff5e8 0, #f5efe6 45%, #efe6da 100%);
-        color: var(--text);
-        min-height: 100vh;
-        display: grid;
-        place-items: center;
-        padding: 24px;
-      }
-
-      main {
-        width: min(680px, 100%);
-        background: var(--panel);
-        border: 1px solid var(--border);
-        border-radius: 18px;
-        padding: 32px;
-        box-shadow: 0 18px 60px rgba(71, 55, 40, 0.12);
-      }
-
-      h1 {
-        margin-top: 0;
-        margin-bottom: 10px;
-        font-size: clamp(2rem, 4vw, 3rem);
-      }
-
-      p {
-        line-height: 1.6;
-      }
-
-      .status {
-        margin-top: 24px;
-        padding: 16px 18px;
-        border-radius: 12px;
-        border: 1px solid transparent;
-      }
-
-      .success {
-        background: var(--success-bg);
-        color: var(--success);
-        border-color: #86efac;
-      }
-
-      .error {
-        background: var(--error-bg);
-        color: var(--error);
-        border-color: #fca5a5;
-      }
-
-      code {
-        background: #f3eadf;
-        padding: 2px 6px;
-        border-radius: 6px;
-      }
-
-      .muted {
-        color: var(--muted);
-      }
-    </style>
-  </head>
-  <body>
-    <main>
-      <h1>Pinpoint/Third Spots/DatabaseProject</h1>
-      <p>
-        Checks if <code>.env</code> work.
-      </p>
-
-      <div class="status {{ 'success' if connected else 'error' }}">
-        {{ message }}
+{% extends "base.html" %}
+{% block content %}
+<div class="landing-container">
+  <div class="landing-left">
+    <div class="landing-content">
+      <div class="landing-header">
+        <div class="display-1 text-white">Welcome To</div>
+        <div class="logo-text text-white">Third Spots</div>
       </div>
-
-      <p class="muted">
-        bleh
-      </p>
-    </main>
-  </body>
-  </html>
+      <div class="heading-2 text-white">Discover, Share, and Save the hidden places that make your city feel personal.
+      </div>
+      <button class="button button--secondary" id="loginButton" type="button">
+        Login <i class="fa-solid fa-arrow-right-to-bracket"></i>
+      </button>
+    </div>
+  </div>
+  <div class="landing-right">
+    <img class="landing-image"
+      src="https://t4.ftcdn.net/jpg/02/65/42/55/360_F_265425516_wtAw64cGdOVvrdl64b5bsyBqcD0rkw1W.jpg" />
+  </div>
+</div>
+{% endblock %}

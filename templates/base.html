@@ -13,7 +13,10 @@
 </head>
 
 <body>
+    {% with show_header_buttons = show_header_buttons|default(True) %}
     {% include 'components/header.html' %}
+    {% endwith %}
+
     <main>
         {% block content %}{% endblock %}
     </main>

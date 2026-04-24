@@ -1,11 +1,18 @@
 <header class="header">
-    <div class="header-inner">
-        <a href="{{ url_for('home') }}" class="logo-group">
+    <div class="header-inner {% if not show_header_buttons %}header-inner--centered{% endif %}">
+        {% if show_header_buttons %}
+        <button class="button button--primary">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+        </button>
+        {% endif %}
+        <a href="{{ url_for('home') if show_header_buttons else '' }}" class="logo-group">
             <div class="logo-text">Third</div>
             <div class="logo-text">Spots</div>
         </a>
+        {% if show_header_buttons %}
         <a href="{{ url_for('profile') }}" aria-label="Go to profile">
             <i class="fa-solid fa-circle-user icon-profile"></i>
         </a>
+        {% endif %}
     </div>
 </header>
