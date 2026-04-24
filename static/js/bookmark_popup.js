@@ -1,10 +1,16 @@
 (function () {
   function setupHomeBookmarkPopup() {
     const bookmarkPopup = document.getElementById("bookmarkPopup");
-    const bookmarkPopupBackdrop = document.getElementById("bookmarkPopupBackdrop");
+    const bookmarkPopupBackdrop = document.getElementById(
+      "bookmarkPopupBackdrop",
+    );
     const bookmarkSpotName = document.getElementById("bookmarkPopupSpotName");
-    const bookmarkSaveButton = document.getElementById("bookmarkPopupSaveButton");
-    const bookmarkClearButton = document.getElementById("bookmarkPopupClearButton");
+    const bookmarkSaveButton = document.getElementById(
+      "bookmarkPopupSaveButton",
+    );
+    const bookmarkClearButton = document.getElementById(
+      "bookmarkPopupClearButton",
+    );
     const bookmarkCollectionInputs = Array.from(
       document.querySelectorAll(".bookmark-collection__input-home"),
     );
@@ -138,11 +144,21 @@
   }
 
   function setupProfileBookmarkPopup() {
-    const addToCollectionsPopup = document.getElementById("addToCollectionsPopup");
-    const addToCollectionsBackdrop = document.getElementById("addToCollectionsPopupBackdrop");
-    const addToCollectionsSpotName = document.getElementById("addToCollectionsPopupSpotName");
-    const addToCollectionsSaveButton = document.getElementById("addToCollectionsPopupSaveButton");
-    const addToCollectionsClearButton = document.getElementById("addToCollectionsPopupClearButton");
+    const addToCollectionsPopup = document.getElementById(
+      "addToCollectionsPopup",
+    );
+    const addToCollectionsBackdrop = document.getElementById(
+      "addToCollectionsPopupBackdrop",
+    );
+    const addToCollectionsSpotName = document.getElementById(
+      "addToCollectionsPopupSpotName",
+    );
+    const addToCollectionsSaveButton = document.getElementById(
+      "addToCollectionsPopupSaveButton",
+    );
+    const addToCollectionsClearButton = document.getElementById(
+      "addToCollectionsPopupClearButton",
+    );
     const addToCollectionsInputs = Array.from(
       document.querySelectorAll(".add-to-collections__input"),
     );
@@ -205,7 +221,9 @@
       }
 
       addToCollectionsPopup.classList.remove("bookmark-popup--open");
-      addToCollectionsBackdrop.classList.remove("bookmark-popup-backdrop--open");
+      addToCollectionsBackdrop.classList.remove(
+        "bookmark-popup-backdrop--open",
+      );
       addToCollectionsPopup.setAttribute("aria-hidden", "true");
 
       window.setTimeout(() => {
@@ -232,7 +250,10 @@
       });
     });
 
-    addToCollectionsBackdrop.addEventListener("click", closeAddToCollectionsPopup);
+    addToCollectionsBackdrop.addEventListener(
+      "click",
+      closeAddToCollectionsPopup,
+    );
 
     addToCollectionsPopup.addEventListener("click", (event) => {
       event.stopPropagation();

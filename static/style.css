@@ -2144,7 +2144,28 @@ p {
   transform: translate(-50%, -50%) translateY(0);
 }
 
-/* Profile page should not show a backdrop for add-to-collections */
 #addToCollectionsPopupBackdrop {
-  display: none !important;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.28);
+  opacity: 0;
+  transition: opacity 0.22s ease;
+  z-index: 29;
+}
+
+#addToCollectionsPopupBackdrop.bookmark-popup-backdrop--open {
+  opacity: 1;
+}
+
+.add-to-collections-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: min(830px, calc(100% - 72px));
+  transform: translate(-50%, -50%) translateY(-8px);
+  z-index: 30;
+}
+
+.add-to-collections-popup.bookmark-popup--open {
+  transform: translate(-50%, -50%) translateY(0);
 }
