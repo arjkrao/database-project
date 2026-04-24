@@ -180,23 +180,30 @@ def index():
 @app.route("/home/create_spot", methods=['POST'])
 @login_is_required
 def create_spot():
-    data = request.get_json()
 
-    name = data.get('newSpotName')
-    coordinates = data.get('newSpotCoordinates')
-    description = data.get('newSpotDescription')
-    price = data.get('price')
-    tags = data.get('tags')  # "Food,Study,Nature"
+    name = request.form.get('name')
+    description = request.form.get('description')
+    price = request.form.get('price')
+    tags = request.form.get('tags')  # "Food,Study,Nature"
+    lat = request.form.get('lat')
+    long = request.form.get('lon')
+
+    image_file = request.files.get('image')
+    image_bytes = None
+    if image_file:
+        image_bytes = image_file.read()
 
     # not going to be able to add spot anywhere else so just include SQL functionality here
-
-
-    print("Received spot: ", data)
+    print("Name:", name)
+    print("Description:", description)
+    print("Price:", price)
+    print("Lat/Lon:", lat, long)
+    print("Tags:", tags)
+    print("Has image:", image_bytes is not None)
 
     return jsonify({
         "status": "success",
-        "message": "Spot created successfully",
-        "spot": data
+        "message": "Spot created successfully"
     })
 
 @app.route("/home")
