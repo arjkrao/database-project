@@ -25,10 +25,11 @@
 
         <div class="review-card-interactions">
             {{ render_review_stars(review.rating) }}
-
+            <!-- {% if user_role == 'admin' %} OR the user created the review -->
             <button class="review-card-delete" type="button" aria-label="Delete review">
                 <i class="fa-solid fa-trash"></i>
             </button>
+            <!-- {% endif %} -->
         </div>
     </div>
 

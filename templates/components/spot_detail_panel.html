@@ -1,15 +1,20 @@
 <div class="right-panel right-panel--hidden" id="spotDetailPanel">
     <div class="spot-detail">
+        <!-- If the spot is private -->
+        <!-- <div class="spot-detail-top">
+            <div class="heading-3 text-error">This Spot Is Private</div>
+            <button class="spot-detail-close" id="closeSpotDetailButton" type="button" aria-label="Close spot detail">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div> -->
+        <!-- endif -->
+        <!-- If the spot is not private -->
         <button class="spot-detail-close" id="closeSpotDetailButton" type="button" aria-label="Close spot detail">
             <i class="fa-solid fa-xmark"></i>
         </button>
+        <!-- endif -->
 
-        <img
-            class="spot-detail-image"
-            id="spotDetailImage"
-            src="https://placehold.co/400x320"
-            alt="Spot image"
-        >
+        <img class="spot-detail-image" id="spotDetailImage" src="https://placehold.co/400x320" alt="Spot image">
 
         <div class="heading-1 text-black spot-detail-title" id="spotDetailTitle">Spot Name</div>
 
@@ -28,7 +33,11 @@
         <div class="spot-detail-description text text-black" id="spotDetailDescription">
             No description available.
         </div>
-
+        <!-- If the spot is private -->
+        <button class="button button--secondary spot-detail-request-public" id="requestPublicButton" type="button">
+            Request To Make Public
+        </button>
+        <!-- endif -->
         <button class="button button--primary spot-detail-review-button" id="writeReviewButton" type="button">
             Write A Review <i class="fa-solid fa-pen"></i>
         </button>
@@ -39,16 +48,26 @@
             <div class="write-review-panel" id="writeReviewPanel" hidden>
                 <div class="write-review-rating-row">
                     <div class="write-review-stars" id="writeReviewStars" aria-label="Select rating">
-                        <button class="write-review-star-hitbox" type="button" data-rating="0.5" aria-label="0.5 stars"></button>
-                        <button class="write-review-star-hitbox" type="button" data-rating="1" aria-label="1 star"></button>
-                        <button class="write-review-star-hitbox" type="button" data-rating="1.5" aria-label="1.5 stars"></button>
-                        <button class="write-review-star-hitbox" type="button" data-rating="2" aria-label="2 stars"></button>
-                        <button class="write-review-star-hitbox" type="button" data-rating="2.5" aria-label="2.5 stars"></button>
-                        <button class="write-review-star-hitbox" type="button" data-rating="3" aria-label="3 stars"></button>
-                        <button class="write-review-star-hitbox" type="button" data-rating="3.5" aria-label="3.5 stars"></button>
-                        <button class="write-review-star-hitbox" type="button" data-rating="4" aria-label="4 stars"></button>
-                        <button class="write-review-star-hitbox" type="button" data-rating="4.5" aria-label="4.5 stars"></button>
-                        <button class="write-review-star-hitbox" type="button" data-rating="5" aria-label="5 stars"></button>
+                        <button class="write-review-star-hitbox" type="button" data-rating="0.5"
+                            aria-label="0.5 stars"></button>
+                        <button class="write-review-star-hitbox" type="button" data-rating="1"
+                            aria-label="1 star"></button>
+                        <button class="write-review-star-hitbox" type="button" data-rating="1.5"
+                            aria-label="1.5 stars"></button>
+                        <button class="write-review-star-hitbox" type="button" data-rating="2"
+                            aria-label="2 stars"></button>
+                        <button class="write-review-star-hitbox" type="button" data-rating="2.5"
+                            aria-label="2.5 stars"></button>
+                        <button class="write-review-star-hitbox" type="button" data-rating="3"
+                            aria-label="3 stars"></button>
+                        <button class="write-review-star-hitbox" type="button" data-rating="3.5"
+                            aria-label="3.5 stars"></button>
+                        <button class="write-review-star-hitbox" type="button" data-rating="4"
+                            aria-label="4 stars"></button>
+                        <button class="write-review-star-hitbox" type="button" data-rating="4.5"
+                            aria-label="4.5 stars"></button>
+                        <button class="write-review-star-hitbox" type="button" data-rating="5"
+                            aria-label="5 stars"></button>
 
                         <div class="write-review-stars-visual" id="writeReviewStarsVisual" aria-hidden="true">
                             <i class="fa-regular fa-star write-review-star-icon"></i>
@@ -60,12 +79,7 @@
                     </div>
                 </div>
 
-                <input
-                    class="write-review-text text"
-                    id="writeReviewText"
-                    type="text"
-                    placeholder="This spot is..."
-                >
+                <input class="write-review-text text" id="writeReviewText" type="text" placeholder="This spot is...">
 
                 <div class="write-review-actions">
                     <button class="button button--primary" id="postReviewButton" type="button">Post</button>

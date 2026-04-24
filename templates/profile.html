@@ -14,16 +14,16 @@
                     <i class="fa-solid fa-pen-to-square"></i>
                 </button>
             </div>
-
             <input type="file" id="avatarFileInput" accept="image/*" hidden>
-
             <div class="profile-name display-3 text-black">{{ profile.name }}</div>
             <div class="profile-email heading-4 text-gray">{{ profile.email }}</div>
         </div>
 
         <div class="bottom-container">
             <div class="profile-options">
-                <button class="button" type="button" data-tab="private">Private</button>
+                <button class="button button--secondary-dark" type="button" data-tab="private">Private</button>
+                <span class="profile-divider text-black text">|</span>
+                <button class="button button--medium-gray" type="button" data-tab="pending">Pending</button>
                 <span class="profile-divider text-black text">|</span>
                 <button class="button button--medium-gray" type="button" data-tab="collections">Collections</button>
                 <span class="profile-divider text-black text">|</span>
@@ -36,6 +36,14 @@
                 <div class="profile-tab-content profile-tab-content--active" data-content="private">
                     <div class="grid">
                         {% for spot in profile.private_spots %}
+                        {{ profile_spot(spot) }}
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="profile-tab-content" data-content="pending" hidden>
+                    <div class="grid">
+                        {% for spot in profile.pending_spots %}
                         {{ profile_spot(spot) }}
                         {% endfor %}
                     </div>
