@@ -309,6 +309,7 @@ def home():
         spots=spots,
         requested_spots=requested_spots,
         bookmark_collections=bookmark_collections,
+        user_role=session.get('role')
     )
 
 @app.route("/profile")
