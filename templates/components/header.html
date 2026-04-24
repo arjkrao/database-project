@@ -5,7 +5,7 @@
             <i class="fa-solid fa-arrow-right-from-bracket"></i>
         </button>
         {% endif %}
-        <a href="{{ url_for('home') }}" class="logo-group">
+        <a href="{{ url_for('home') if show_header_buttons else '' }}" class="logo-group">
             <div class="logo-text">Third</div>
             <div class="logo-text">Spots</div>
         </a>
