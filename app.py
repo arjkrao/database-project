@@ -1,9 +1,9 @@
 import os
 import pathlib
-from flask import Flask, render_template, request, session, abort, redirect
+from flask import Flask, render_template, request, session, abort, redirect, url_for
 from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import create_engine, text, URL
+from sqlalchemy import text, URL
 from google_auth_oauthlib.flow import Flow
 from google.oauth2 import id_token
 from google.auth.transport import requests
@@ -97,12 +97,12 @@ client_secrets_file = os.path.join(pathlib.Path(__file__).parent, "client_secret
 
 db = SQLAlchemy(app)
 
-
+# Login Functions
 def login_is_required(function):
     @wraps(function)
     def wrapper(*args, **kwargs):
         if "google_id" not in session:
-            return abort(401) # Authorization required
+            return redirect(url_for('index')) # Authorization required
         return function(*args, **kwargs)
     return wrapper
 
@@ -113,6 +113,27 @@ def create_flow():
         redirect_uri="http://127.0.0.1:5000/callback"
     )
 
+# Database Functions
+
+def create_user(username, display_name):
+    with db.engine.begin() as conn:
+        query = text('INSERT INTO users (username, display_name) VALUES (:uname, :dname) ON DUPLICATE KEY UPDATE username=username;') # creates new user if it does not exist, otherwise do nothing
+        conn.execute(query, {"uname": username, "dname": display_name})
+
+def get_user(username):
+    with db.engine.begin() as conn:
+        query = text('SELECT * FROM users WHERE username=:uname') 
+        result = conn.execute(query, {"uname": username}).first() # since username is unique
+    return result
+
+# Gets role of currently logged in user, only used in callback to store user role in session.get('role')
+def get_role():
+    username = session.get('email') # Email of logged in user which corresponds to "username" in database
+    display_name = session.get('name') # Name of logged in user corresponding to "display_name"
+    create_user(username, display_name) # If user is already created then do nothing
+    return get_user(username).role # Get role by indexing into SQLAlchemy Row and using column name "role" of users table
+
+# Flask Paths
 @app.route("/login")
 def login():
     flow = create_flow()
@@ -144,7 +165,9 @@ def callback():
     session['name'] = id_info.get('name')
     session['email'] = id_info.get('email')
 
-    return redirect("/protected_area")
+    session['role'] = get_role()
+
+    return redirect("/home")
 
 @app.route("/logout")
 def logout():
@@ -155,16 +178,11 @@ def logout():
 def index():
     return "<p>Hello world <a href='/login'><button>Login</button></a></p>" 
 
-@app.route("/protected_area")
-@login_is_required
-def protected_area():
-    return "<p> Protected! Welcome {name}. Your email is {email} <a href='/logout'><button>Logout</button></a></p>".format(
-        name=session.get("name"),
-        email=session.get("email")
-        )
 
 @app.route("/home")
+@login_is_required
 def home():
+
     spots = [
         {
             "name": "Bodo's Bagels",
@@ -294,6 +312,7 @@ def home():
     )
 
 @app.route("/profile")
+@login_is_required
 def profile():
     profile_data = {
         "name": "Raheel Syed",
