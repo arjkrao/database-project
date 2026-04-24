@@ -25,6 +25,8 @@
             <div class="profile-options">
                 <button class="button" type="button" data-tab="private">Private</button>
                 <span class="profile-divider text-black text">|</span>
+                <button class="button button--medium-gray" type="button" data-tab="pending">Pending</button>
+                <span class="profile-divider text-black text">|</span>
                 <button class="button button--medium-gray" type="button" data-tab="collections">Collections</button>
                 <span class="profile-divider text-black text">|</span>
                 <button class="button button--medium-gray" type="button" data-tab="reviews">Reviews</button>
@@ -36,6 +38,14 @@
                 <div class="profile-tab-content profile-tab-content--active" data-content="private">
                     <div class="grid">
                         {% for spot in profile.private_spots %}
+                        {{ profile_spot(spot) }}
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="profile-tab-content" data-content="pending" hidden>
+                    <div class="grid">
+                        {% for spot in profile.pending_spots %}
                         {{ profile_spot(spot) }}
                         {% endfor %}
                     </div>

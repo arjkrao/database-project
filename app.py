@@ -344,6 +344,13 @@ def profile():
                 "image": "https://placehold.co/300x300",
             },
         ],
+        "pending_spots": [
+            {
+                "id": 3,
+                "name": "Pending Spot",
+                "image": "https://placehold.co/300x300/f5e7da/232d4a?text=Pending+Spot",
+            },
+        ],
         "collection_names": [
             "Hype",
             "Yummers",
@@ -352,7 +359,7 @@ def profile():
             {
                 "id": 2,
                 "name": "Hype Spot",
-                "image": "https://placehold.co/300x300/f2f2f0/232d4a?text=Hype",
+                "image": "https://placehold.co/300x300/f2f2f0/232d4a?text=Hype_Spot",
             },
         ],
         "reviews": [
@@ -369,7 +376,7 @@ def profile():
             {
                 "id": 3,
                 "name": "Shared Spot",
-                "image": "https://placehold.co/300x300/f5e7da/232d4a?text=Shared+List",
+                "image": "https://placehold.co/300x300/f5e7da/232d4a?text=Shared+Spot",
             },
         ],
         "available_collections": [
