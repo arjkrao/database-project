@@ -12,13 +12,20 @@
                 </div>
 
                 <div class="add-spot-field">
-                    <input name="newSpotCoordinates" id="newSpotCoordinates" class="add-spot-input heading-3 text-black" type="text"
-                        placeholder="Spot Coordinates (Lat, Long)">
+                    <input name="newSpotCoordinates" id="newSpotCoordinates" class="add-spot-input heading-3 text-black"
+                        type="text" placeholder="Spot Coordinates (Lat, Long)">
                 </div>
 
                 <div class="add-spot-field">
-                    <input name="newSpotDescription" id="newSpotDescription" class="add-spot-input heading-3 text-black" type="text"
-                        placeholder="Spot Description">
+                    <input name="newSpotDescription" id="newSpotDescription" class="add-spot-input heading-3 text-black"
+                        type="text" placeholder="Spot Description">
+                </div>
+
+                <div>
+                    <input id="addSpotImageInput" type="file" accept="image/*" hidden>
+                    <button class="button button--primary" id="addSpotImageButton" type="button">
+                        Upload Image <i class="fa-solid fa-upload"></i>
+                    </button>
                 </div>
             </div>
 

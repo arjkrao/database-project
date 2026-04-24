@@ -11,6 +11,9 @@
     const newSpotDescriptionInput =
       document.getElementById("newSpotDescription");
 
+    const addSpotImageButton = document.getElementById("addSpotImageButton");
+    const addSpotImageInput = document.getElementById("addSpotImageInput");
+
     const addSpotPriceFree = document.getElementById("addSpotPriceFree");
     const addSpotPriceButtons = Array.from(
       document.querySelectorAll("#addSpotPopup .add-spot-price-dollar"),
@@ -27,6 +30,8 @@
       !newSpotNameInput ||
       !newSpotCoordinatesInput ||
       !newSpotDescriptionInput ||
+      !addSpotImageButton ||
+      !addSpotImageInput ||
       !addSpotPriceFree
     ) {
       return;
@@ -39,13 +44,29 @@
       coordinatesInput: "",
       coordinates: null,
       description: "",
+      imageFile: null,
       price: "none",
       tags: [],
     };
 
+    function isValidCoordinates(input) {
+      const regex = /^\s*\(?\s*-?\d+(\.\d+)?\s*,\s*-?\d+(\.\d+)?\s*\)?\s*$/;
+      return regex.test(input);
+    }
+
+    function parseCoordinates(input) {
+      const match = input.match(/-?\d+(\.\d+)?/g);
+      if (!match || match.length !== 2) return null;
+
+      return {
+        lat: parseFloat(match[0]),
+        lon: parseFloat(match[1]),
+      };
+    }
+
     function isAddSpotDraftValid() {
       const hasName = addSpotDraft.name.trim().length > 0;
-      const hasCoordinates = isValidCoordinates(addSpotDraft.coordinatesInput)
+      const hasCoordinates = isValidCoordinates(addSpotDraft.coordinatesInput);
       const hasDescription = addSpotDraft.description.trim().length > 0;
       const hasPrice = addSpotDraft.price !== "none";
       const hasAtLeastOneTag = addSpotDraft.tags.length > 0;
@@ -82,8 +103,9 @@
     }
 
     function renderAddSpotTags() {
-      addSpotTagButtons.forEach((button, index) => {
-        const isActive = addSpotDraft.tags.includes(index);
+      addSpotTagButtons.forEach((button) => {
+        const tagName = button.dataset.tooltip;
+        const isActive = addSpotDraft.tags.includes(tagName);
 
         button.classList.toggle("filter-icon--active", isActive);
         button.setAttribute("aria-pressed", String(isActive));
@@ -111,9 +133,12 @@
         coordinatesInput: "",
         coordinates: null,
         description: "",
+        imageFile: null,
         price: "none",
         tags: [],
       };
+
+      addSpotImageInput.value = "";
 
       addSpotTagButtons.forEach((button) => {
         button.classList.remove("filter-icon--active");
@@ -180,25 +205,24 @@
       event.stopPropagation();
     });
 
-    function isValidCoordinates(input) {
-      const regex = /^\s*\(?\s*-?\d+(\.\d+)?\s*,\s*-?\d+(\.\d+)?\s*\)?\s*$/;
-      return regex.test(input);
-    }
+    addSpotImageButton.addEventListener("click", () => {
+      addSpotImageInput.click();
+    });
 
-    function parseCoordinates(input) {
-      const match = input.match(/-?\d+(\.\d+)?/g);
-      if (!match || match.length !== 2) return null;
+    addSpotImageInput.addEventListener("change", () => {
+      const [selectedFile] = addSpotImageInput.files;
 
-      return {
-        lat: parseFloat(match[0]),
-        lon: parseFloat(match[1])
-      };
-    }
+      if (!selectedFile) {
+        addSpotDraft.imageFile = null;
+        return;
+      }
+
+      addSpotDraft.imageFile = selectedFile;
+    });
 
     createSpotButton.addEventListener("click", async () => {
       readAddSpotDraftFromInputs();
 
-      // validate coordinates BEFORE sending
       if (!isValidCoordinates(addSpotDraft.coordinatesInput)) {
         alert("Invalid coordinates format. Use (lat, lon).");
         return;
@@ -209,19 +233,34 @@
         alert("Invalid coordinates");
         return;
       }
+
       addSpotDraft.coordinates = coords;
 
-      const response = await fetch("/home/create_spot", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(addSpotDraft)
-      });
+      const formData = new FormData();
+      formData.append("name", addSpotDraft.name);
+      formData.append("description", addSpotDraft.description);
+      formData.append("price", addSpotDraft.price);
+      formData.append("lat", String(addSpotDraft.coordinates.lat));
+      formData.append("lon", String(addSpotDraft.coordinates.lon));
+      formData.append("tags", JSON.stringify(addSpotDraft.tags));
 
-      const result = await response.json();
-      console.log(result);
-      closeAddSpotPopup();
+      if (addSpotDraft.imageFile) {
+        formData.append("image", addSpotDraft.imageFile);
+      }
+
+      try {
+        const response = await fetch("/home/create_spot", {
+          method: "POST",
+          body: formData,
+        });
+
+        const result = await response.json();
+        console.log(result);
+
+        closeAddSpotPopup({ clearAfterClose: true });
+      } catch (error) {
+        console.error("Failed to create spot:", error);
+      }
     });
 
     newSpotNameInput.addEventListener("input", () => {
@@ -254,14 +293,12 @@
       });
     });
 
-    addSpotTagButtons.forEach((button, index) => {
+    addSpotTagButtons.forEach((button) => {
       button.addEventListener("click", () => {
-        const tagName = button.dataset.tooltip; // food, drink, etc.
+        const tagName = button.dataset.tooltip;
 
         if (addSpotDraft.tags.includes(tagName)) {
-          addSpotDraft.tags = addSpotDraft.tags.filter(
-            (t) => t !== tagName,
-          );
+          addSpotDraft.tags = addSpotDraft.tags.filter((t) => t !== tagName);
         } else {
           addSpotDraft.tags.push(tagName);
         }
