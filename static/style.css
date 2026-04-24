@@ -996,6 +996,14 @@ p {
   border-radius: 999px;
 }
 
+.spot-detail-top {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 16px;
+  align-self: stretch;
+}
+
 .spot-detail-close {
   align-self: flex-end;
   background: none;
@@ -1026,6 +1034,26 @@ p {
   gap: 16px;
   flex-wrap: wrap;
   width: 100%;
+}
+
+.spot-detail-request-public:disabled,
+.spot-detail-request-public:disabled:hover,
+.spot-detail-request-public:disabled:focus-visible {
+  background: var(--color-gray);
+  color: var(--color-white);
+  border-color: transparent;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.spot-detail-request-public--pending,
+.spot-detail-request-public--pending:hover,
+.spot-detail-request-public--pending:focus-visible {
+  background: var(--color-medium-gray);
+  color: var(--color-white);
+  border-color: transparent;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .review-card-meta {

@@ -71,47 +71,47 @@
     const likeIconClass = review.liked ? "fa-solid" : "fa-regular";
 
     return `
-            <article class="review-card spot-detail-review-card" data-review-id="${review.id ?? ""}">
-                <div class="review-card-top">
-                    <div class="review-card-meta">
-                        <i class="fa-solid fa-circle-user icon-review-profile"></i>
-                        <div class="heading-4 text-black">${review.author}</div>
-                    </div>
+      <article class="review-card spot-detail-review-card" data-review-id="${review.id ?? ""}">
+        <div class="review-card-top">
+          <div class="review-card-meta">
+            <i class="fa-solid fa-circle-user icon-review-profile"></i>
+            <div class="heading-4 text-black">${review.author}</div>
+          </div>
 
-                    <div class="review-card-interactions">
-                        <div class="spot-stars">
-                            ${createReviewStarsMarkup(Number(review.rating || 0))}
-                        </div>
+          <div class="review-card-interactions">
+            <div class="spot-stars">
+              ${createReviewStarsMarkup(Number(review.rating || 0))}
+            </div>
 
-                        <button class="review-card-delete" type="button" aria-label="Delete review">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                    </div>
-                </div>
+            <button class="review-card-delete" type="button" aria-label="Delete review">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+        </div>
 
-                <p class="text text-black">${review.body}</p>
+        <p class="text text-black">${review.body}</p>
 
-                <div class="review-card-bottom">
-                    <div class="small text-gray">${review.date}</div>
+        <div class="review-card-bottom">
+          <div class="small text-gray">${review.date}</div>
 
-                    <div class="review-card-interactions">
-                        <div class="text text-secondary-dark">${review.likes}</div>
-                        <button class="review-card-like" type="button" aria-label="Like review">
-                            <i class="${likeIconClass} fa-thumbs-up"></i>
-                        </button>
-                    </div>
-                </div>
-            </article>
-        `;
+          <div class="review-card-interactions">
+            <div class="text text-secondary-dark">${review.likes}</div>
+            <button class="review-card-like" type="button" aria-label="Like review">
+              <i class="${likeIconClass} fa-thumbs-up"></i>
+            </button>
+          </div>
+        </div>
+      </article>
+    `;
   }
 
   function renderReviews(container, reviews) {
     if (!reviews.length) {
       container.innerHTML = `
-                <div class="text text-gray">
-                    No reviews yet.
-                </div>
-            `;
+        <div class="text text-gray">
+          No reviews yet.
+        </div>
+      `;
       return;
     }
 
@@ -121,27 +121,20 @@
   function setupSpotDetailPanel() {
     const spotsPanel = document.getElementById("spotsPanel");
     const spotDetailPanel = document.getElementById("spotDetailPanel");
-    const closeSpotDetailButton = document.getElementById(
-      "closeSpotDetailButton",
-    );
+    const closeSpotDetailButton = document.getElementById("closeSpotDetailButton");
 
     const spotDetailTitle = document.getElementById("spotDetailTitle");
     const spotDetailImage = document.getElementById("spotDetailImage");
     const spotDetailPrice = document.getElementById("spotDetailPrice");
-    const spotDetailRatingValue = document.getElementById(
-      "spotDetailRatingValue",
-    );
-    const spotDetailRatingCount = document.getElementById(
-      "spotDetailRatingCount",
-    );
-    const spotDetailDescription = document.getElementById(
-      "spotDetailDescription",
-    );
+    const spotDetailRatingValue = document.getElementById("spotDetailRatingValue");
+    const spotDetailRatingCount = document.getElementById("spotDetailRatingCount");
+    const spotDetailDescription = document.getElementById("spotDetailDescription");
     const spotDetailStars = document.getElementById("spotDetailStars");
     const spotDetailIcons = document.getElementById("spotDetailIcons");
     const spotDetailReviews = document.getElementById("spotDetailReviews");
     const writeReviewPanel = document.getElementById("writeReviewPanel");
     const writeReviewText = document.getElementById("writeReviewText");
+    const requestPublicButton = document.getElementById("requestPublicButton");
 
     if (
       !spotsPanel ||
@@ -157,7 +150,8 @@
       !spotDetailIcons ||
       !spotDetailReviews ||
       !writeReviewPanel ||
-      !writeReviewText
+      !writeReviewText ||
+      !requestPublicButton
     ) {
       return;
     }
@@ -168,6 +162,12 @@
 
       panelToShow.classList.remove("right-panel--hidden");
       panelToShow.classList.add("right-panel--active");
+    }
+
+    function resetRequestPublicButton() {
+      requestPublicButton.disabled = false;
+      requestPublicButton.textContent = "Request To Make Public";
+      requestPublicButton.classList.remove("spot-detail-request-public--pending");
     }
 
     document.querySelectorAll(".spot-card--clickable").forEach((card) => {
@@ -185,8 +185,7 @@
         const price = card.dataset.spotPrice || "";
         const rating = Number(card.dataset.spotRating || "0");
         const ratingCount = card.dataset.spotRatingCount || "(0)";
-        const description =
-          card.dataset.spotDescription || "No description available.";
+        const description = card.dataset.spotDescription || "No description available.";
         const icons = parseJsonData(card.dataset.spotIcons, []);
         const reviews = parseJsonData(card.dataset.spotReviews, []);
 
@@ -205,6 +204,7 @@
         writeReviewPanel.hidden = true;
         spotDetailReviews.hidden = false;
         writeReviewText.value = "";
+        resetRequestPublicButton();
 
         showPanel(spotDetailPanel, spotsPanel);
       });
@@ -212,6 +212,12 @@
 
     closeSpotDetailButton.addEventListener("click", () => {
       showPanel(spotsPanel, spotDetailPanel);
+    });
+
+    requestPublicButton.addEventListener("click", () => {
+      requestPublicButton.textContent = "Public Request Pending";
+      requestPublicButton.disabled = true;
+      requestPublicButton.classList.add("spot-detail-request-public--pending");
     });
 
     spotDetailReviews.addEventListener("click", (event) => {
