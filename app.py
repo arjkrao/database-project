@@ -202,8 +202,8 @@ def create_spot():
 
     # not going to be able to add spot anywhere else so just include SQL functionality here
     with db.engine.begin() as conn:
-        query = text('INSERT INTO locations (location_name, pricing_tier, description, latitude, longitude, location_photo_blob) \
-                     VALUES (:lname, :ptier, :desc, :lati, :longi, :img_file)')
+        query = text('INSERT INTO locations (location_name, pricing_tier, description, latitude, longitude, location_photo_blob, location_photo_mimetype) \
+                     VALUES (:lname, :ptier, :desc, :lati, :longi, :img_file, :mimetype)')
         result = conn.execute(query, {
             "lname": name,
             "ptier": price, 
@@ -211,6 +211,7 @@ def create_spot():
             "lati": float(lat),
             "longi": float(lon),
             "img_file": image_bytes,
+            "mimetype": image_file.mimetype 
         })
 
         newid = result.lastrowid
@@ -366,16 +367,46 @@ def home():
 @login_is_required
 def user_profile_image(username):
     with db.engine.connect() as conn:
-        query = text('SELECT pfp_file FROM users WHERE username = :uname;')
+        query = text('SELECT pfp_file, pfp_file_mimetype FROM users WHERE username = :uname;')
         result = conn.execute(query, {"uname": username}).first()
 
         if result is None or result[0] is None:
             return send_file("static/default_pfp.jpg", mimetype="image/jpeg")
         
         image_bytes = result[0]
+        image_mimetype = result[1] or "image/jpeg"
 
-    return Response(image_bytes, mimetype="image/jpeg")
+    return Response(image_bytes, mimetype=image_mimetype)
             
+
+@app.route("/profile/upload_avatar", methods=['POST'])
+@login_is_required
+def update_profile_image():
+    curr_user = get_user(session.get('email'))
+    image_file = request.files.get('avatar')
+
+    if not image_file:
+        return jsonify({"message": "No file specified"}), 400
+    
+    ALLOWED_TYPES = {'image/jpeg', 'image/png', 'image/webp'}
+    if image_file.mimetype not in ALLOWED_TYPES:
+        return jsonify({"message": "Unsupported filetype, please use JPEG, PNG, or WEBP"}), 400
+    
+    image_bytes = image_file.read()
+    image_mimetype = image_file.mimetype
+
+    with db.engine.begin() as conn:
+        query = text('UPDATE users SET pfp_file=:img, pfp_file_mimetype=:mimetype WHERE user_id=:id')
+        conn.execute(query, {'img': image_bytes, 'mimetype': image_mimetype, 'id': curr_user.user_id})
+    
+    return jsonify({
+        "status": "success", 
+        "message": "pfp updated successfully",
+        "username": curr_user.username
+    }), 200
+    
+
+
 
 @app.route("/profile")
 @login_is_required
