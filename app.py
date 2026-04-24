@@ -112,7 +112,7 @@ db.init_app(app)
 
 @app.route("/")
 def index():
-    return render_template("index.html", show_profile_icon=False)
+    return render_template("index.html", show_header_buttons=False)
 
 
 @app.route("/home")
