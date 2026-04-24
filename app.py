@@ -1,6 +1,6 @@
 import os
 import pathlib
-from flask import Flask, render_template, request, session, abort, redirect, url_for
+from flask import Flask, render_template, request, session, abort, redirect, url_for, Response, send_file
 from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text, URL
@@ -140,7 +140,6 @@ def login():
     authorization_url, state = flow.authorization_url()
     session["state"] = state
     session['code_verifier'] = flow.code_verifier
-
 
     return redirect(authorization_url)
 
@@ -309,16 +308,35 @@ def home():
         spots=spots,
         requested_spots=requested_spots,
         bookmark_collections=bookmark_collections,
-        user_role=session.get('role')
+        user_role=session.get('role'),
+        user_display_name=session.get('name')
     )
+
+@app.route("/user/<string:username>/pfp")
+@login_is_required
+def user_profile_image(username):
+    with db.engine.connect() as conn:
+        query = text('SELECT pfp_file FROM users WHERE username = :uname;')
+        result = conn.execute(query, {"uname": username}).first()
+
+        if result is None or result[0] is None:
+            return send_file("static/default_pfp.jpg", mimetype="image/jpeg")
+        
+        image_bytes = result[0]
+
+    return Response(image_bytes, mimetype="image/jpeg")
+            
+
 
 @app.route("/profile")
 @login_is_required
 def profile():
+    user = get_user(session.get('email'))
+
     profile_data = {
-        "name": "Raheel Syed",
-        "email": "email@gmail.com",
-        "avatar_image": "https://placehold.co/384x384",
+        "name": user.display_name,
+        "email": user.username,
+        "avatar_image": url_for("user_profile_image", username=user.username),
         "private_spots": [
             {
                 "id": 1,
@@ -362,6 +380,8 @@ def profile():
     }
 
     return render_template("profile.html", profile=profile_data)
+
+
 @app.route("/test")
 def test():
     return render_template("test.html")

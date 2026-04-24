@@ -1,9 +1,9 @@
 <header class="header">
     <div class="header-inner {% if not show_header_buttons %}header-inner--centered{% endif %}">
         {% if show_header_buttons %}
-        <button class="button button--primary">
+        <a class="button button--primary" href="{{url_for('logout')}}">
             <i class="fa-solid fa-arrow-right-from-bracket"></i>
-        </button>
+        </a>
         {% endif %}
         <a href="{{ url_for('home') if show_header_buttons else '' }}" class="logo-group">
             <div class="logo-text">Third</div>
