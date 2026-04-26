@@ -1,0 +1,62 @@
+{% macro render_stars(rating) %}
+{% for i in range(1, 6) %}
+{% if rating >= i %}
+<i class="fa-solid fa-star icon-star"></i>
+{% elif rating >= i - 0.5 %}
+<i class="fa-solid fa-star-half-stroke icon-star"></i>
+{% else %}
+<i class="fa-regular fa-star icon-star"></i>
+{% endif %}
+{% endfor %}
+{% endmacro %}
+
+{% macro spot_card(spot) %}
+<div class="spot-card spot-card--clickable" data-spot-name="{{ spot.name }}" data-spot-image="{{ spot.image }}"
+    data-spot-price="{{ spot.price }}" data-spot-rating="{{ spot.rating }}"
+    data-spot-rating-count="({{ spot.rating_count }})" data-spot-description="{{ spot.description }}"
+    data-spot-icons='{{ spot.icons | tojson | safe }}' data-spot-reviews='{{ spot.reviews | tojson | safe }}'>
+    <div class="spot-card-inner">
+        <img class="spot-card-image" src="{{ spot.image }}" alt="{{ spot.name }}">
+
+        <div class="spot-info">
+            <div class="spot-card-top">
+                <div class="text">{{ spot.name }}</div>
+
+                <button class="spot-bookmark" type="button" aria-label="Toggle bookmark">
+                    <i class="fa-regular fa-bookmark icon-bookmark"></i>
+                </button>
+            </div>
+
+            <div class="spot-card-middle">
+                <div class="spot-rating-summary">
+                    <div class="small text-gray">{{ spot.rating }}</div>
+
+                    <div class="spot-stars">
+                        {{ render_stars(spot.rating) }}
+                    </div>
+
+                    <div class="small text-gray">({{ spot.rating_count }})</div>
+                </div>
+
+                <div class="small text-secondary-dark">{{ spot.price }}</div>
+            </div>
+
+            <div class="spot-card-bottom">
+                <div class="spot-icons">
+                    {% for icon in spot.icons %}
+                    <button class="icon-button-base" type="button" data-tooltip="{{ icon.tooltip }}"
+                        aria-label="{{ icon.tooltip }}">
+                        <i class="{{ icon.icon_class }}"></i>
+                    </button>
+                    {% endfor %}
+                </div>
+                {% if user_role == 'admin' %}
+                <button class="spot-delete" type="button" aria-label="Delete spot">
+                    <i class="fa-solid fa-trash icon-delete"></i>
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endmacro %}

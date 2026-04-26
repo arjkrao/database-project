@@ -1,0 +1,53 @@
+{% macro render_review_stars(rating) %}
+    <div class="spot-stars">
+        {% for i in range(1, 6) %}
+            {% if rating >= i %}
+                <i class="fa-solid fa-star icon-star"></i>
+            {% elif rating >= i - 0.5 %}
+                <i class="fa-solid fa-star-half-stroke icon-star"></i>
+            {% else %}
+                <i class="fa-regular fa-star icon-star"></i>
+            {% endif %}
+        {% endfor %}
+    </div>
+{% endmacro %}
+
+{% macro review_card(review, extra_classes="") %}
+<article
+    class="review-card {{ extra_classes }}"
+    data-review-id="{{ review.id if review.id is defined else '' }}"
+>
+    <div class="review-card-top">
+        <div class="review-card-meta">
+            <i class="fa-solid fa-circle-user icon-review-profile"></i>
+            <div class="heading-4 text-black">{{ review.author }}</div>
+        </div>
+
+        <div class="review-card-interactions">
+            {{ render_review_stars(review.rating) }}
+            <!-- {% if user_role == 'admin' %} OR the user created the review -->
+            <button class="review-card-delete" type="button" aria-label="Delete review">
+                <i class="fa-solid fa-trash"></i>
+            </button>
+            <!-- {% endif %} -->
+        </div>
+    </div>
+
+    <p class="text text-black">{{ review.body }}</p>
+
+    <div class="review-card-bottom">
+        <div class="small text-gray">{{ review.date }}</div>
+
+        <div class="review-card-interactions">
+            <div class="text text-secondary-dark">{{ review.likes }}</div>
+            <button class="review-card-like" type="button" aria-label="Like review">
+                {% if review.liked %}
+                    <i class="fa-solid fa-thumbs-up"></i>
+                {% else %}
+                    <i class="fa-regular fa-thumbs-up"></i>
+                {% endif %}
+            </button>
+        </div>
+    </div>
+</article>
+{% endmacro %}

@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% from "components/spot_card.html" import spot_card %}
+{% from "components/request_card.html" import request_card %}
+
+{% block content %}
+<div class="home-container">
+    <div class="home-top-container">
+        <div class="home-left">
+            <!-- Placeholder image until interactive map is added -->
+            <img class="map-placeholder"
+                src="https://t4.ftcdn.net/jpg/02/65/42/55/360_F_265425516_wtAw64cGdOVvrdl64b5bsyBqcD0rkw1W.jpg" />
+            <div class="home-left-on-map">
+                <form class="search">
+                    <div class="search-group">
+                        <button class="search-button" aria-label="Search">
+                            <i class="fa-solid fa-magnifying-glass icon-search"></i>
+                        </button>
+                        <input type="text" placeholder="Search for a Spot..."
+                            class="search-input text-primary-dark heading-3">
+                    </div>
+                </form>
+                <button class="button button--secondary" id="addSpotButton" type="button">
+                    Add Spot <i class="fa-solid fa-plus icon-add"></i>
+                </button>
+            </div>
+            {% with
+            popup_id="bookmarkPopup",
+            collections=bookmark_collections,
+            input_class="bookmark-collection__input-home",
+            extra_class=""
+            %}
+            {% include "components/bookmark_popup.html" %}
+            {% endwith %}
+        </div>
+        <div class="home-right">
+            <div class="right-panel right-panel--active" id="welcomePanel">
+                <div class="welcome-message">
+                    <div class="display-3 text-white">Welcome {{ curr_displayname }}!</div>
+                    <button class="button button--secondary" id="findSpotsButton" type="button">
+                        Find Spots <i class="fa-solid fa-location-dot"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="right-panel right-panel--hidden" id="spotsPanel">
+                <div class="spot-buttons">
+                    <button class="button button--primary" id="filtersButton" type="button" aria-expanded="false">
+                        Filters <i class="fa-solid fa-filter"></i>
+                    </button>
+                    <button class="button button--primary" id="dateSortButton" type="button">
+                        Date <i class="fa-solid fa-sort" id="dateSortIcon"></i>
+                    </button>
+                </div>
+                <div class="spots-list">
+                    {% for spot in spots %}
+                    {{ spot_card(spot) }}
+                    {% endfor %}
+                </div>
+                {% include "components/filters.html" %}
+            </div>
+            {% include "components/spot_detail_panel.html" %}
+        </div>
+        {% include "components/add_spot.html" %}
+    </div>
+    {% if curr_role == 'admin' %}
+    <div class="home-bottom-container">
+        <div class="home-bottom-inner">
+            <div class="display-1 text-white">Requested Spots</div>
+            <div class="request-grid">
+                {% for request in requested_spots %}
+                {{ request_card(request) }}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script src="{{ url_for('static', filename='js/spot_detail_panel.js') }}"></script>
+<script src="{{ url_for('static', filename='js/request_card.js') }}"></script>
+<script src="{{ url_for('static', filename='js/add_spot.js') }}"></script>
+<script src="{{ url_for('static', filename='js/filters.js') }}"></script>
+<script src="{{ url_for('static', filename='js/bookmark_popup.js') }}"></script>
+<script>
+    // Handle the transition from the welcome panel to the spots panel when the "Find Spots" button is clicked
+    const findSpotsButton = document.getElementById("findSpotsButton");
+    const homeRight = document.querySelector(".home-right");
+    const welcomePanel = document.getElementById("welcomePanel");
+    const spotsPanel = document.getElementById("spotsPanel");
+
+    findSpotsButton.addEventListener("click", () => {
+        welcomePanel.classList.remove("right-panel--active");
+        welcomePanel.classList.add("right-panel--hidden");
+
+        spotsPanel.classList.remove("right-panel--hidden");
+        spotsPanel.classList.add("right-panel--active");
+
+        homeRight.classList.add("home-right--after");
+    });
+
+    // Handle the date sort button icon change when clicked
+    const dateSortButton = document.getElementById("dateSortButton");
+    const dateSortIcon = document.getElementById("dateSortIcon");
+
+    const iconStates = ["fa-sort", "fa-sort-down", "fa-sort-up"];
+    let currentIconIndex = 0;
+
+    dateSortButton.addEventListener("click", () => {
+        dateSortIcon.classList.remove(iconStates[currentIconIndex]);
+        currentIconIndex = (currentIconIndex + 1) % iconStates.length;
+        dateSortIcon.classList.add(iconStates[currentIconIndex]);
+    });
+
+    // Escape key handler to close popups
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+            closeFilterPopup();
+            closeAddSpotPopup({ saveBeforeClose: true });
+        }
+    });
+</script>
+{% endblock %}

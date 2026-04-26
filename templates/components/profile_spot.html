@@ -1,0 +1,16 @@
+{% macro profile_spot(spot) %}
+<div
+    class="grid-item profile-spot profile-spot-trigger"
+    data-spot-name="{{ spot.name }}"
+    data-spot-image="{{ spot.image }}"
+    data-spot-id="{{ spot.id if spot.id is defined else '' }}"
+    tabindex="0"
+    role="button"
+    aria-label="Add {{ spot.name }} to collections"
+>
+    <img src="{{ spot.image }}" alt="{{ spot.name }}" class="grid-item-image">
+    <div class="grid-item-label text text-black" style="text-align: center; font-weight: 700;">
+        {{ spot.name }}
+    </div>
+</div>
+{% endmacro %}
