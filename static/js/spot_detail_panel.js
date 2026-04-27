@@ -14,6 +14,176 @@
     }
   }
 
+  let activeSpotCard = null;
+  let activeSpotReviews = [];
+
+  function escapeHtml(value) {
+    return String(value ?? "").replace(/[&<>"']/g, (character) => {
+      const entities = {
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;",
+      };
+
+      return entities[character];
+    });
+  }
+
+  function getReviewTimestamp(review) {
+    return String(review.review_timestamp || review.id || "");
+  }
+
+  function getActiveSpotId() {
+    return activeSpotCard?.dataset.spotId || "";
+  }
+
+  function getActiveSpotReviews() {
+    if (!activeSpotCard) {
+      return activeSpotReviews;
+    }
+
+    return parseJsonData(activeSpotCard.dataset.spotReviews, activeSpotReviews);
+  }
+
+  function refreshHomeSpotsFromServer() {
+    if (typeof window.reloadSpotsList === "function") {
+      window.reloadSpotsList({ force: true });
+    }
+  }
+
+  function updateActiveSpotReviews(reviews) {
+    activeSpotReviews = reviews;
+
+    if (activeSpotCard) {
+      activeSpotCard.dataset.spotReviews = JSON.stringify(reviews);
+    }
+
+    const spotDetailReviews = document.getElementById("spotDetailReviews");
+    if (spotDetailReviews) {
+      renderReviews(spotDetailReviews, reviews);
+    }
+  }
+
+  function updateSpotRatingDisplay(spotStats) {
+    if (!spotStats) {
+      return;
+    }
+
+    const rating = Number(spotStats.rating || 0);
+    const ratingCount = Number(spotStats.rating_count || 0);
+    const displayRating = Number.isFinite(rating) ? rating.toFixed(1) : "0.0";
+    const displayCount = Number.isFinite(ratingCount) ? ratingCount : 0;
+
+    const spotDetailRatingValue = document.getElementById(
+      "spotDetailRatingValue",
+    );
+    const spotDetailRatingCount = document.getElementById(
+      "spotDetailRatingCount",
+    );
+    const spotDetailStars = document.getElementById("spotDetailStars");
+
+    if (spotDetailRatingValue) {
+      spotDetailRatingValue.textContent = displayRating;
+    }
+
+    if (spotDetailRatingCount) {
+      spotDetailRatingCount.textContent = `(${displayCount})`;
+    }
+
+    if (spotDetailStars) {
+      renderStars(spotDetailStars, rating);
+    }
+
+    if (!activeSpotCard) {
+      return;
+    }
+
+    activeSpotCard.dataset.spotRating = displayRating;
+    activeSpotCard.dataset.spotRatingCount = `(${displayCount})`;
+
+    const ratingSummary = activeSpotCard.querySelector(".spot-rating-summary");
+    if (!ratingSummary) {
+      return;
+    }
+
+    const ratingTextElements = ratingSummary.querySelectorAll(".small.text-gray");
+    const ratingValue = ratingTextElements[0];
+    const ratingCounter = ratingTextElements[ratingTextElements.length - 1];
+    const ratingStars = ratingSummary.querySelector(".spot-stars");
+
+    if (ratingValue) {
+      ratingValue.textContent = displayRating;
+    }
+
+    if (ratingCounter) {
+      ratingCounter.textContent = `(${displayCount})`;
+    }
+
+    if (ratingStars) {
+      renderStars(ratingStars, rating);
+    }
+  }
+
+  async function addActiveReview(rating, reviewText) {
+    const locationId = getActiveSpotId();
+
+    if (!locationId) {
+      throw new Error("No active spot selected.");
+    }
+
+    const formData = new FormData();
+    formData.append("location_id", locationId);
+    formData.append("rating", String(rating));
+    formData.append("review_text", reviewText);
+
+    const response = await fetch("/profile/review/add", {
+      method: "POST",
+      body: formData,
+    });
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.message || "Failed to add review.");
+    }
+
+    updateActiveSpotReviews([result.review, ...getActiveSpotReviews()]);
+    updateSpotRatingDisplay(result.spot);
+    refreshHomeSpotsFromServer();
+  }
+
+  async function deleteActiveReview(reviewCard) {
+    const locationId = reviewCard?.dataset.locationId || getActiveSpotId();
+    const reviewTimestamp = reviewCard?.dataset.reviewTimestamp || "";
+
+    if (!locationId || !reviewTimestamp) {
+      throw new Error("Review could not be identified.");
+    }
+
+    const formData = new FormData();
+    formData.append("location_id", locationId);
+    formData.append("review_timestamp", reviewTimestamp);
+
+    const response = await fetch("/profile/review/delete", {
+      method: "POST",
+      body: formData,
+    });
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.message || "Failed to delete review.");
+    }
+
+    updateActiveSpotReviews(
+      getActiveSpotReviews().filter(
+        (review) => getReviewTimestamp(review) !== reviewTimestamp,
+      ),
+    );
+    updateSpotRatingDisplay(result.spot);
+    refreshHomeSpotsFromServer();
+  }
+
   function renderStars(container, rating) {
     container.innerHTML = "";
 
@@ -70,12 +240,26 @@
   }
 
   function createReviewCardMarkup(review) {
+    const reviewTimestamp = getReviewTimestamp(review);
+    const deleteButtonMarkup = review.can_delete
+      ? `
+            <button class="review-card-delete" type="button" aria-label="Delete review">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          `
+      : "";
+
     return `
-      <article class="review-card spot-detail-review-card" data-review-id="${review.id ?? ""}">
+      <article
+        class="review-card spot-detail-review-card"
+        data-review-id="${escapeHtml(reviewTimestamp)}"
+        data-location-id="${escapeHtml(review.location_id ?? "")}"
+        data-review-timestamp="${escapeHtml(reviewTimestamp)}"
+      >
         <div class="review-card-top">
           <div class="review-card-meta">
             <i class="fa-solid fa-circle-user icon-review-profile"></i>
-            <div class="heading-4 text-black">${review.author}</div>
+            <div class="heading-4 text-black">${escapeHtml(review.author)}</div>
           </div>
 
           <div class="review-card-interactions">
@@ -83,16 +267,14 @@
               ${createReviewStarsMarkup(Number(review.rating || 0))}
             </div>
 
-            <button class="review-card-delete" type="button" aria-label="Delete review">
-              <i class="fa-solid fa-trash"></i>
-            </button>
+            ${deleteButtonMarkup}
           </div>
         </div>
 
-        <p class="text text-black">${review.body}</p>
+        <p class="text text-black">${escapeHtml(review.body)}</p>
 
         <div class="review-card-bottom">
-          <div class="small text-gray">${review.date}</div>
+          <div class="small text-gray">${escapeHtml(review.date)}</div>
         </div>
       </article>
     `;
@@ -157,8 +339,6 @@
     ) {
       return;
     }
-
-    let activeSpotCard = null;
 
     function showPanel(panelToShow, panelToHide) {
       panelToHide.classList.remove("right-panel--active");
@@ -226,6 +406,7 @@
 
       currentActiveSpotId = card.dataset.spotId;
       activeSpotCard = card;
+      activeSpotReviews = reviews;
       spotDetailTitle.textContent = name;
       spotDetailImage.src = image;
       spotDetailImage.alt = name;
@@ -269,7 +450,22 @@
       }
     });
 
-    spotDetailReviews.addEventListener("click", (event) => {
+    spotDetailReviews.addEventListener("click", async (event) => {
+      const deleteButton = event.target.closest(".review-card-delete");
+      if (deleteButton) {
+        const reviewCard = deleteButton.closest(".review-card");
+
+        try {
+          deleteButton.disabled = true;
+          await deleteActiveReview(reviewCard);
+        } catch (error) {
+          console.error(error);
+          deleteButton.disabled = false;
+        }
+
+        return;
+      }
+
       const likeButton = event.target.closest(".review-card-like");
 
       if (!likeButton) {
@@ -359,8 +555,27 @@
       closeWriteReviewPanel(false);
     });
 
-    postReviewButton.addEventListener("click", () => {
-      closeWriteReviewPanel(true);
+    postReviewButton.addEventListener("click", async () => {
+      const reviewText = writeReviewText.value.trim();
+
+      if (!selectedReviewRating) {
+        return;
+      }
+
+      if (!reviewText) {
+        writeReviewText.focus();
+        return;
+      }
+
+      try {
+        postReviewButton.disabled = true;
+        await addActiveReview(selectedReviewRating, reviewText);
+        closeWriteReviewPanel(true);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        postReviewButton.disabled = false;
+      }
     });
 
     writeReviewStarButtons.forEach((button) => {
