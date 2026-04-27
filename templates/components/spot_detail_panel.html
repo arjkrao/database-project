@@ -1,18 +1,26 @@
 <div class="right-panel right-panel--hidden" id="spotDetailPanel">
     <div class="spot-detail">
-        <!-- If the spot is private -->
-        <!-- <div class="spot-detail-top">
+        <div class="spot-detail-top" id="spotDetailPrivateBanner" hidden>
             <div class="heading-3 text-error">This Spot Is Private</div>
-            <button class="spot-detail-close" id="closeSpotDetailButton" type="button" aria-label="Close spot detail">
+
+            <button
+                class="spot-detail-close"
+                id="closeSpotDetailButtonPrivate"
+                type="button"
+                aria-label="Close spot detail"
+            >
                 <i class="fa-solid fa-xmark"></i>
             </button>
-        </div> -->
-        <!-- endif -->
-        <!-- If the spot is not private -->
-        <button class="spot-detail-close" id="closeSpotDetailButton" type="button" aria-label="Close spot detail">
+        </div>
+
+        <button
+            class="spot-detail-close"
+            id="closeSpotDetailButton"
+            type="button"
+            aria-label="Close spot detail"
+        >
             <i class="fa-solid fa-xmark"></i>
         </button>
-        <!-- endif -->
 
         <img class="spot-detail-image" id="spotDetailImage" src="https://placehold.co/400x320" alt="Spot image">
 

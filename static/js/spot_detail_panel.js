@@ -1,10 +1,10 @@
 (function () {
   let currentActiveSpotId = null;
+  let activeSpotCard = null;
+  let activeSpotReviews = [];
 
   function parseJsonData(rawValue, fallbackValue) {
-    if (!rawValue) {
-      return fallbackValue;
-    }
+    if (!rawValue) return fallbackValue;
 
     try {
       return JSON.parse(rawValue);
@@ -13,9 +13,6 @@
       return fallbackValue;
     }
   }
-
-  let activeSpotCard = null;
-  let activeSpotReviews = [];
 
   function escapeHtml(value) {
     return String(value ?? "").replace(/[&<>"']/g, (character) => {
@@ -40,10 +37,7 @@
   }
 
   function getActiveSpotReviews() {
-    if (!activeSpotCard) {
-      return activeSpotReviews;
-    }
-
+    if (!activeSpotCard) return activeSpotReviews;
     return parseJsonData(activeSpotCard.dataset.spotReviews, activeSpotReviews);
   }
 
@@ -51,137 +45,6 @@
     if (typeof window.reloadSpotsList === "function") {
       window.reloadSpotsList({ force: true });
     }
-  }
-
-  function updateActiveSpotReviews(reviews) {
-    activeSpotReviews = reviews;
-
-    if (activeSpotCard) {
-      activeSpotCard.dataset.spotReviews = JSON.stringify(reviews);
-    }
-
-    const spotDetailReviews = document.getElementById("spotDetailReviews");
-    if (spotDetailReviews) {
-      renderReviews(spotDetailReviews, reviews);
-    }
-  }
-
-  function updateSpotRatingDisplay(spotStats) {
-    if (!spotStats) {
-      return;
-    }
-
-    const rating = Number(spotStats.rating || 0);
-    const ratingCount = Number(spotStats.rating_count || 0);
-    const displayRating = Number.isFinite(rating) ? rating.toFixed(1) : "0.0";
-    const displayCount = Number.isFinite(ratingCount) ? ratingCount : 0;
-
-    const spotDetailRatingValue = document.getElementById(
-      "spotDetailRatingValue",
-    );
-    const spotDetailRatingCount = document.getElementById(
-      "spotDetailRatingCount",
-    );
-    const spotDetailStars = document.getElementById("spotDetailStars");
-
-    if (spotDetailRatingValue) {
-      spotDetailRatingValue.textContent = displayRating;
-    }
-
-    if (spotDetailRatingCount) {
-      spotDetailRatingCount.textContent = `(${displayCount})`;
-    }
-
-    if (spotDetailStars) {
-      renderStars(spotDetailStars, rating);
-    }
-
-    if (!activeSpotCard) {
-      return;
-    }
-
-    activeSpotCard.dataset.spotRating = displayRating;
-    activeSpotCard.dataset.spotRatingCount = `(${displayCount})`;
-
-    const ratingSummary = activeSpotCard.querySelector(".spot-rating-summary");
-    if (!ratingSummary) {
-      return;
-    }
-
-    const ratingTextElements = ratingSummary.querySelectorAll(".small.text-gray");
-    const ratingValue = ratingTextElements[0];
-    const ratingCounter = ratingTextElements[ratingTextElements.length - 1];
-    const ratingStars = ratingSummary.querySelector(".spot-stars");
-
-    if (ratingValue) {
-      ratingValue.textContent = displayRating;
-    }
-
-    if (ratingCounter) {
-      ratingCounter.textContent = `(${displayCount})`;
-    }
-
-    if (ratingStars) {
-      renderStars(ratingStars, rating);
-    }
-  }
-
-  async function addActiveReview(rating, reviewText) {
-    const locationId = getActiveSpotId();
-
-    if (!locationId) {
-      throw new Error("No active spot selected.");
-    }
-
-    const formData = new FormData();
-    formData.append("location_id", locationId);
-    formData.append("rating", String(rating));
-    formData.append("review_text", reviewText);
-
-    const response = await fetch("/profile/review/add", {
-      method: "POST",
-      body: formData,
-    });
-    const result = await response.json();
-
-    if (!response.ok) {
-      throw new Error(result.message || "Failed to add review.");
-    }
-
-    updateActiveSpotReviews([result.review, ...getActiveSpotReviews()]);
-    updateSpotRatingDisplay(result.spot);
-    refreshHomeSpotsFromServer();
-  }
-
-  async function deleteActiveReview(reviewCard) {
-    const locationId = reviewCard?.dataset.locationId || getActiveSpotId();
-    const reviewTimestamp = reviewCard?.dataset.reviewTimestamp || "";
-
-    if (!locationId || !reviewTimestamp) {
-      throw new Error("Review could not be identified.");
-    }
-
-    const formData = new FormData();
-    formData.append("location_id", locationId);
-    formData.append("review_timestamp", reviewTimestamp);
-
-    const response = await fetch("/profile/review/delete", {
-      method: "POST",
-      body: formData,
-    });
-    const result = await response.json();
-
-    if (!response.ok) {
-      throw new Error(result.message || "Failed to delete review.");
-    }
-
-    updateActiveSpotReviews(
-      getActiveSpotReviews().filter(
-        (review) => getReviewTimestamp(review) !== reviewTimestamp,
-      ),
-    );
-    updateSpotRatingDisplay(result.spot);
-    refreshHomeSpotsFromServer();
   }
 
   function renderStars(container, rating) {
@@ -241,12 +104,13 @@
 
   function createReviewCardMarkup(review) {
     const reviewTimestamp = getReviewTimestamp(review);
+
     const deleteButtonMarkup = review.can_delete
       ? `
-            <button class="review-card-delete" type="button" aria-label="Delete review">
-              <i class="fa-solid fa-trash"></i>
-            </button>
-          `
+        <button class="review-card-delete" type="button" aria-label="Delete review">
+          <i class="fa-solid fa-trash"></i>
+        </button>
+      `
       : "";
 
     return `
@@ -266,7 +130,6 @@
             <div class="spot-stars">
               ${createReviewStarsMarkup(Number(review.rating || 0))}
             </div>
-
             ${deleteButtonMarkup}
           </div>
         </div>
@@ -293,37 +156,159 @@
     container.innerHTML = reviews.map(createReviewCardMarkup).join("");
   }
 
+  function updateActiveSpotReviews(reviews) {
+    activeSpotReviews = reviews;
+
+    if (activeSpotCard) {
+      activeSpotCard.dataset.spotReviews = JSON.stringify(reviews);
+    }
+
+    const spotDetailReviews = document.getElementById("spotDetailReviews");
+    if (spotDetailReviews) {
+      renderReviews(spotDetailReviews, reviews);
+    }
+  }
+
+  function updateSpotRatingDisplay(spotStats) {
+    if (!spotStats) return;
+
+    const rating = Number(spotStats.rating || 0);
+    const ratingCount = Number(spotStats.rating_count || 0);
+    const displayRating = Number.isFinite(rating) ? rating.toFixed(1) : "0.0";
+    const displayCount = Number.isFinite(ratingCount) ? ratingCount : 0;
+
+    const spotDetailRatingValue = document.getElementById("spotDetailRatingValue");
+    const spotDetailRatingCount = document.getElementById("spotDetailRatingCount");
+    const spotDetailStars = document.getElementById("spotDetailStars");
+
+    if (spotDetailRatingValue) {
+      spotDetailRatingValue.textContent = displayRating;
+    }
+
+    if (spotDetailRatingCount) {
+      spotDetailRatingCount.textContent = `(${displayCount})`;
+    }
+
+    if (spotDetailStars) {
+      renderStars(spotDetailStars, rating);
+    }
+
+    if (!activeSpotCard) return;
+
+    activeSpotCard.dataset.spotRating = displayRating;
+    activeSpotCard.dataset.spotRatingCount = `(${displayCount})`;
+
+    const ratingSummary = activeSpotCard.querySelector(".spot-rating-summary");
+    if (!ratingSummary) return;
+
+    const ratingTextElements = ratingSummary.querySelectorAll(".small.text-gray");
+    const ratingValue = ratingTextElements[0];
+    const ratingCounter = ratingTextElements[ratingTextElements.length - 1];
+    const ratingStars = ratingSummary.querySelector(".spot-stars");
+
+    if (ratingValue) {
+      ratingValue.textContent = displayRating;
+    }
+
+    if (ratingCounter) {
+      ratingCounter.textContent = `(${displayCount})`;
+    }
+
+    if (ratingStars) {
+      renderStars(ratingStars, rating);
+    }
+  }
+
+  async function addActiveReview(rating, reviewText) {
+    const locationId = getActiveSpotId();
+
+    if (!locationId) {
+      throw new Error("No active spot selected.");
+    }
+
+    const formData = new FormData();
+    formData.append("location_id", locationId);
+    formData.append("rating", String(rating));
+    formData.append("review_text", reviewText);
+
+    const response = await fetch("/profile/review/add", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.message || "Failed to add review.");
+    }
+
+    updateActiveSpotReviews([result.review, ...getActiveSpotReviews()]);
+    updateSpotRatingDisplay(result.spot);
+    refreshHomeSpotsFromServer();
+  }
+
+  async function deleteActiveReview(reviewCard) {
+    const locationId = reviewCard?.dataset.locationId || getActiveSpotId();
+    const reviewTimestamp = reviewCard?.dataset.reviewTimestamp || "";
+
+    if (!locationId || !reviewTimestamp) {
+      throw new Error("Review could not be identified.");
+    }
+
+    const formData = new FormData();
+    formData.append("location_id", locationId);
+    formData.append("review_timestamp", reviewTimestamp);
+
+    const response = await fetch("/profile/review/delete", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.message || "Failed to delete review.");
+    }
+
+    updateActiveSpotReviews(
+      getActiveSpotReviews().filter(
+        (review) => getReviewTimestamp(review) !== reviewTimestamp,
+      ),
+    );
+
+    updateSpotRatingDisplay(result.spot);
+    refreshHomeSpotsFromServer();
+  }
+
   function setupSpotDetailPanel() {
     const spotsPanel = document.getElementById("spotsPanel");
     const spotDetailPanel = document.getElementById("spotDetailPanel");
-    const closeSpotDetailButton = document.getElementById(
-      "closeSpotDetailButton",
-    );
-    const shareSpotButton = document.getElementById("shareSpotButton");
 
+    const normalCloseButton =
+      document.getElementById("closeSpotDetailButtonSecondary") ||
+      document.getElementById("closeSpotDetailButton");
+
+    const privateCloseButton = document.getElementById("closeSpotDetailButtonPrivate");
+
+    const shareSpotButton = document.getElementById("shareSpotButton");
     const spotDetailTitle = document.getElementById("spotDetailTitle");
     const spotDetailImage = document.getElementById("spotDetailImage");
     const spotDetailPrice = document.getElementById("spotDetailPrice");
-    const spotDetailRatingValue = document.getElementById(
-      "spotDetailRatingValue",
-    );
-    const spotDetailRatingCount = document.getElementById(
-      "spotDetailRatingCount",
-    );
-    const spotDetailDescription = document.getElementById(
-      "spotDetailDescription",
-    );
+    const spotDetailRatingValue = document.getElementById("spotDetailRatingValue");
+    const spotDetailRatingCount = document.getElementById("spotDetailRatingCount");
+    const spotDetailDescription = document.getElementById("spotDetailDescription");
     const spotDetailStars = document.getElementById("spotDetailStars");
     const spotDetailIcons = document.getElementById("spotDetailIcons");
     const spotDetailReviews = document.getElementById("spotDetailReviews");
     const writeReviewPanel = document.getElementById("writeReviewPanel");
     const writeReviewText = document.getElementById("writeReviewText");
     const requestPublicButton = document.getElementById("requestPublicButton");
+    const privateBanner = document.getElementById("spotDetailPrivateBanner");
 
     if (
       !spotsPanel ||
       !spotDetailPanel ||
-      !closeSpotDetailButton ||
+      !normalCloseButton ||
       !spotDetailTitle ||
       !spotDetailImage ||
       !spotDetailPrice ||
@@ -335,7 +320,8 @@
       !spotDetailReviews ||
       !writeReviewPanel ||
       !writeReviewText ||
-      !requestPublicButton
+      !requestPublicButton ||
+      !privateBanner
     ) {
       return;
     }
@@ -348,17 +334,33 @@
       panelToShow.classList.add("right-panel--active");
     }
 
+    function closeDetailPanel() {
+      showPanel(spotsPanel, spotDetailPanel);
+    }
+
+    normalCloseButton.addEventListener("click", closeDetailPanel);
+
+    if (privateCloseButton) {
+      privateCloseButton.addEventListener("click", closeDetailPanel);
+    }
+
+    function setPrivateBannerState(status) {
+      const normalizedStatus = String(status || "").trim().toLowerCase();
+      const isPrivate = normalizedStatus === "private";
+
+      privateBanner.hidden = !isPrivate;
+      normalCloseButton.hidden = isPrivate;
+    }
+
     function setRequestPublicButtonState(status, isOwner) {
       const normalizedStatus = String(status || "").trim().toLowerCase();
 
       requestPublicButton.hidden = true;
       requestPublicButton.disabled = true;
-      requestPublicButton.textContent = "Request To Make Public";
+      requestPublicButton.textContent = "Request Public";
       requestPublicButton.classList.remove("spot-detail-request-public--pending");
 
-      if (!isOwner) {
-        return;
-      }
+      if (!isOwner) return;
 
       if (normalizedStatus === "private") {
         requestPublicButton.hidden = false;
@@ -375,17 +377,14 @@
     }
 
     spotsPanel.addEventListener("click", (event) => {
-      if (!(event.target instanceof Element)) {
-        return;
-      }
+      if (!(event.target instanceof Element)) return;
 
       const card = event.target.closest(".spot-card--clickable");
 
-      if (!card || !spotsPanel.contains(card)) {
-        return;
-      }
+      if (!card || !spotsPanel.contains(card)) return;
 
       const deleteButton = event.target.closest(".spot-delete");
+
       if (deleteButton) {
         if (!confirm("Are you sure you want to delete this location? This action cannot be undone.")) {
           return;
@@ -395,30 +394,29 @@
         const formData = new FormData();
         formData.append("location_id", cardDeleteId);
 
-        fetch("/home/delete_spot", { method: "POST", body: formData })
-          .then(res => res.json())
-          .then(data => {
+        fetch("/home/delete_spot", {
+          method: "POST",
+          body: formData,
+        })
+          .then((res) => res.json())
+          .then((data) => {
             if (data.status === "success") {
               card.remove();
+
               if (currentActiveSpotId === cardDeleteId) {
-                const spotDetailPanel = document.getElementById("spotDetailPanel");
-                const spotsPanel = document.getElementById("spotsPanel");
-                spotDetailPanel.hidden = true;
-                spotsPanel.classList.remove("left-panel-hidden");
-                if (activeSpotCard) {
-                  activeSpotCard.classList.remove("right-panel-active");
-                  activeSpotCard = null;
-                  currentActiveSpotId = null;
-                }
+                closeDetailPanel();
+                activeSpotCard = null;
+                currentActiveSpotId = null;
               }
             } else {
               alert(data.message || "Failed to delete location.");
             }
           })
-          .catch(err => {
+          .catch((err) => {
             console.error("Delete spot error:", err);
             alert("An error occurred trying to delete this location.");
           });
+
         return;
       }
 
@@ -443,6 +441,7 @@
       currentActiveSpotId = card.dataset.spotId;
       activeSpotCard = card;
       activeSpotReviews = reviews;
+
       spotDetailTitle.textContent = name;
       spotDetailImage.src = image;
       spotDetailImage.alt = name;
@@ -458,6 +457,8 @@
       writeReviewPanel.hidden = true;
       spotDetailReviews.hidden = false;
       writeReviewText.value = "";
+
+      setPrivateBannerState(status);
       setRequestPublicButtonState(status, isOwner);
 
       if (shareSpotButton) {
@@ -468,14 +469,8 @@
       showPanel(spotDetailPanel, spotsPanel);
     });
 
-    closeSpotDetailButton.addEventListener("click", () => {
-      showPanel(spotsPanel, spotDetailPanel);
-    });
-
     requestPublicButton.addEventListener("click", () => {
-      if (requestPublicButton.hidden || requestPublicButton.disabled) {
-        return;
-      }
+      if (requestPublicButton.hidden || requestPublicButton.disabled) return;
 
       const originalText = requestPublicButton.textContent;
       requestPublicButton.textContent = "Requesting...";
@@ -484,9 +479,12 @@
       const formData = new FormData();
       formData.append("location_id", currentActiveSpotId);
 
-      fetch('/home/request_public', { method: 'POST', body: formData })
-        .then(res => res.json())
-        .then(data => {
+      fetch("/home/request_public", {
+        method: "POST",
+        body: formData,
+      })
+        .then((res) => res.json())
+        .then((data) => {
           if (data.status === "success") {
             requestPublicButton.textContent = "Public Request Pending";
             requestPublicButton.classList.add("spot-detail-request-public--pending");
@@ -494,13 +492,15 @@
             if (activeSpotCard) {
               activeSpotCard.dataset.spotStatus = "pending";
             }
+
+            setPrivateBannerState("pending");
           } else {
             console.error("Error from backend:", data.message);
             requestPublicButton.textContent = originalText;
             requestPublicButton.disabled = false;
           }
         })
-        .catch(err => {
+        .catch((err) => {
           console.error("Fetch error:", err);
           requestPublicButton.textContent = originalText;
           requestPublicButton.disabled = false;
@@ -509,6 +509,7 @@
 
     spotDetailReviews.addEventListener("click", async (event) => {
       const deleteButton = event.target.closest(".review-card-delete");
+
       if (deleteButton) {
         const reviewCard = deleteButton.closest(".review-card");
 
@@ -525,15 +526,11 @@
 
       const likeButton = event.target.closest(".review-card-like");
 
-      if (!likeButton) {
-        return;
-      }
+      if (!likeButton) return;
 
       const icon = likeButton.querySelector(".fa-thumbs-up");
 
-      if (!icon) {
-        return;
-      }
+      if (!icon) return;
 
       icon.classList.toggle("fa-regular");
       icon.classList.toggle("fa-solid");
@@ -547,9 +544,11 @@
     const cancelReviewButton = document.getElementById("cancelReviewButton");
     const postReviewButton = document.getElementById("postReviewButton");
     const writeReviewText = document.getElementById("writeReviewText");
+
     const writeReviewStarButtons = Array.from(
       document.querySelectorAll(".write-review-star-hitbox"),
     );
+
     const writeReviewStarIcons = Array.from(
       document.querySelectorAll(".write-review-star-icon"),
     );
@@ -604,9 +603,7 @@
       }
     }
 
-    writeReviewButton.addEventListener("click", () => {
-      openWriteReviewPanel();
-    });
+    writeReviewButton.addEventListener("click", openWriteReviewPanel);
 
     cancelReviewButton.addEventListener("click", () => {
       closeWriteReviewPanel(false);
@@ -615,9 +612,7 @@
     postReviewButton.addEventListener("click", async () => {
       const reviewText = writeReviewText.value.trim();
 
-      if (!selectedReviewRating) {
-        return;
-      }
+      if (!selectedReviewRating) return;
 
       if (!reviewText) {
         writeReviewText.focus();
@@ -650,21 +645,11 @@
     const sharePopup = document.getElementById("sharePopup");
     const sharePopupBackdrop = document.getElementById("sharePopupBackdrop");
     const sharePopupSpotName = document.getElementById("sharePopupSpotName");
-    const sharePopupEmailInput = document.getElementById(
-      "sharePopupEmailInput",
-    );
-    const sharePopupSubmitButton = document.getElementById(
-      "sharePopupSubmitButton",
-    );
-    const sharePopupUnshareButton = document.getElementById(
-      "sharePopupUnshareButton",
-    );
-    const sharePopupStatusText = document.getElementById(
-      "sharePopupStatusText",
-    );
-    const sharePopupCancelButton = document.getElementById(
-      "sharePopupCancelButton",
-    );
+    const sharePopupEmailInput = document.getElementById("sharePopupEmailInput");
+    const sharePopupSubmitButton = document.getElementById("sharePopupSubmitButton");
+    const sharePopupUnshareButton = document.getElementById("sharePopupUnshareButton");
+    const sharePopupStatusText = document.getElementById("sharePopupStatusText");
+    const sharePopupCancelButton = document.getElementById("sharePopupCancelButton");
     const spotDetailTitle = document.getElementById("spotDetailTitle");
 
     if (
@@ -690,6 +675,7 @@
 
       sharePopupSpotName.textContent = spotDetailTitle.textContent || "Spot";
       sharePopupEmailInput.value = "";
+
       if (sharePopupStatusText) {
         sharePopupStatusText.textContent = "";
         sharePopupStatusText.className = "small text-black";
@@ -707,9 +693,7 @@
     }
 
     function closeSharePopup() {
-      if (!sharePopup.classList.contains("bookmark-popup--open")) {
-        return;
-      }
+      if (!sharePopup.classList.contains("bookmark-popup--open")) return;
 
       sharePopup.classList.remove("bookmark-popup--open");
       sharePopupBackdrop.classList.remove("bookmark-popup-backdrop--open");
@@ -722,13 +706,9 @@
       }, 220);
     }
 
-    shareSpotButton.addEventListener("click", () => {
-      openSharePopup();
-    });
+    shareSpotButton.addEventListener("click", openSharePopup);
 
-    sharePopupBackdrop.addEventListener("click", () => {
-      closeSharePopup();
-    });
+    sharePopupBackdrop.addEventListener("click", closeSharePopup);
 
     sharePopup.addEventListener("click", (event) => {
       if (event.target === sharePopup) {
@@ -748,15 +728,19 @@
       formData.append("email", email);
       formData.append("location_id", currentActiveSpotId);
 
-      fetch('/home/share_spot', { method: 'POST', body: formData })
-        .then(res => res.json())
-        .then(data => {
+      fetch("/home/share_spot", {
+        method: "POST",
+        body: formData,
+      })
+        .then((res) => res.json())
+        .then((data) => {
           if (sharePopupStatusText) {
             sharePopupStatusText.textContent = data.message;
-            sharePopupStatusText.className = data.status === "success" ? "small text-success" : "small text-error";
+            sharePopupStatusText.className =
+              data.status === "success" ? "small text-success" : "small text-error";
           }
         })
-        .catch(err => console.error("Error sharing spot:", err));
+        .catch((err) => console.error("Error sharing spot:", err));
     });
 
     if (sharePopupUnshareButton) {
@@ -772,15 +756,19 @@
         formData.append("email", email);
         formData.append("location_id", currentActiveSpotId);
 
-        fetch('/home/unshare_spot', { method: 'POST', body: formData })
-          .then(res => res.json())
-          .then(data => {
+        fetch("/home/unshare_spot", {
+          method: "POST",
+          body: formData,
+        })
+          .then((res) => res.json())
+          .then((data) => {
             if (sharePopupStatusText) {
               sharePopupStatusText.textContent = data.message;
-              sharePopupStatusText.className = data.status === "success" ? "small text-success" : "small text-error";
+              sharePopupStatusText.className =
+                data.status === "success" ? "small text-success" : "small text-error";
             }
           })
-          .catch(err => console.error("Error unsharing spot:", err));
+          .catch((err) => console.error("Error unsharing spot:", err));
       });
     }
 
