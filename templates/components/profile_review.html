@@ -11,11 +11,16 @@
 {% endmacro %}
 
 {% macro profile_review(review) %}
-<article class="review-card">
+<article
+    class="review-card"
+    data-location-id="{{ review.location_id }}"
+    data-review-timestamp="{{ review.timestamp }}"
+    data-rating="{{ review.rating }}"
+>
     <div class="review-card-top">
         <div class="review-card-title heading-4 text-primary-dark">{{ review.spot_name }}</div>
         <div class="review-card-date small text-gray">{{ review.date }}</div>
-        <div class="spot-stars">
+        <div class="spot-stars review-card-stars">
             {{ render_review_stars(review.rating) }}
         </div>
         <button class="review-card-edit" type="button" aria-label="Edit review">

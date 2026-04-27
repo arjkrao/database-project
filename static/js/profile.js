@@ -13,6 +13,149 @@
     const collectionsList = document.querySelector(".collections-sidebar-list");
     const collectionGrid = document.getElementById("collectionSpotsGrid");
     const firstCollection = document.querySelector(".collection-item");
+    const reviewsGrid = document.querySelector(".reviews-grid");
+
+    function renderReviewStars(rating) {
+      let html = "";
+
+      for (let i = 1; i <= 5; i++) {
+        if (rating >= i) {
+          html += `<i class="fa-solid fa-star icon-star"></i>`;
+        } else if (rating >= i - 0.5) {
+          html += `<i class="fa-solid fa-star-half-stroke icon-star"></i>`;
+        } else {
+          html += `<i class="fa-regular fa-star icon-star"></i>`;
+        }
+      }
+
+      return html;
+    }
+
+    function enterReviewEditMode(card) {
+      const body = card.querySelector(".review-card-body");
+      const stars = card.querySelector(".review-card-stars");
+      const editButton = card.querySelector(".review-card-edit");
+
+      const currentText = body.textContent.trim();
+      const currentRating = card.dataset.rating || "5";
+
+      body.innerHTML = `
+        <textarea class="review-edit-text text">${currentText}</textarea>
+      `;
+
+      stars.innerHTML = `
+        <select class="review-edit-rating text">
+          <option value="1">1</option>
+          <option value="1.5">1.5</option>
+          <option value="2">2</option>
+          <option value="2.5">2.5</option>
+          <option value="3">3</option>
+          <option value="3.5">3.5</option>
+          <option value="4">4</option>
+          <option value="4.5">4.5</option>
+          <option value="5">5</option>
+        </select>
+      `;
+
+      stars.querySelector(".review-edit-rating").value = String(currentRating);
+
+      editButton.classList.add("review-card-save");
+      editButton.classList.remove("review-card-edit");
+      editButton.setAttribute("aria-label", "Save review");
+      editButton.innerHTML = `<i class="fa-solid fa-check"></i>`;
+    }
+
+    async function saveReviewEdit(card) {
+      const textInput = card.querySelector(".review-edit-text");
+      const ratingInput = card.querySelector(".review-edit-rating");
+
+      const newText = textInput.value.trim();
+      const newRating = ratingInput.value;
+
+      if (!newText) return;
+
+      const formData = new FormData();
+      formData.append("location_id", card.dataset.locationId);
+      formData.append("review_timestamp", card.dataset.reviewTimestamp);
+      formData.append("rating", newRating);
+      formData.append("review_text", newText);
+
+      const response = await fetch("/profile/review/edit", {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to edit review");
+      }
+
+      card.dataset.rating = newRating;
+
+      if (result.review_timestamp) {
+        card.dataset.reviewTimestamp = result.review_timestamp;
+      }
+
+      card.querySelector(".review-card-body").textContent = newText;
+      card.querySelector(".review-card-stars").innerHTML = renderReviewStars(Number(newRating));
+
+      const saveButton = card.querySelector(".review-card-save");
+      saveButton.classList.add("review-card-edit");
+      saveButton.classList.remove("review-card-save");
+      saveButton.setAttribute("aria-label", "Edit review");
+      saveButton.innerHTML = `<i class="fa-regular fa-pen-to-square"></i>`;
+    }
+
+    async function deleteReview(card) {
+      const formData = new FormData();
+      formData.append("location_id", card.dataset.locationId);
+      formData.append("review_timestamp", card.dataset.reviewTimestamp);
+
+      const response = await fetch("/profile/review/delete", {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to delete review");
+      }
+
+      card.remove();
+    }
+
+    if (reviewsGrid) {
+      reviewsGrid.addEventListener("click", async (event) => {
+        const card = event.target.closest(".review-card");
+        if (!card) return;
+
+        const editButton = event.target.closest(".review-card-edit");
+        const saveButton = event.target.closest(".review-card-save");
+        const deleteButton = event.target.closest(".review-card-delete");
+
+        try {
+          if (editButton) {
+            enterReviewEditMode(card);
+            return;
+          }
+
+          if (saveButton) {
+            await saveReviewEdit(card);
+            return;
+          }
+
+          if (deleteButton) {
+            await deleteReview(card);
+            return;
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      });
+    }
+
     if (firstCollection) {
       activeCollectionId = firstCollection.dataset.collectionId;
 

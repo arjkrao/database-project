@@ -1,3 +1,4 @@
+import datetime
 import os
 import pathlib
 from flask import Flask, jsonify, render_template, request, session, abort, redirect, url_for, Response, send_file
@@ -542,6 +543,56 @@ def add_spot_to_collection():
         "message": "Spot added to collection successfully!"
     }, 200
 
+@app.route("/profile/review/edit", methods=['POST'])
+@login_is_required
+def edit_review():
+    user = get_user(session.get('email'))
+    location_id = request.form.get('location_id')
+    rating = request.form.get('rating')
+    review_text = request.form.get('review_text')
+    old_timestamp = request.form.get('review_timestamp')
+    new_timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M%:%S")
+
+    with db.engine.begin() as conn:
+        query = text('UPDATE reviews SET rating=:rating, review_text=:text, review_datetime=:new_timestamp WHERE user_id=:uid AND location_id=:lid AND review_datetime=:old_timestamp;')
+        result = conn.execute(query, {"uid": user.user_id, "lid": location_id, "rating": rating, "text": review_text, "old_timestamp": old_timestamp, "new_timestamp": new_timestamp})
+
+        if result.rowcount == 0:
+            return {
+                "status": "error",
+                "message": "Review not found or no changes made."
+            }, 404
+
+
+    return {
+        "status": "success",
+        "message": "Review edited successfully!",
+        "review_timestamp": new_timestamp 
+    }, 200
+
+@app.route("/profile/review/delete", methods=['POST'])
+@login_is_required
+def delete_review():
+    user = get_user(session.get('email'))
+    location_id = request.form.get('location_id')
+    old_timestamp = request.form.get('review_timestamp')
+    print(user.user_id, location_id, old_timestamp)
+
+    with db.engine.begin() as conn:
+        query = text('DELETE FROM reviews WHERE user_id=:uid AND location_id=:lid AND review_datetime=:old_timestamp;')
+        result = conn.execute(query, {"uid": user.user_id, "lid": location_id, "old_timestamp": old_timestamp})
+
+        if result.rowcount == 0:
+            return {
+                "status": "error",
+                "message": "No matching review found to delete."
+            }, 404
+
+    return {
+        "status": "success",
+        "message": "Review deleted successfully!"
+    }, 200
+
 @app.route("/profile")
 @login_is_required
 def profile():
@@ -585,6 +636,22 @@ def profile():
                 "name": result.collection_name
                 })
 
+    reviews = []
+    with db.engine.begin() as conn:
+        query = text('SELECT review_datetime, rating, review_text, location_name, location_id FROM reviews NATURAL JOIN locations WHERE user_id = :id;')
+        results = conn.execute(query, {"id": user.user_id}).all()
+        for result in results:
+            reviews.append({
+                "location_id": result.location_id,
+                "spot_name": result.location_name,
+                "timestamp": str(result.review_datetime),
+                "date": result.review_datetime.strftime("%m/%d/%y"),
+                "rating": float(result.rating),
+                "body": result.review_text,
+                "likes": 0, # placeholder since we haven't implemented review likes yet
+                "liked": False, # placeholder since we haven't implemented review likes yet
+            })
+        
     profile_data = {
         "name": user.display_name,
         "email": user.username,
@@ -592,16 +659,7 @@ def profile():
         "private_spots": private_spots,
         "pending_spots": pending_spots,
         "collections": collections,
-        "reviews": [
-            {
-                "spot_name": "Austin's Bagels",
-                "date": "03/10/05",
-                "rating": 4.0,
-                "body": "Its ight. Its ight. Its ight. Its ight. Its ight.",
-                "likes": 10,
-                "liked": False,
-            },
-        ],
+        "reviews": reviews,
         "shared_spots": [
             {
                 "id": 3,

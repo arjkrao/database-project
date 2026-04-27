@@ -2047,6 +2047,21 @@ p {
   align-self: stretch;
 }
 
+.review-edit-text {
+  width: 100%;
+  min-height: 120px;
+  padding: 12px;
+  border: 2px solid var(--color-primary-dark);
+  border-radius: 8px;
+  resize: vertical;
+}
+
+.review-edit-rating {
+  padding: 8px;
+  border: 2px solid var(--color-primary-dark);
+  border-radius: 8px;
+}
+
 .review-card {
   display: flex;
   flex-direction: column;
