@@ -115,6 +115,7 @@
     const closeSpotDetailButton = document.getElementById(
       "closeSpotDetailButton",
     );
+    const shareSpotButton = document.getElementById("shareSpotButton");
 
     const spotDetailTitle = document.getElementById("spotDetailTitle");
     const spotDetailImage = document.getElementById("spotDetailImage");
@@ -238,6 +239,11 @@
       spotDetailReviews.hidden = false;
       writeReviewText.value = "";
       setRequestPublicButtonState(status, isOwner);
+      
+      if (shareSpotButton) {
+        const normalizedStatus = String(status || "").trim().toLowerCase();
+        shareSpotButton.hidden = !(isOwner && normalizedStatus === "private");
+      }
 
       showPanel(spotDetailPanel, spotsPanel);
     });
