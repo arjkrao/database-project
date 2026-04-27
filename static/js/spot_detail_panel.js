@@ -1,4 +1,6 @@
 (function () {
+  let currentActiveSpotId = null;
+
   function parseJsonData(rawValue, fallbackValue) {
     if (!rawValue) {
       return fallbackValue;
@@ -222,6 +224,7 @@
       const icons = parseJsonData(card.dataset.spotIcons, []);
       const reviews = parseJsonData(card.dataset.spotReviews, []);
 
+      currentActiveSpotId = card.dataset.spotId;
       activeSpotCard = card;
       spotDetailTitle.textContent = name;
       spotDetailImage.src = image;
@@ -239,7 +242,7 @@
       spotDetailReviews.hidden = false;
       writeReviewText.value = "";
       setRequestPublicButtonState(status, isOwner);
-      
+
       if (shareSpotButton) {
         const normalizedStatus = String(status || "").trim().toLowerCase();
         shareSpotButton.hidden = !(isOwner && normalizedStatus === "private");
@@ -381,6 +384,12 @@
     const sharePopupSubmitButton = document.getElementById(
       "sharePopupSubmitButton",
     );
+    const sharePopupUnshareButton = document.getElementById(
+      "sharePopupUnshareButton",
+    );
+    const sharePopupStatusText = document.getElementById(
+      "sharePopupStatusText",
+    );
     const sharePopupCancelButton = document.getElementById(
       "sharePopupCancelButton",
     );
@@ -409,6 +418,10 @@
 
       sharePopupSpotName.textContent = spotDetailTitle.textContent || "Spot";
       sharePopupEmailInput.value = "";
+      if (sharePopupStatusText) {
+        sharePopupStatusText.textContent = "";
+        sharePopupStatusText.className = "small text-black";
+      }
 
       sharePopup.hidden = false;
       sharePopupBackdrop.hidden = false;
@@ -459,11 +472,45 @@
         return;
       }
 
-      // Replace this with actual Flask endpoint
-      console.log("Share spot with:", email);
+      const formData = new FormData();
+      formData.append("email", email);
+      formData.append("location_id", currentActiveSpotId);
 
-      closeSharePopup();
+      fetch('/home/share_spot', { method: 'POST', body: formData })
+        .then(res => res.json())
+        .then(data => {
+          if (sharePopupStatusText) {
+            sharePopupStatusText.textContent = data.message;
+            sharePopupStatusText.className = data.status === "success" ? "small text-success" : "small text-error";
+          }
+        })
+        .catch(err => console.error("Error sharing spot:", err));
     });
+
+    if (sharePopupUnshareButton) {
+      sharePopupUnshareButton.addEventListener("click", () => {
+        const email = sharePopupEmailInput.value.trim();
+
+        if (!email) {
+          sharePopupEmailInput.focus();
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append("email", email);
+        formData.append("location_id", currentActiveSpotId);
+
+        fetch('/home/unshare_spot', { method: 'POST', body: formData })
+          .then(res => res.json())
+          .then(data => {
+            if (sharePopupStatusText) {
+              sharePopupStatusText.textContent = data.message;
+              sharePopupStatusText.className = data.status === "success" ? "small text-success" : "small text-error";
+            }
+          })
+          .catch(err => console.error("Error unsharing spot:", err));
+      });
+    }
 
     sharePopupCancelButton.addEventListener("click", () => {
       sharePopupEmailInput.value = "";

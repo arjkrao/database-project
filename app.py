@@ -602,6 +602,54 @@ def create_spot():
         "spot": fetch_spot(newid, owner_id),
     }), 201
 
+@app.route("/home/share_spot", methods=['POST'])
+@login_is_required
+def share_spot():
+    email = request.form.get('email')
+    location_id = request.form.get('location_id')
+    curr_user = get_user(session.get('email'))
+
+    with db.engine.connect() as conn:
+        owner_check = conn.execute(text('SELECT * FROM owns WHERE user_id=:uid AND location_id=:lid'), {"uid": curr_user.user_id, "lid": location_id}).first()
+        if not owner_check:
+            return jsonify({"status": "error", "message": "You do not own this spot!"}), 403
+
+        target_user = conn.execute(text('SELECT * FROM users WHERE username=:uname'), {"uname": email}).first()
+        if not target_user:
+            return jsonify({"status": "error", "message": "No user found!"}), 404
+
+        access_check = conn.execute(text('SELECT * FROM `access` WHERE user_id=:uid AND location_id=:lid'), {"uid": target_user.user_id, "lid": location_id}).first()
+        if access_check:
+            return jsonify({"status": "error", "message": "User is already shared"}), 409
+
+    with db.engine.begin() as conn:
+        conn.execute(text('INSERT INTO `access` (user_id, location_id) VALUES (:uid, :lid)'), {"uid": target_user.user_id, "lid": location_id})
+
+    return jsonify({"status": "success", "message": "User shared!"})
+
+@app.route("/home/unshare_spot", methods=['POST'])
+@login_is_required
+def unshare_spot():
+    email = request.form.get('email')
+    location_id = request.form.get('location_id')
+    curr_user = get_user(session.get('email'))
+
+    with db.engine.connect() as conn:
+        owner_check = conn.execute(text('SELECT * FROM owns WHERE user_id=:uid AND location_id=:lid'), {"uid": curr_user.user_id, "lid": location_id}).first()
+        if not owner_check:
+            return jsonify({"status": "error", "message": "You do not own this spot!"}), 403
+
+        target_user = conn.execute(text('SELECT * FROM users WHERE username=:uname'), {"uname": email}).first()
+        if not target_user:
+            return jsonify({"status": "error", "message": "User not found!"}), 404
+
+    with db.engine.begin() as conn:
+        result = conn.execute(text('DELETE FROM `access` WHERE user_id=:uid AND location_id=:lid'), {"uid": target_user.user_id, "lid": location_id})
+        if result.rowcount == 0:
+            return jsonify({"status": "error", "message": "User not found or not shared!"}), 404
+
+    return jsonify({"status": "success", "message": "User unshared!"})
+
 @app.route("/home")
 @login_is_required
 def home():
