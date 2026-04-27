@@ -1286,7 +1286,6 @@ p {
 
 .share-popup-backdrop.bookmark-popup-backdrop--open {
   opacity: 1;
-  z-index: 9998;
 }
 
 .share-popup {
