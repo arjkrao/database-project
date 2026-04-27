@@ -197,7 +197,6 @@ def inject_user():
     if(email == None): return {}
 
     curr_user = get_user(email)
-    print(curr_user)
     if(curr_user is None): return
     return {
         "curr_uid": curr_user.user_id,
@@ -245,7 +244,6 @@ def create_spot():
         })
 
         newid = result.lastrowid
-        print(newid)
         for tag in tags:
             query = text('INSERT INTO location_tags (location_id, tag) VALUES (:lid, :t)')
             conn.execute(query, {"lid": newid, "t": tag})
@@ -475,7 +473,6 @@ def delete_collection():
     with db.engine.begin() as conn:
         query = text('DELETE FROM collections WHERE user_id = :uid AND collection_id = :cid')
         conn.execute(query, {"uid": curr_user.user_id, "cid": collection_id})
-        print("delete finished")
     
     return {
         "status": "success",
@@ -576,7 +573,6 @@ def delete_review():
     user = get_user(session.get('email'))
     location_id = request.form.get('location_id')
     old_timestamp = request.form.get('review_timestamp')
-    print(user.user_id, location_id, old_timestamp)
 
     with db.engine.begin() as conn:
         query = text('DELETE FROM reviews WHERE user_id=:uid AND location_id=:lid AND review_datetime=:old_timestamp;')
@@ -651,7 +647,18 @@ def profile():
                 "likes": 0, # placeholder since we haven't implemented review likes yet
                 "liked": False, # placeholder since we haven't implemented review likes yet
             })
-        
+    
+    shared_spots = []
+    with db.engine.begin() as conn:
+        query = text('SELECT location_id, location_name FROM locations NATURAL JOIN access WHERE user_id = :id;')
+        results = conn.execute(query, {"id": user.user_id}).all()
+        for result in results:
+            shared_spots.append({
+                "id": result.location_id,
+                "name": result.location_name,
+                "image": url_for("location_image", location_id=result.location_id)
+            })
+
     profile_data = {
         "name": user.display_name,
         "email": user.username,
@@ -660,13 +667,7 @@ def profile():
         "pending_spots": pending_spots,
         "collections": collections,
         "reviews": reviews,
-        "shared_spots": [
-            {
-                "id": 3,
-                "name": "Shared Spot",
-                "image": "https://placehold.co/300x300/f5e7da/232d4a?text=Shared+Spot",
-            },
-        ],
+        "shared_spots": shared_spots,
         "available_collections": collections,
     }
 
