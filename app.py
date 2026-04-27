@@ -1,162 +1,3 @@
-<<<<<<< HEAD
-import json
-import os
-import uuid
-from pathlib import Path
-
-from flask import Flask, jsonify, render_template, request
-from sqlalchemy import Float, String, Text, create_engine, select
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
-
-
-BASE_DIR = Path(__file__).resolve().parent
-DATA_DIR = BASE_DIR / "data"
-SEED_FILE = DATA_DIR / "locations.json"
-DB_FILE = DATA_DIR / "locations.db"
-
-
-class Base(DeclarativeBase):
-    pass
-
-
-class Location(Base):
-    __tablename__ = "locations"
-
-    id: Mapped[str] = mapped_column(String(64), primary_key=True)
-    name: Mapped[str] = mapped_column(String(120), nullable=False)
-    latitude: Mapped[float] = mapped_column(Float, nullable=False)
-    longitude: Mapped[float] = mapped_column(Float, nullable=False)
-    category: Mapped[str] = mapped_column(String(80), nullable=False, default="Custom")
-    description: Mapped[str] = mapped_column(Text, nullable=False, default="")
-
-    def to_dict(self) -> dict:
-        return {
-            "id": self.id,
-            "name": self.name,
-            "latitude": self.latitude,
-            "longitude": self.longitude,
-            "category": self.category,
-            "description": self.description,
-        }
-
-
-engine = create_engine(f"sqlite:///{DB_FILE}", future=True)
-SessionLocal = sessionmaker(bind=engine, future=True, expire_on_commit=False)
-
-app = Flask(__name__)
-
-
-def ensure_database() -> None:
-    DATA_DIR.mkdir(parents=True, exist_ok=True)
-    Base.metadata.create_all(engine)
-
-    with SessionLocal() as session:
-        existing_count = session.query(Location).count()
-        if existing_count:
-            return
-
-        seed_locations = load_seed_locations()
-        for item in seed_locations:
-            session.add(
-                Location(
-                    id=item.get("id") or str(uuid.uuid4()),
-                    name=item["name"].strip(),
-                    latitude=float(item["latitude"]),
-                    longitude=float(item["longitude"]),
-                    category=(item.get("category") or "Custom").strip() or "Custom",
-                    description=(item.get("description") or "").strip(),
-                )
-            )
-        session.commit()
-
-
-def load_seed_locations() -> list[dict]:
-    if not SEED_FILE.exists():
-        return []
-
-    with SEED_FILE.open("r", encoding="utf-8") as file:
-        data = json.load(file)
-
-    return data if isinstance(data, list) else []
-
-
-def validate_location(payload: dict) -> tuple[dict | None, str | None]:
-    name = str(payload.get("name", "")).strip()
-    category = str(payload.get("category", "")).strip() or "Custom"
-    description = str(payload.get("description", "")).strip()
-
-    try:
-        latitude = float(payload.get("latitude"))
-    except (TypeError, ValueError):
-        return None, "Latitude must be a number between -90 and 90."
-
-    try:
-        longitude = float(payload.get("longitude"))
-    except (TypeError, ValueError):
-        return None, "Longitude must be a number between -180 and 180."
-
-    if not name:
-        return None, "Name is required."
-    if latitude < -90 or latitude > 90:
-        return None, "Latitude must be a number between -90 and 90."
-    if longitude < -180 or longitude > 180:
-        return None, "Longitude must be a number between -180 and 180."
-
-    return {
-        "id": str(payload.get("id") or uuid.uuid4()),
-        "name": name,
-        "latitude": latitude,
-        "longitude": longitude,
-        "category": category,
-        "description": description,
-    }, None
-
-
-@app.get("/")
-def index():
-    return render_template("index.html")
-
-
-@app.get("/api/locations")
-def list_locations():
-    with SessionLocal() as session:
-        locations = session.scalars(select(Location).order_by(Location.name.asc())).all()
-        return jsonify({"locations": [location.to_dict() for location in locations]})
-
-
-@app.post("/api/locations")
-def create_location():
-    payload = request.get_json(silent=True) or {}
-    location_data, error = validate_location(payload)
-
-    if error:
-        return jsonify({"error": error}), 400
-
-    with SessionLocal() as session:
-        location = Location(**location_data)
-        session.add(location)
-        session.commit()
-        return jsonify({"location": location.to_dict()}), 201
-
-
-@app.delete("/api/locations/<location_id>")
-def delete_location(location_id: str):
-    with SessionLocal() as session:
-        location = session.get(Location, location_id)
-        if location is None:
-            return jsonify({"error": "Location not found."}), 404
-
-        session.delete(location)
-        session.commit()
-        return ("", 204)
-
-
-ensure_database()
-
-
-if __name__ == "__main__":
-    app.run(debug=True, host="127.0.0.1", port=int(os.environ.get("PORT", 5000)))
-=======
 import os
 import pathlib
 from flask import Flask, jsonify, render_template, request, session, abort, redirect, url_for, Response, send_file
@@ -228,21 +69,40 @@ app = Flask(__name__)
 
 load_dotenv()
 
+def get_env(primary_name, fallback_name=None, default=None):
+    value = os.environ.get(primary_name)
+    if value is None and fallback_name:
+        value = os.environ.get(fallback_name)
+    if value is None:
+        value = default
+    if value is None:
+        fallback_message = f" or {fallback_name}" if fallback_name else ""
+        raise RuntimeError(f"Missing environment variable: {primary_name}{fallback_message}")
+    return value
+
+default_username = get_env('DEFAULT_USERNAME', 'USERNAME')
+default_password = get_env('DEFAULT_PASSWORD', 'PASSWORD')
+admin_username = get_env('ADMIN_USERNAME', default=default_username)
+admin_password = get_env('ADMIN_PASSWORD', default=default_password)
+database_host = get_env('HOSTNAME')
+database_port = get_env('PORTNUM', default=3306)
+database_name = get_env('DBNAME')
+
 default_db_url_obj = URL.create(
     drivername="mysql+pymysql",
-    username=os.environ['DEFAULT_USERNAME'],
-    password=os.environ['DEFAULT_PASSWORD'],
-    host=os.environ['HOSTNAME'],
-    port=os.environ['PORTNUM'],
-    database=os.environ['DBNAME'],
+    username=default_username,
+    password=default_password,
+    host=database_host,
+    port=database_port,
+    database=database_name,
 )
 admin_db_url_obj = URL.create(
     drivername="mysql+pymysql",
-    username=os.environ['ADMIN_USERNAME'],
-    password=os.environ['ADMIN_PASSWORD'],
-    host=os.environ['HOSTNAME'],
-    port=os.environ['PORTNUM'],
-    database=os.environ['DBNAME'],
+    username=admin_username,
+    password=admin_password,
+    host=database_host,
+    port=database_port,
+    database=database_name,
 )
 
 app.config['SQLALCHEMY_DATABASE_URI'] = default_db_url_obj.render_as_string(hide_password=False)
@@ -251,7 +111,7 @@ app.config['SQLALCHEMY_BINDS'] = {
 }
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-app.secret_key = os.environ['APP_SECRET_KEY']
+app.secret_key = get_env('APP_SECRET_KEY', default='dev-secret-key')
 
 client_secrets_file = os.path.join(pathlib.Path(__file__).parent, "client_secret.json")
 
@@ -279,11 +139,21 @@ def admin_required(function):
     return wrapper
 
 def create_flow():
+    if not os.path.exists(client_secrets_file):
+        raise FileNotFoundError(
+            f"Missing Google OAuth client secrets file: {client_secrets_file}"
+        )
+
     return Flow.from_client_secrets_file(
         client_secrets_file=client_secrets_file,
         scopes=["https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email", "openid"],
         redirect_uri="http://127.0.0.1:5000/callback"
     )
+
+def dev_login_is_allowed():
+    local_hosts = ("127.0.0.1", "localhost")
+    host = request.host.split(":", 1)[0]
+    return host in local_hosts and not os.path.exists(client_secrets_file)
 
 # Database Functions
 
@@ -298,6 +168,120 @@ def get_user(username):
         result = conn.execute(query, {"uname": username}).first() # since username is unique
     return result
 
+def normalize_price(price):
+    price_map = {
+        "free": "FREE",
+        "FREE": "FREE",
+        "1": "$",
+        "$": "$",
+        "2": "$$",
+        "$$": "$$",
+        "3": "$$$",
+        "$$$": "$$$",
+        "4": "$$$$",
+        "$$$$": "$$$$",
+    }
+    return price_map.get(str(price or "").strip(), "")
+
+def parse_tags(tags_raw):
+    try:
+        tags = json.loads(tags_raw) if tags_raw else []
+    except json.JSONDecodeError:
+        return []
+
+    if not isinstance(tags, list):
+        return []
+
+    valid_tags = set(ICON_OPTIONS)
+    cleaned_tags = []
+    for tag in tags:
+        tag_name = str(tag).strip()
+        if tag_name in valid_tags and tag_name not in cleaned_tags:
+            cleaned_tags.append(tag_name)
+
+    return cleaned_tags
+
+def validate_spot_form(form):
+    name = str(form.get('name') or "").strip()
+    description = str(form.get('description') or "").strip()
+    price = normalize_price(form.get('price'))
+    tags = parse_tags(form.get('tags'))
+
+    try:
+        latitude = float(form.get('lat'))
+        longitude = float(form.get('lon'))
+    except (TypeError, ValueError):
+        return None, "Coordinates must be valid numbers."
+
+    if not name:
+        return None, "Spot name is required."
+    if not description:
+        return None, "Spot description is required."
+    if not price:
+        return None, "Pricing tier is required."
+    if not tags:
+        return None, "At least one tag is required."
+    if latitude < -90 or latitude > 90:
+        return None, "Latitude must be between -90 and 90."
+    if longitude < -180 or longitude > 180:
+        return None, "Longitude must be between -180 and 180."
+
+    return {
+        "name": name,
+        "description": description,
+        "price": price,
+        "tags": tags,
+        "latitude": latitude,
+        "longitude": longitude,
+    }, None
+
+def serialize_spot(row):
+    spot = dict(row)
+    tags = []
+    if spot.get("tags"):
+        tags = [tag for tag in spot["tags"].split(",") if tag]
+
+    location_id = spot["location_id"]
+    has_image = bool(spot.get("has_image"))
+
+    return {
+        "id": location_id,
+        "name": spot["location_name"],
+        "description": spot.get("description") or "",
+        "price": spot.get("pricing_tier") or "",
+        "latitude": float(spot["latitude"]),
+        "longitude": float(spot["longitude"]),
+        "tags": tags,
+        "image_url": url_for("spot_image", location_id=location_id) if has_image else None,
+    }
+
+def fetch_spot(location_id):
+    with db.engine.connect() as conn:
+        query = text('''
+            SELECT
+                l.location_id,
+                l.location_name,
+                l.pricing_tier,
+                l.description,
+                l.latitude,
+                l.longitude,
+                MAX(CASE WHEN l.location_photo_blob IS NULL THEN 0 ELSE 1 END) AS has_image,
+                GROUP_CONCAT(DISTINCT lt.tag ORDER BY lt.tag SEPARATOR ',') AS tags
+            FROM locations l
+            LEFT JOIN location_tags lt ON lt.location_id = l.location_id
+            WHERE l.location_id = :location_id
+            GROUP BY
+                l.location_id,
+                l.location_name,
+                l.pricing_tier,
+                l.description,
+                l.latitude,
+                l.longitude
+        ''')
+        row = conn.execute(query, {"location_id": location_id}).mappings().first()
+
+    return serialize_spot(row) if row else None
+
 # Gets role of currently logged in user, only used in callback to store user role in session.get('role')
 def get_role():
     username = session.get('email') # Email of logged in user which corresponds to "username" in database
@@ -308,12 +292,33 @@ def get_role():
 # Flask Paths
 @app.route("/login")
 def login():
+    if not os.path.exists(client_secrets_file):
+        if dev_login_is_allowed():
+            return redirect(url_for('dev_login'))
+
+        return (
+            "Missing client_secret.json. Add Google OAuth credentials to the project root.",
+            500,
+        )
+
     flow = create_flow()
     authorization_url, state = flow.authorization_url()
     session["state"] = state
     session['code_verifier'] = flow.code_verifier
 
     return redirect(authorization_url)
+
+@app.route("/dev-login")
+def dev_login():
+    if not dev_login_is_allowed():
+        return abort(404)
+
+    session['google_id'] = 'local-dev-user'
+    session['name'] = os.environ.get('DEV_DISPLAY_NAME', 'Local Developer')
+    session['email'] = os.environ.get('DEV_EMAIL', 'dev@example.com')
+    session['role'] = get_role()
+
+    return redirect("/home")
 
 @app.route("/callback")
 def callback():
@@ -364,27 +369,68 @@ def inject_user():
         "curr_role": curr_user.role,
     }
 
+@app.route("/api/spots")
+@login_is_required
+def list_spots():
+    with db.engine.connect() as conn:
+        query = text('''
+            SELECT
+                l.location_id,
+                l.location_name,
+                l.pricing_tier,
+                l.description,
+                l.latitude,
+                l.longitude,
+                MAX(CASE WHEN l.location_photo_blob IS NULL THEN 0 ELSE 1 END) AS has_image,
+                GROUP_CONCAT(DISTINCT lt.tag ORDER BY lt.tag SEPARATOR ',') AS tags
+            FROM locations l
+            LEFT JOIN location_tags lt ON lt.location_id = l.location_id
+            GROUP BY
+                l.location_id,
+                l.location_name,
+                l.pricing_tier,
+                l.description,
+                l.latitude,
+                l.longitude
+            ORDER BY l.location_name ASC
+        ''')
+        spots = [serialize_spot(row) for row in conn.execute(query).mappings().all()]
+
+    return jsonify({"spots": spots})
+
+@app.route("/api/spots/<int:location_id>/image")
+@login_is_required
+def spot_image(location_id):
+    with db.engine.connect() as conn:
+        query = text('''
+            SELECT location_photo_blob, location_photo_mimetype
+            FROM locations
+            WHERE location_id = :location_id
+        ''')
+        result = conn.execute(query, {"location_id": location_id}).first()
+
+    if result is None or result.location_photo_blob is None:
+        return jsonify({"error": "Spot image not found."}), 404
+
+    return Response(
+        result.location_photo_blob,
+        mimetype=result.location_photo_mimetype or "application/octet-stream",
+    )
+
 @app.route("/home/create_spot", methods=['POST'])
 @login_is_required
 def create_spot():
     owner_id = get_user(session.get('email')).user_id
 
-    name = request.form.get('name')
-    description = request.form.get('description')
-    price = request.form.get('price')
-    tags_raw = request.form.get('tags')  # "Food,Study,Nature"
-    try:
-        tags = json.loads(tags_raw) if tags_raw else []
-    except:
-        tags = []
-        
-    lat = request.form.get('lat')
-    lon = request.form.get('lon')
+    spot_data, error = validate_spot_form(request.form)
+    if error:
+        return jsonify({"error": error}), 400
 
     image_file = request.files.get('image')
     image_bytes = None
     image_mimetype = None
-    if image_file:
+    image_mimetype = None
+    if image_file and image_file.filename:
         image_bytes = image_file.read()
         image_mimetype = image_file.mimetype
 
@@ -393,29 +439,28 @@ def create_spot():
         query = text('INSERT INTO locations (location_name, pricing_tier, description, latitude, longitude, location_photo_blob, location_photo_mimetype) \
                      VALUES (:lname, :ptier, :desc, :lati, :longi, :img_file, :mimetype)')
         result = conn.execute(query, {
-            "lname": name,
-            "ptier": price, 
-            "desc": description,
-            "lati": float(lat),
-            "longi": float(lon),
+            "lname": spot_data["name"],
+            "ptier": spot_data["price"],
+            "desc": spot_data["description"],
+            "lati": spot_data["latitude"],
+            "longi": spot_data["longitude"],
             "img_file": image_bytes,
-            "mimetype": image_mimetype
+            "mimetype": image_mimetype,
         })
 
         newid = result.lastrowid
-        print(newid)
-        for tag in tags:
+        for tag in spot_data["tags"]:
             query = text('INSERT INTO location_tags (location_id, tag) VALUES (:lid, :t)')
             conn.execute(query, {"lid": newid, "t": tag})
 
         query = text('INSERT INTO owns (user_id, location_id) VALUES (:uid, :lid)')
         conn.execute(query, {"uid": owner_id, "lid": newid})
-        
 
     return jsonify({
         "status": "success",
-        "message": "Spot created successfully"
-    })
+        "message": "Spot created successfully",
+        "spot": fetch_spot(newid),
+    }), 201
 
 @app.route("/home")
 @login_is_required
@@ -681,4 +726,3 @@ def test():
 
 if __name__ == "__main__":
     app.run(debug=True)
->>>>>>> api-endpoint

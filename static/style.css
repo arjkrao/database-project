@@ -732,6 +732,23 @@ p {
   object-fit: cover;
 }
 
+.spots-map {
+  background-color: #d8e4df;
+}
+
+.spots-map.spots-map--placing,
+.spots-map.spots-map--placing .leaflet-container {
+  cursor: crosshair;
+}
+
+.spots-map-popup {
+  max-width: 220px;
+}
+
+.spots-map-popup p {
+  margin: 6px 0;
+}
+
 .home-left-on-map {
   position: absolute;
   top: 50%;
@@ -743,6 +760,13 @@ p {
   align-items: flex-end;
   width: 90%;
   height: 90%;
+  pointer-events: none;
+  z-index: 500;
+}
+
+.home-left-on-map .search,
+.home-left-on-map .button {
+  pointer-events: auto;
 }
 
 .home-right {

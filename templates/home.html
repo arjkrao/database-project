@@ -2,13 +2,15 @@
 {% from "components/spot_card.html" import spot_card %}
 {% from "components/request_card.html" import request_card %}
 
+{% block extra_head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+{% endblock %}
+
 {% block content %}
 <div class="home-container">
     <div class="home-top-container">
         <div class="home-left">
-            <!-- Placeholder image until interactive map is added -->
-            <img class="map-placeholder"
-                src="https://t4.ftcdn.net/jpg/02/65/42/55/360_F_265425516_wtAw64cGdOVvrdl64b5bsyBqcD0rkw1W.jpg" />
+            <div class="map-placeholder spots-map" id="spotsMap" tabindex="0" aria-label="Map of spots"></div>
             <div class="home-left-on-map">
                 <form class="search">
                     <div class="search-group">
@@ -75,6 +77,8 @@
     {% endif %}
 </div>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="{{ url_for('static', filename='js/home_map.js') }}"></script>
 <script src="{{ url_for('static', filename='js/spot_detail_panel.js') }}"></script>
 <script src="{{ url_for('static', filename='js/request_card.js') }}"></script>
 <script src="{{ url_for('static', filename='js/add_spot.js') }}"></script>
