@@ -600,9 +600,12 @@ p {
   color: var(--color-white);
 }
 
-.icon-profile {
-  color: var(--color-white);
-  font-size: 64px;
+.header-profile-image {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
 }
 
 .logo-group {
