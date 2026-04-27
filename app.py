@@ -249,6 +249,7 @@ def serialize_spot(row):
         "name": spot["location_name"],
         "description": spot.get("description") or "",
         "price": spot.get("pricing_tier") or "",
+        "status": spot.get("location_status") or "",
         "latitude": float(spot["latitude"]),
         "longitude": float(spot["longitude"]),
         "tags": tags,
@@ -262,6 +263,7 @@ def fetch_spot(location_id):
                 l.location_id,
                 l.location_name,
                 l.pricing_tier,
+                l.location_status,
                 l.description,
                 l.latitude,
                 l.longitude,
@@ -274,6 +276,7 @@ def fetch_spot(location_id):
                 l.location_id,
                 l.location_name,
                 l.pricing_tier,
+                l.location_status,
                 l.description,
                 l.latitude,
                 l.longitude
@@ -372,12 +375,17 @@ def inject_user():
 @app.route("/api/spots")
 @login_is_required
 def list_spots():
+    current_user = get_user(session.get('email'))
+    if current_user is None:
+        return jsonify({"error": "User not found."}), 404
+
     with db.engine.connect() as conn:
         query = text('''
             SELECT
                 l.location_id,
                 l.location_name,
                 l.pricing_tier,
+                l.location_status,
                 l.description,
                 l.latitude,
                 l.longitude,
@@ -385,17 +393,36 @@ def list_spots():
                 GROUP_CONCAT(DISTINCT lt.tag ORDER BY lt.tag SEPARATOR ',') AS tags
             FROM locations l
             LEFT JOIN location_tags lt ON lt.location_id = l.location_id
-            WHERE LOWER(l.location_status) = 'public'
+            LEFT JOIN owns o
+                ON o.location_id = l.location_id
+                AND o.user_id = :current_user_id
+            LEFT JOIN `access` a
+                ON a.location_id = l.location_id
+                AND a.user_id = :current_user_id
+            WHERE
+                LOWER(COALESCE(l.location_status, '')) = 'public'
+                OR (
+                    o.user_id IS NOT NULL
+                    AND LOWER(COALESCE(l.location_status, '')) IN ('private', 'pending')
+                )
+                OR a.user_id IS NOT NULL
             GROUP BY
                 l.location_id,
                 l.location_name,
                 l.pricing_tier,
+                l.location_status,
                 l.description,
                 l.latitude,
                 l.longitude
             ORDER BY l.location_name ASC
         ''')
-        spots = [serialize_spot(row) for row in conn.execute(query).mappings().all()]
+        spots = [
+            serialize_spot(row)
+            for row in conn.execute(
+                query,
+                {"current_user_id": current_user.user_id},
+            ).mappings().all()
+        ]
 
     return jsonify({"spots": spots})
 
@@ -430,18 +457,18 @@ def create_spot():
     image_file = request.files.get('image')
     image_bytes = None
     image_mimetype = None
-    image_mimetype = None
     if image_file and image_file.filename:
         image_bytes = image_file.read()
         image_mimetype = image_file.mimetype
 
     # not going to be able to add spot anywhere else so just include SQL functionality here
     with db.engine.begin() as conn:
-        query = text('INSERT INTO locations (location_name, pricing_tier, description, latitude, longitude, location_photo_blob, location_photo_mimetype) \
-                     VALUES (:lname, :ptier, :desc, :lati, :longi, :img_file, :mimetype)')
+        query = text('INSERT INTO locations (location_name, pricing_tier, location_status, description, latitude, longitude, location_photo_blob, location_photo_mimetype) \
+                     VALUES (:lname, :ptier, :status, :desc, :lati, :longi, :img_file, :mimetype)')
         result = conn.execute(query, {
             "lname": spot_data["name"],
             "ptier": spot_data["price"],
+            "status": "private",
             "desc": spot_data["description"],
             "lati": spot_data["latitude"],
             "longi": spot_data["longitude"],

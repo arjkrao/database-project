@@ -47,21 +47,31 @@
 
     return allSpots.filter((spot) => {
       const tags = Array.isArray(spot.tags) ? spot.tags.join(" ") : "";
-      return `${spot.name} ${spot.description} ${spot.price} ${tags}`
+      return `${spot.name} ${spot.description} ${spot.price} ${spot.status} ${tags}`
         .toLowerCase()
         .includes(query);
     });
+  }
+
+  function formatStatus(status) {
+    const cleanedStatus = String(status || "").trim();
+    if (!cleanedStatus) {
+      return "";
+    }
+
+    return cleanedStatus.charAt(0).toUpperCase() + cleanedStatus.slice(1).toLowerCase();
   }
 
   function createPopupMarkup(spot) {
     const tags = Array.isArray(spot.tags) && spot.tags.length
       ? spot.tags.map(escapeHtml).join(", ")
       : "No tags";
+    const status = formatStatus(spot.status);
 
     return `
       <div class="spots-map-popup">
         <strong>${escapeHtml(spot.name)}</strong>
-        <div>${escapeHtml(spot.price || "No price")}</div>
+        <div>${escapeHtml([spot.price, status].filter(Boolean).join(" | ") || "No price")}</div>
         <p>${escapeHtml(spot.description || "No description provided.")}</p>
         <small>${tags}</small>
       </div>
