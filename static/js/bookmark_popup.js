@@ -1,314 +1,231 @@
 (function () {
-  function setupHomeBookmarkPopup() {
-    const bookmarkPopup = document.getElementById("bookmarkPopup");
-    const bookmarkPopupBackdrop = document.getElementById(
-      "bookmarkPopupBackdrop",
-    );
-    const bookmarkSpotName = document.getElementById("bookmarkPopupSpotName");
-    const bookmarkSaveButton = document.getElementById(
-      "bookmarkPopupSaveButton",
-    );
-    const bookmarkClearButton = document.getElementById(
-      "bookmarkPopupClearButton",
-    );
-    const bookmarkCollectionInputs = Array.from(
-      document.querySelectorAll(".bookmark-collection__input-home"),
-    );
+  function setupBookmarkPopup() {
+    const popupId = "addToCollectionsPopup";
 
-    if (
-      !bookmarkPopup ||
-      !bookmarkPopupBackdrop ||
-      !bookmarkSpotName ||
-      !bookmarkSaveButton ||
-      !bookmarkClearButton ||
-      bookmarkCollectionInputs.length === 0
-    ) {
+    const popup = document.getElementById(popupId);
+    const backdrop = document.getElementById(`${popupId}Backdrop`);
+    const spotNameEl = document.getElementById(`${popupId}SpotName`);
+    const collectionsContainer = document.getElementById(`${popupId}Collections`);
+    const saveButton = document.getElementById(`${popupId}SaveButton`);
+    const clearButton = document.getElementById(`${popupId}ClearButton`);
+
+    if (!popup || !backdrop || !collectionsContainer || !saveButton || !clearButton) {
       return;
     }
 
-    let activeBookmarkIcon = null;
-    let activeBookmarkButton = null;
+    let currentSpotId = null;
+    let originalCheckedCollectionIds = new Set();
 
-    function getSavedCollections(button) {
-      const raw = button.dataset.savedCollections;
-      return raw ? JSON.parse(raw) : [];
+    function getCurrentCollections() {
+      return Array.from(document.querySelectorAll(".collection-item")).map((item) => ({
+        id: item.dataset.collectionId,
+        name: item.dataset.collectionName,
+      }));
     }
 
-    function setSavedCollections(button, collections) {
-      button.dataset.savedCollections = JSON.stringify(collections);
-    }
+    function renderCollectionCheckboxes(collections, checkedIds) {
+      collectionsContainer.innerHTML = "";
 
-    function getCurrentCollectionLabels() {
-      return bookmarkCollectionInputs
-        .filter((input) => input.checked)
-        .map((input) => input.value);
-    }
-
-    function applyCollectionsToPopup(savedCollections) {
-      bookmarkCollectionInputs.forEach((input) => {
-        input.checked = savedCollections.includes(input.value);
-      });
-    }
-
-    function setBookmarkIconState(icon, isSaved) {
-      if (!icon) {
+      if (collections.length === 0) {
+        collectionsContainer.innerHTML = `
+          <div class="text text-gray">No collections yet.</div>
+        `;
         return;
       }
 
-      icon.classList.toggle("fa-solid", isSaved);
-      icon.classList.toggle("fa-regular", !isSaved);
+      collections.forEach((collection) => {
+        const label = document.createElement("label");
+        label.className = "bookmark-collection";
+
+        label.innerHTML = `
+          <input
+            type="checkbox"
+            class="add-to-collections__input bookmark-collection__input"
+            value="${collection.id}"
+            data-collection-id="${collection.id}"
+            data-collection-name="${collection.name}"
+          >
+          <span class="bookmark-collection__box"></span>
+          <span class="bookmark-collection__label heading-3 text-black">${collection.name}</span>
+        `;
+
+        const input = label.querySelector("input");
+        input.checked = checkedIds.has(String(collection.id));
+
+        collectionsContainer.appendChild(label);
+      });
     }
 
-    function openBookmarkPopup(spotName, button, icon) {
-      bookmarkSpotName.textContent = spotName;
-      activeBookmarkButton = button;
-      activeBookmarkIcon = icon;
+    async function getCollectionsContainingSpot(spotId, collections) {
+      const checkedIds = new Set();
 
-      const savedCollections = getSavedCollections(button);
-      applyCollectionsToPopup(savedCollections);
+      await Promise.all(
+        collections.map(async (collection) => {
+          const response = await fetch(`/profile/collection/${collection.id}`);
+          const spots = await response.json();
 
-      bookmarkPopup.hidden = false;
-      bookmarkPopupBackdrop.hidden = false;
+          if (!response.ok) {
+            throw new Error("Failed to check collection membership");
+          }
+
+          const containsSpot = spots.some((spot) => String(spot.id) === String(spotId));
+          if (containsSpot) {
+            checkedIds.add(String(collection.id));
+          }
+        }),
+      );
+
+      return checkedIds;
+    }
+
+    function openPopup() {
+      popup.hidden = false;
+      backdrop.hidden = false;
 
       requestAnimationFrame(() => {
-        bookmarkPopup.classList.add("bookmark-popup--open");
-        bookmarkPopupBackdrop.classList.add("bookmark-popup-backdrop--open");
+        popup.classList.add("bookmark-popup--open");
+        backdrop.classList.add("bookmark-popup-backdrop--open");
       });
 
-      bookmarkPopup.setAttribute("aria-hidden", "false");
+      popup.setAttribute("aria-hidden", "false");
     }
 
-    function closeBookmarkPopup() {
-      if (!bookmarkPopup.classList.contains("bookmark-popup--open")) {
-        return;
-      }
-
-      bookmarkPopup.classList.remove("bookmark-popup--open");
-      bookmarkPopupBackdrop.classList.remove("bookmark-popup-backdrop--open");
-      bookmarkPopup.setAttribute("aria-hidden", "true");
+    function closePopup() {
+      popup.classList.remove("bookmark-popup--open");
+      backdrop.classList.remove("bookmark-popup-backdrop--open");
+      popup.setAttribute("aria-hidden", "true");
 
       window.setTimeout(() => {
-        bookmarkPopup.hidden = true;
-        bookmarkPopupBackdrop.hidden = true;
-        activeBookmarkIcon = null;
-        activeBookmarkButton = null;
+        popup.hidden = true;
+        backdrop.hidden = true;
       }, 220);
     }
 
-    document.querySelectorAll(".spot-bookmark").forEach((button) => {
-      const icon = button.querySelector(".fa-bookmark");
+    async function showForSpot(spotCard) {
+      currentSpotId = spotCard.dataset.spotId;
+      const spotName = spotCard.dataset.spotName || "Spot";
 
-      setSavedCollections(button, getSavedCollections(button));
-      setBookmarkIconState(icon, getSavedCollections(button).length > 0);
-
-      button.addEventListener("click", (event) => {
-        event.stopPropagation();
-
-        const spotCard = button.closest(".spot-card");
-        const spotName = spotCard?.dataset.spotName || "Spot";
-
-        openBookmarkPopup(spotName, button, icon);
-      });
-    });
-
-    bookmarkPopupBackdrop.addEventListener("click", closeBookmarkPopup);
-
-    bookmarkPopup.addEventListener("click", (event) => {
-      event.stopPropagation();
-    });
-
-    bookmarkSaveButton.addEventListener("click", () => {
-      if (!activeBookmarkButton) {
+      if (!currentSpotId) {
+        console.error("Missing data-spot-id on spot card");
         return;
       }
 
-      const selectedCollections = getCurrentCollectionLabels();
-      setSavedCollections(activeBookmarkButton, selectedCollections);
-      setBookmarkIconState(activeBookmarkIcon, selectedCollections.length > 0);
-      closeBookmarkPopup();
+      spotNameEl.textContent = spotName;
+
+      const collections = getCurrentCollections();
+
+      try {
+        originalCheckedCollectionIds = await getCollectionsContainingSpot(
+          currentSpotId,
+          collections,
+        );
+
+        renderCollectionCheckboxes(collections, originalCheckedCollectionIds);
+        openPopup();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function postCollectionChange(url, collectionId, locationId) {
+      const formData = new FormData();
+      formData.append("collection_id", collectionId);
+      formData.append("location_id", locationId);
+
+      const response = await fetch(url, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Request failed: ${url}`);
+      }
+
+      return response.json();
+    }
+
+    saveButton.addEventListener("click", async () => {
+      if (!currentSpotId) return;
+
+      const inputs = Array.from(
+        collectionsContainer.querySelectorAll(".bookmark-collection__input"),
+      );
+
+      const currentlyCheckedIds = new Set(
+        inputs
+          .filter((input) => input.checked)
+          .map((input) => String(input.dataset.collectionId)),
+      );
+
+      const requests = [];
+
+      currentlyCheckedIds.forEach((collectionId) => {
+        if (!originalCheckedCollectionIds.has(collectionId)) {
+          requests.push(
+            postCollectionChange(
+              "/profile/collection/add_spot",
+              collectionId,
+              currentSpotId,
+            ),
+          );
+        }
+      });
+
+      originalCheckedCollectionIds.forEach((collectionId) => {
+        if (!currentlyCheckedIds.has(collectionId)) {
+          requests.push(
+            postCollectionChange(
+              "/profile/collection/remove_spot",
+              collectionId,
+              currentSpotId,
+            ),
+          );
+        }
+      });
+
+      try {
+        await Promise.all(requests);
+        closePopup();
+
+        const activeCollection = document.querySelector(
+          ".collection-option--active",
+        )?.closest(".collection-item");
+
+        if (activeCollection && window.loadCollection) {
+          window.loadCollection(activeCollection.dataset.collectionId);
+        }
+      } catch (err) {
+        console.error(err);
+      }
     });
 
-    bookmarkClearButton.addEventListener("click", () => {
-      bookmarkCollectionInputs.forEach((input) => {
-        input.checked = false;
-      });
+    clearButton.addEventListener("click", () => {
+      collectionsContainer
+        .querySelectorAll(".bookmark-collection__input")
+        .forEach((input) => {
+          input.checked = false;
+        });
     });
+
+    backdrop.addEventListener("click", closePopup);
 
     document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape") {
-        closeBookmarkPopup();
+      if (event.key === "Escape" && !popup.hidden) {
+        closePopup();
       }
     });
-
-    window.closeBookmarkPopup = closeBookmarkPopup;
-  }
-
-  function setupProfileBookmarkPopup() {
-    const addToCollectionsPopup = document.getElementById(
-      "addToCollectionsPopup",
-    );
-    const addToCollectionsBackdrop = document.getElementById(
-      "addToCollectionsPopupBackdrop",
-    );
-    const addToCollectionsSpotName = document.getElementById(
-      "addToCollectionsPopupSpotName",
-    );
-    const addToCollectionsSaveButton = document.getElementById(
-      "addToCollectionsPopupSaveButton",
-    );
-    const addToCollectionsClearButton = document.getElementById(
-      "addToCollectionsPopupClearButton",
-    );
-    const addToCollectionsInputs = Array.from(
-      document.querySelectorAll(".add-to-collections__input"),
-    );
-
-    if (
-      !addToCollectionsPopup ||
-      !addToCollectionsBackdrop ||
-      !addToCollectionsSpotName ||
-      !addToCollectionsSaveButton ||
-      !addToCollectionsClearButton ||
-      addToCollectionsInputs.length === 0
-    ) {
-      return;
-    }
-
-    let activeProfileSpotButton = null;
-
-    function getSavedCollections(button) {
-      const raw = button.dataset.savedCollections;
-      return raw ? JSON.parse(raw) : [];
-    }
-
-    function setSavedCollections(button, collections) {
-      button.dataset.savedCollections = JSON.stringify(collections);
-    }
-
-    function getCurrentCollectionLabels() {
-      return addToCollectionsInputs
-        .filter((input) => input.checked)
-        .map((input) => input.value);
-    }
-
-    function applyCollectionsToPopup(savedCollections) {
-      addToCollectionsInputs.forEach((input) => {
-        input.checked = savedCollections.includes(input.value);
-      });
-    }
-
-    function openAddToCollectionsPopup(spotName, button) {
-      activeProfileSpotButton = button;
-      addToCollectionsSpotName.textContent = spotName;
-
-      const savedCollections = getSavedCollections(button);
-      applyCollectionsToPopup(savedCollections);
-
-      addToCollectionsPopup.hidden = false;
-      addToCollectionsBackdrop.hidden = false;
-
-      requestAnimationFrame(() => {
-        addToCollectionsPopup.classList.add("bookmark-popup--open");
-        addToCollectionsBackdrop.classList.add("bookmark-popup-backdrop--open");
-      });
-
-      addToCollectionsPopup.setAttribute("aria-hidden", "false");
-    }
-
-    function closeAddToCollectionsPopup() {
-      if (!addToCollectionsPopup.classList.contains("bookmark-popup--open")) {
-        return;
-      }
-
-      addToCollectionsPopup.classList.remove("bookmark-popup--open");
-      addToCollectionsBackdrop.classList.remove(
-        "bookmark-popup-backdrop--open",
-      );
-      addToCollectionsPopup.setAttribute("aria-hidden", "true");
-
-      window.setTimeout(() => {
-        addToCollectionsPopup.hidden = true;
-        addToCollectionsBackdrop.hidden = true;
-        activeProfileSpotButton = null;
-      }, 220);
-    }
-
-    document.querySelectorAll(".profile-spot-trigger").forEach((button) => {
-      setSavedCollections(button, getSavedCollections(button));
-    });
-
-    function openProfileSpotTrigger(button) {
-      setSavedCollections(button, getSavedCollections(button));
-      openAddToCollectionsPopup(button.dataset.spotName || "Spot", button);
-    }
 
     document.addEventListener("click", (event) => {
-      const button = event.target.closest(".profile-spot-trigger");
+      const spotCard = event.target.closest(".profile-spot-trigger");
+      if (!spotCard) return;
 
-      if (!button) {
-        return;
-      }
-
-      openProfileSpotTrigger(button);
+      showForSpot(spotCard);
     });
-
-    document.addEventListener("keydown", (event) => {
-      if (event.key !== "Enter" && event.key !== " ") {
-        return;
-      }
-
-      const button = event.target.closest(".profile-spot-trigger");
-
-      if (!button) {
-        return;
-      }
-
-      event.preventDefault();
-      openProfileSpotTrigger(button);
-    });
-
-    addToCollectionsBackdrop.addEventListener(
-      "click",
-      closeAddToCollectionsPopup,
-    );
-
-    addToCollectionsPopup.addEventListener("click", (event) => {
-      event.stopPropagation();
-    });
-
-    addToCollectionsSaveButton.addEventListener("click", () => {
-      if (!activeProfileSpotButton) {
-        return;
-      }
-
-      const selectedCollections = getCurrentCollectionLabels();
-      setSavedCollections(activeProfileSpotButton, selectedCollections);
-      closeAddToCollectionsPopup();
-    });
-
-    addToCollectionsClearButton.addEventListener("click", () => {
-      addToCollectionsInputs.forEach((input) => {
-        input.checked = false;
-      });
-    });
-
-    document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape") {
-        closeAddToCollectionsPopup();
-      }
-    });
-
-    window.closeAddToCollectionsPopup = closeAddToCollectionsPopup;
-  }
-
-  function initBookmarkPopups() {
-    setupHomeBookmarkPopup();
-    setupProfileBookmarkPopup();
   }
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initBookmarkPopups);
+    document.addEventListener("DOMContentLoaded", setupBookmarkPopup);
   } else {
-    initBookmarkPopups();
+    setupBookmarkPopup();
   }
 })();

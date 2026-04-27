@@ -510,7 +510,7 @@ def get_collection_spots(collection_id):
 
     return jsonify(spots)
 
-@app.route("profile/collection/remove_spot", methods=['POST'])
+@app.route("/profile/collection/remove_spot", methods=['POST'])
 @login_is_required
 def remove_spot_from_collection():
     user = get_user(session.get('email'))
@@ -534,7 +534,7 @@ def add_spot_to_collection():
     location_id = request.form.get('location_id')
 
     with db.engine.begin() as conn:
-        query = text('INSERT INTO collection_contains (user_id, collection_id, location_id) VALUES (:uid, :cid, :lid);')
+        query = text('INSERT IGNORE INTO collection_contains (user_id, collection_id, location_id) VALUES (:uid, :cid, :lid);')
         conn.execute(query, {"uid": user.user_id, "cid": collection_id, "lid": location_id})
     
     return {

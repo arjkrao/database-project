@@ -6,16 +6,9 @@
         <div class="bookmark-popup__title heading-2 text-black">
             Add <span class="text-secondary-dark" id="{{ popup_id }}SpotName">Spot Name</span> To:
         </div>
-        <div class="bookmark-popup__collections">
-            {% for collection in collections %}
-            <label class="bookmark-collection">
-                <input type="checkbox" class="{{ input_class }} bookmark-collection__input"
-                    value="{{ collection.name }}">
-                <span class="bookmark-collection__box"></span>
-                <span class="bookmark-collection__label heading-3 text-black">{{ collection.name }}</span>
-            </label>
-            {% endfor %}
-        </div>
+
+        <div class="bookmark-popup__collections" id="{{ popup_id }}Collections"></div>
+
         <div class="bookmark-popup__actions">
             <button class="button button--secondary" id="{{ popup_id }}SaveButton" type="button">
                 Save
