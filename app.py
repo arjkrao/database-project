@@ -762,6 +762,40 @@ def get_collection_spots(collection_id):
 
     return jsonify(spots)
 
+@app.route("/home/admin/approve_spot", methods=['POST'])
+@login_is_required
+@admin_required
+def approve_spot():
+    location_id = request.form.get('location_id')
+    user = get_user(session.get('email'))
+
+    with db.get_engine(bind='admin').begin() as conn:
+        query = text('UPDATE locations SET location_status="public" WHERE location_id=:lid')
+        conn.execute(query, {"lid": location_id})
+        query = text('INSERT INTO approves VALUES (:uid, :lid)')
+        conn.execute(query, {"uid": user.user_id, "lid": location_id})
+    
+    return jsonify({
+        "status": "success",
+        "message": "Spot approved successfully!"
+    }), 200
+
+@app.route("/home/admin/reject_spot", methods=['POST'])
+@login_is_required
+@admin_required
+def reject_spot():
+    location_id = request.form.get('location_id')
+
+    with db.get_engine(bind='admin').begin() as conn:
+        query = text('UPDATE locations SET location_status="private" WHERE location_id=:lid')
+        conn.execute(query, {"lid": location_id})
+    
+    return jsonify({
+        "status": "success",
+        "message": "Spot rejected successfully!"
+    }), 200
+
+
 @app.route("/profile/collection/remove_spot", methods=['POST'])
 @login_is_required
 def remove_spot_from_collection():
