@@ -728,6 +728,8 @@ def unshare_spot():
         result = conn.execute(text('DELETE FROM `access` WHERE user_id=:uid AND location_id=:lid'), {"uid": target_user.user_id, "lid": location_id})
         if result.rowcount == 0:
             return jsonify({"status": "error", "message": "User not found or not shared!"}), 404
+            
+        conn.execute(text('DELETE FROM `collection_contains` WHERE user_id=:uid AND location_id=:lid'), {"uid": target_user.user_id, "lid": location_id})
 
     return jsonify({"status": "success", "message": "User unshared!"})
 
