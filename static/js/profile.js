@@ -10,7 +10,6 @@
     );
     const newCollectionInput = document.getElementById("newCollectionInput");
     const collectionOptions = document.querySelectorAll(".collection-option");
-    const reviewLikeButtons = document.querySelectorAll(".review-card-like");
 
     function setActiveTab(activeButton) {
       tabButtons.forEach((button) => {
@@ -103,15 +102,6 @@
     collectionOptions.forEach((button) => {
       button.addEventListener("click", () => {
         setActiveCollection(button);
-      });
-    });
-
-    reviewLikeButtons.forEach((button) => {
-      const icon = button.querySelector(".fa-thumbs-up");
-
-      button.addEventListener("click", () => {
-        icon.classList.toggle("fa-regular");
-        icon.classList.toggle("fa-solid");
       });
     });
 
