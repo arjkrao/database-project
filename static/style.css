@@ -1073,6 +1073,13 @@ p {
   width: 100%;
 }
 
+.spot-detail-private-options {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+}
+
 .spot-detail-review-button {
   align-self: center;
 }

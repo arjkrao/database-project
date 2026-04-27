@@ -158,7 +158,7 @@
 
     function resetRequestPublicButton() {
       requestPublicButton.disabled = false;
-      requestPublicButton.textContent = "Request To Make Public";
+      requestPublicButton.textContent = "Request Public";
       requestPublicButton.classList.remove("spot-detail-request-public--pending");
     }
 
@@ -207,7 +207,7 @@
     });
 
     requestPublicButton.addEventListener("click", () => {
-      requestPublicButton.textContent = "Public Request Pending";
+      requestPublicButton.textContent = "Request Pending";
       requestPublicButton.disabled = true;
       requestPublicButton.classList.add("spot-detail-request-public--pending");
     });
