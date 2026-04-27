@@ -441,13 +441,34 @@
         return;
       }
 
-      requestPublicButton.textContent = "Public Request Pending";
+      const originalText = requestPublicButton.textContent;
+      requestPublicButton.textContent = "Requesting...";
       requestPublicButton.disabled = true;
-      requestPublicButton.classList.add("spot-detail-request-public--pending");
 
-      if (activeSpotCard) {
-        activeSpotCard.dataset.spotStatus = "pending";
-      }
+      const formData = new FormData();
+      formData.append("location_id", currentActiveSpotId);
+
+      fetch('/home/request_public', { method: 'POST', body: formData })
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === "success") {
+            requestPublicButton.textContent = "Public Request Pending";
+            requestPublicButton.classList.add("spot-detail-request-public--pending");
+
+            if (activeSpotCard) {
+              activeSpotCard.dataset.spotStatus = "pending";
+            }
+          } else {
+            console.error("Error from backend:", data.message);
+            requestPublicButton.textContent = originalText;
+            requestPublicButton.disabled = false;
+          }
+        })
+        .catch(err => {
+          console.error("Fetch error:", err);
+          requestPublicButton.textContent = originalText;
+          requestPublicButton.disabled = false;
+        });
     });
 
     spotDetailReviews.addEventListener("click", async (event) => {

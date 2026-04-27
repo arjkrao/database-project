@@ -731,6 +731,22 @@ def unshare_spot():
 
     return jsonify({"status": "success", "message": "User unshared!"})
 
+@app.route("/home/request_public", methods=['POST'])
+@login_is_required
+def request_public():
+    location_id = request.form.get('location_id')
+    curr_user = get_user(session.get('email'))
+
+    with db.engine.connect() as conn:
+        owner_check = conn.execute(text('SELECT * FROM owns WHERE user_id=:uid AND location_id=:lid'), {"uid": curr_user.user_id, "lid": location_id}).first()
+        if not owner_check:
+            return jsonify({"status": "error", "message": "You do not own this spot!"}), 403
+
+    with db.engine.begin() as conn:
+        conn.execute(text('UPDATE locations SET location_status="pending" WHERE location_id=:lid'), {"lid": location_id})
+
+    return jsonify({"status": "success", "message": "Request submitted!"})
+
 @app.route("/home")
 @login_is_required
 def home():
@@ -745,7 +761,7 @@ def home():
         requested_spots = []
     else:
         with db.get_engine(bind='admin').begin() as conn:
-            query = text('SELECT location_id, location_name, display_name, longitude, latitude, pricing_tier FROM locations NATURAL JOIN owns JOIN users ON owns.user_id = users.user_id WHERE location_status="pending";')
+            query = text('SELECT location_id, location_name, display_name, longitude, latitude, pricing_tier, description FROM locations NATURAL JOIN owns JOIN users ON owns.user_id = users.user_id WHERE location_status="pending";')
             results = conn.execute(query).all()
 
             for result in results:
@@ -759,6 +775,7 @@ def home():
                     "requested_by": result.display_name,
                     "coordinates": f"{result.latitude}, {result.longitude}",
                     "price": result.pricing_tier,
+                    "description": result.description,
                     "icons": [ICON_OPTIONS.get(tag, ICON_OPTIONS["Other"]) for tag in tags]
                 })
     

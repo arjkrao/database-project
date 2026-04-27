@@ -1,58 +1,39 @@
 {% macro request_card(request) %}
-<div
-    class="request-card"
-    data-request-id="{{ request.id }}"
-    data-request-name="{{ request.name }}"
->
+<div class="request-card" data-request-id="{{ request.id }}" data-request-name="{{ request.name }}">
     <div class="request-card-inner">
         <div class="request-card-info">
             <div class="request-card-top">
-                <img
-                    class="request-card-image"
-                    src="{{ request.image }}"
-                    alt="{{ request.name }}"
-                >
+                <img class="request-card-image" src="{{ request.image }}" alt="{{ request.name }}">
                 <div class="heading-2 text-primary-dark">{{ request.name }}</div>
                 <div class="request-user">
                     <div class="heading-4" style="white-space: nowrap;">Requested By:</div>
                     <div class="heading-4">{{ request.requested_by }}</div>
                 </div>
                 <div class="request-coord-price">
-                    <div>
-                        <div class="text text-gray">{{ request.coordinates }}</div>
-                    </div>
                     <div class="heading-4 text-secondary-dark">{{ request.price }}</div>
+                </div>
+                <div class="text text-black" style="margin-top: 8px;">
+                    {{ request.description }}
                 </div>
             </div>
 
             <div class="request-card-icons">
                 {% for icon in request.icons %}
-                    <button
-                        class="icon-button-base"
-                        type="button"
-                        data-tooltip="{{ icon.tooltip }}"
-                        aria-label="{{ icon.tooltip }}"
-                    >
-                        <i class="{{ icon.icon_class }}"></i>
-                    </button>
+                <button class="icon-button-base" type="button" data-tooltip="{{ icon.tooltip }}"
+                    aria-label="{{ icon.tooltip }}">
+                    <i class="{{ icon.icon_class }}"></i>
+                </button>
                 {% endfor %}
             </div>
         </div>
 
         <div class="request-buttons">
-            <button
-                class="button button--primary request-approve"
-                type="button"
-                aria-label="Approve {{ request.name }}"
-            >
+            <button class="button button--primary request-approve" type="button"
+                aria-label="Approve {{ request.name }}">
                 Approve
             </button>
 
-            <button
-                class="button button--error request-reject"
-                type="button"
-                aria-label="Reject {{ request.name }}"
-            >
+            <button class="button button--error request-reject" type="button" aria-label="Reject {{ request.name }}">
                 Reject
             </button>
         </div>
