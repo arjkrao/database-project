@@ -68,6 +68,10 @@
             <div class="request-grid">
                 {% for request in requested_spots %}
                 {{ request_card(request) }}
+                {% else %}
+                <div class="text text-white" style="text-align: center; padding: 24px 0; grid-column: 1 / -1;">There are
+                    currently no pending
+                    requests</div>
                 {% endfor %}
             </div>
         </div>
