@@ -1286,6 +1286,7 @@ p {
 
 .share-popup-backdrop.bookmark-popup-backdrop--open {
   opacity: 1;
+  z-index: 9998;
 }
 
 .share-popup {
@@ -1592,7 +1593,7 @@ p {
   background: rgba(0, 0, 0, 0.28);
   opacity: 0;
   transition: opacity 0.22s ease;
-  z-index: 29;
+  z-index: 9950;
 }
 
 .bookmark-popup-backdrop--open {
@@ -1609,7 +1610,7 @@ p {
   transition:
     opacity 0.22s ease,
     transform 0.22s ease;
-  z-index: 30;
+  z-index: 9970;
   pointer-events: none;
 }
 
