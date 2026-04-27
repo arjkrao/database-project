@@ -383,8 +383,10 @@ def create_spot():
 
     image_file = request.files.get('image')
     image_bytes = None
+    image_mimetype = None
     if image_file:
         image_bytes = image_file.read()
+        image_mimetype = image_file.mimetype
 
     # not going to be able to add spot anywhere else so just include SQL functionality here
     with db.engine.begin() as conn:
@@ -397,7 +399,7 @@ def create_spot():
             "lati": float(lat),
             "longi": float(lon),
             "img_file": image_bytes,
-            "mimetype": image_file.mimetype 
+            "mimetype": image_mimetype
         })
 
         newid = result.lastrowid
@@ -589,25 +591,45 @@ def update_profile_image():
         "username": curr_user.username
     }), 200
     
+@app.route("/profile/<int:location_id>/location_img")
+def location_image(location_id):
+    with db.engine.connect() as conn:
+        query = text('SELECT location_photo_blob, location_photo_mimetype FROM locations WHERE location_id = :id;')
+        result = conn.execute(query, {"id": location_id}).first()
 
+        if result is None or result[0] is None:
+            return send_file("static/def_loc_img.jpg", mimetype="image/jpeg")
+        
+        image_bytes = result[0]
+        image_mimetype = result[1] or "image/jpeg"
 
-
+    return Response(image_bytes, mimetype=image_mimetype)
 @app.route("/profile")
 @login_is_required
 def profile():
     user = get_user(session.get('email'))
+    private_spots = []
+    with db.engine.connect() as conn:
+        query = text('SELECT location_id, location_name FROM owns NATURAL JOIN locations WHERE user_id = :id;')
+        results = conn.execute(query, {"id": user.user_id}).all()
+
+        for result in results:
+            private_spots.append(
+                {
+                    "id": result.location_id,
+                    "name": result.location_name,
+                    "image": url_for("location_image", location_id=result.location_id)
+                }
+            )
+    
+    
+    
 
     profile_data = {
         "name": user.display_name,
         "email": user.username,
         "avatar_image": url_for("user_profile_image", username=user.username),
-        "private_spots": [
-            {
-                "id": 1,
-                "name": "Austin's Bagels",
-                "image": "https://placehold.co/300x300",
-            },
-        ],
+        "private_spots": private_spots,
         "pending_spots": [
             {
                 "id": 3,

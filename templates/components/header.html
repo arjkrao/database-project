@@ -11,7 +11,7 @@
         </a>
         {% if show_header_buttons %}
         <a href="{{ url_for('profile') }}" aria-label="Go to profile">
-            <i class="fa-solid fa-circle-user icon-profile"></i>
+            <img src="{{url_for('user_profile_image', username=curr_username)}}" class="header-profile-image"></i>
         </a>
         {% endif %}
     </div>

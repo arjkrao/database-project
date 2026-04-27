@@ -46,7 +46,9 @@
       avatarFileInput.addEventListener("change", async (event) => {
         const [selectedFile] = event.target.files;
 
-        if (!selectedFile) return; 
+        if (!selectedFile) {
+          return;
+        }
 
         const reader = new FileReader();
         reader.addEventListener("load", () => {
@@ -56,27 +58,33 @@
 
         const formData = new FormData();
         formData.append("avatar", selectedFile);
-        try{
+
+        try {
           const response = await fetch("/profile/upload_avatar", {
-            method: "POST", 
-            body: formData
+            method: "POST",
+            body: formData,
           });
 
           const result = await response.json();
 
-          if(!response.ok){
+          if (!response.ok) {
             console.log(result.message);
             throw new Error(result.message || "Upload failed");
           }
 
-          avatarImage.src = `/user/${result.username}/pfp?t=${Date.now()}`;
+          const newImageUrl = `/user/${result.username}/pfp?t=${Date.now()}`;
+          avatarImage.src = newImageUrl;
+
+          const headerProfileImage = document.querySelector(
+            ".header-profile-image",
+          );
+          if (headerProfileImage) {
+            headerProfileImage.src = newImageUrl;
+          }
         } catch (err) {
           console.error(err);
           alert("Failed to upload profile picture");
         }
-
-
-
       });
     }
 
