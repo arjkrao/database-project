@@ -617,7 +617,10 @@ def list_home_spots():
     if current_user is None:
         return jsonify({"error": "User not found."}), 404
 
-    return jsonify({"spots": fetch_home_spot_cards_for_user(current_user.user_id)})
+    return jsonify({
+        "spots": fetch_home_spot_cards_for_user(current_user.user_id),
+        "user_role": current_user.role
+    })
 
 @app.route("/api/spots/<int:location_id>/image")
 @login_is_required
@@ -749,6 +752,44 @@ def request_public():
 
     return jsonify({"status": "success", "message": "Request submitted!"})
 
+@app.route("/home/delete_spot", methods=['POST'])
+@login_is_required
+def delete_spot():
+    location_id = request.form.get('location_id')
+    curr_user = get_user(session.get('email'))
+
+    with db.engine.connect() as conn:
+        loc = conn.execute(text('SELECT * FROM locations WHERE location_id=:lid'), {"lid": location_id}).first()
+        if not loc:
+            return jsonify({"status": "error", "message": "Location not found"}), 404
+
+        is_owner = conn.execute(text('SELECT * FROM owns WHERE user_id=:uid AND location_id=:lid'), {"uid": curr_user.user_id, "lid": location_id}).first() is not None
+        is_admin = curr_user.role == 'admin'
+
+        is_private = loc.location_status in ['private', 'pending']
+        is_public = loc.location_status == 'public'
+
+        can_delete = False
+        if is_owner and is_private:
+            can_delete = True
+        elif is_admin and (is_public or is_owner):
+            can_delete = True
+
+        if not can_delete:
+            return jsonify({"status": "error", "message": "You don't have permission to delete this location!"}), 403
+
+    engine = db.get_engine(bind='admin') if is_admin else db.engine
+
+    with engine.begin() as conn:
+        conn.execute(text('DELETE FROM owns WHERE location_id=:lid'), {"lid": location_id})
+        conn.execute(text('DELETE FROM `access` WHERE location_id=:lid'), {"lid": location_id})
+        conn.execute(text('DELETE FROM collection_contains WHERE location_id=:lid'), {"lid": location_id})
+        conn.execute(text('DELETE FROM location_tags WHERE location_id=:lid'), {"lid": location_id})
+        conn.execute(text('DELETE FROM reviews WHERE location_id=:lid'), {"lid": location_id})
+        conn.execute(text('DELETE FROM locations WHERE location_id=:lid'), {"lid": location_id})
+
+    return jsonify({"status": "success", "message": "Location deleted successfully!"})
+
 @app.route("/home")
 @login_is_required
 def home():
@@ -789,6 +830,7 @@ def home():
         spots=spots,
         requested_spots=requested_spots,
         bookmark_collections=bookmark_collections,
+        user_role=current_user.role
     )
 
 @app.route("/user/<string:username>/pfp")

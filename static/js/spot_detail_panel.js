@@ -385,9 +385,45 @@
         return;
       }
 
+      const deleteButton = event.target.closest(".spot-delete");
+      if (deleteButton) {
+        if (!confirm("Are you sure you want to delete this location? This action cannot be undone.")) {
+          return;
+        }
+
+        const cardDeleteId = card.dataset.spotId;
+        const formData = new FormData();
+        formData.append("location_id", cardDeleteId);
+
+        fetch("/home/delete_spot", { method: "POST", body: formData })
+          .then(res => res.json())
+          .then(data => {
+            if (data.status === "success") {
+              card.remove();
+              if (currentActiveSpotId === cardDeleteId) {
+                const spotDetailPanel = document.getElementById("spotDetailPanel");
+                const spotsPanel = document.getElementById("spotsPanel");
+                spotDetailPanel.hidden = true;
+                spotsPanel.classList.remove("left-panel-hidden");
+                if (activeSpotCard) {
+                  activeSpotCard.classList.remove("right-panel-active");
+                  activeSpotCard = null;
+                  currentActiveSpotId = null;
+                }
+              }
+            } else {
+              alert(data.message || "Failed to delete location.");
+            }
+          })
+          .catch(err => {
+            console.error("Delete spot error:", err);
+            alert("An error occurred trying to delete this location.");
+          });
+        return;
+      }
+
       if (
         event.target.closest(".spot-bookmark") ||
-        event.target.closest(".spot-delete") ||
         event.target.closest(".icon-button-base")
       ) {
         return;

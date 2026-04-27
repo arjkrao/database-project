@@ -79,6 +79,7 @@
 <script src="{{ url_for('static', filename='js/home_map.js') }}"></script>
 <script src="{{ url_for('static', filename='js/spot_detail_panel.js') }}"></script>
 <script src="{{ url_for('static', filename='js/bookmark_popup.js') }}"></script>
+<script>window.__userRole = {{ user_role | tojson }};</script>
 <script src="{{ url_for('static', filename='js/home_spots.js') }}"></script>
 <script src="{{ url_for('static', filename='js/request_card.js') }}"></script>
 <script src="{{ url_for('static', filename='js/add_spot.js') }}"></script>

@@ -52,7 +52,7 @@
                     </button>
                     {% endfor %}
                 </div>
-                {% if user_role == 'admin' %}
+                {% if user_role == 'admin' or (spot.is_owner and spot.status in ['private', 'pending']) %}
                 <button class="spot-delete" type="button" aria-label="Delete spot">
                     <i class="fa-solid fa-trash icon-delete"></i>
                 </button>

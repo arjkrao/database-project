@@ -36,6 +36,7 @@
 
     let latestSignature = null;
     let latestSpots = [];
+    let latestUserRole = window.__userRole || null;
     let refreshInFlight = false;
     let currentDateSortIndex = 0;
     let filtersHaveChangedList = false;
@@ -437,6 +438,20 @@
 
       bottom.appendChild(iconContainer);
 
+      const isPrivateOrPending = spot.status === 'private' || spot.status === 'pending';
+      // Fallback: If latestUserRole is null but document initially had admin class/elements we rely strictly on latestUserRole
+      // In first load, JS reads DOM, but we set user role once API fires; though since spot.is_owner works natively this is sufficient for local bounds.
+      if (latestUserRole === 'admin' || (Boolean(spot.is_owner) && isPrivateOrPending)) {
+        const deleteBtn = document.createElement("button");
+        deleteBtn.className = "spot-delete";
+        deleteBtn.type = "button";
+        deleteBtn.setAttribute("aria-label", "Delete spot");
+        const deleteIcon = document.createElement("i");
+        deleteIcon.className = "fa-solid fa-trash icon-delete";
+        deleteBtn.appendChild(deleteIcon);
+        bottom.appendChild(deleteBtn);
+      }
+
       info.append(top, middle, bottom);
       inner.append(image, info);
       card.appendChild(inner);
@@ -504,6 +519,7 @@
         const nextSignature = JSON.stringify(spots);
 
         if (force || nextSignature !== latestSignature) {
+          latestUserRole = data.user_role || null;
           latestSpots = spots;
           renderFilteredSpotList();
           latestSignature = nextSignature;
