@@ -412,6 +412,9 @@ def build_home_spot_card(spot, reviews):
         "rating": round(float(spot["rating"]), 1),
         "rating_count": spot["rating_count"],
         "description": spot["description"],
+        "tags": spot["tags"],
+        "latitude": spot["latitude"],
+        "longitude": spot["longitude"],
         "icons": icons,
         "reviews": reviews,
     }

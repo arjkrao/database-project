@@ -102,19 +102,6 @@
         homeRight.classList.add("home-right--after");
     });
 
-    // Handle the date sort button icon change when clicked
-    const dateSortButton = document.getElementById("dateSortButton");
-    const dateSortIcon = document.getElementById("dateSortIcon");
-
-    const iconStates = ["fa-sort", "fa-sort-down", "fa-sort-up"];
-    let currentIconIndex = 0;
-
-    dateSortButton.addEventListener("click", () => {
-        dateSortIcon.classList.remove(iconStates[currentIconIndex]);
-        currentIconIndex = (currentIconIndex + 1) % iconStates.length;
-        dateSortIcon.classList.add(iconStates[currentIconIndex]);
-    });
-
     // Escape key handler to close popups
     document.addEventListener("keydown", (event) => {
         if (event.key === "Escape") {

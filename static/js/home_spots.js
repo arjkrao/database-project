@@ -3,13 +3,308 @@
 
   function setupHomeSpotsRefresh() {
     const spotsList = document.querySelector(".spots-list");
+    const searchInput = document.querySelector(".home-left .search-input");
+    const dateSortButton = document.getElementById("dateSortButton");
+    const dateSortIcon = document.getElementById("dateSortIcon");
 
     if (!spotsList) {
       return;
     }
 
+    const dateSortStates = [
+      {
+        direction: null,
+        icon: "fa-sort",
+        label: "Sort spots by date",
+      },
+      {
+        direction: "desc",
+        icon: "fa-sort-down",
+        label: "Sort spots by newest first",
+      },
+      {
+        direction: "asc",
+        icon: "fa-sort-up",
+        label: "Sort spots by oldest first",
+      },
+    ];
+    const initialCardOrderBySpotId = new Map(
+      Array.from(spotsList.querySelectorAll(".spot-card")).map(
+        (card, index) => [card.dataset.spotId || "", index],
+      ),
+    );
+
     let latestSignature = null;
+    let latestSpots = [];
     let refreshInFlight = false;
+    let currentDateSortIndex = 0;
+    let filtersHaveChangedList = false;
+
+    function getCurrentDateSortState() {
+      return dateSortStates[currentDateSortIndex];
+    }
+
+    function getLocationId(value) {
+      const locationId = Number(value);
+      return Number.isFinite(locationId) ? locationId : 0;
+    }
+
+    function compareByLocationId(leftId, rightId, direction) {
+      const difference = getLocationId(leftId) - getLocationId(rightId);
+
+      if (difference === 0) {
+        return 0;
+      }
+
+      return direction === "asc" ? difference : -difference;
+    }
+
+    function getSpotLocationId(spot) {
+      return spot.location_id ?? spot.id;
+    }
+
+    function sortSpotsByDateState(spots) {
+      const { direction } = getCurrentDateSortState();
+
+      if (!direction) {
+        return [...spots];
+      }
+
+      return [...spots].sort((left, right) =>
+        compareByLocationId(
+          getSpotLocationId(left),
+          getSpotLocationId(right),
+          direction,
+        ),
+      );
+    }
+
+    function sortRenderedCardsByDateState() {
+      const { direction } = getCurrentDateSortState();
+      const cards = Array.from(spotsList.querySelectorAll(".spot-card"));
+
+      if (!cards.length) {
+        return;
+      }
+
+      const currentCardOrder = new Map(
+        cards.map((card, index) => [card, index]),
+      );
+
+      cards.sort((left, right) => {
+        if (!direction) {
+          const leftOrder =
+            initialCardOrderBySpotId.get(left.dataset.spotId || "") ??
+            currentCardOrder.get(left) ??
+            0;
+          const rightOrder =
+            initialCardOrderBySpotId.get(right.dataset.spotId || "") ??
+            currentCardOrder.get(right) ??
+            0;
+          return leftOrder - rightOrder;
+        }
+
+        const difference = compareByLocationId(
+          left.dataset.spotId,
+          right.dataset.spotId,
+          direction,
+        );
+
+        if (difference !== 0) {
+          return difference;
+        }
+
+        return (
+          (currentCardOrder.get(left) ?? 0) - (currentCardOrder.get(right) ?? 0)
+        );
+      });
+
+      spotsList.replaceChildren(...cards);
+    }
+
+    function renderDateSortState() {
+      if (!dateSortButton || !dateSortIcon) {
+        return;
+      }
+
+      const { direction, icon, label } = getCurrentDateSortState();
+      dateSortIcon.classList.remove("fa-sort", "fa-sort-down", "fa-sort-up");
+      dateSortIcon.classList.add(icon);
+      dateSortButton.setAttribute("aria-label", label);
+      dateSortButton.setAttribute("aria-pressed", String(Boolean(direction)));
+    }
+
+    function applyDateSortState() {
+      if (latestSpots.length) {
+        renderFilteredSpotList();
+      } else {
+        sortRenderedCardsByDateState();
+      }
+    }
+
+    function parseJsonData(rawValue, fallback) {
+      if (!rawValue) {
+        return fallback;
+      }
+
+      try {
+        const parsedValue = JSON.parse(rawValue);
+        return parsedValue ?? fallback;
+      } catch (error) {
+        console.error("Failed to parse spot card data:", error);
+        return fallback;
+      }
+    }
+
+    function parseRatingCount(value) {
+      const ratingCount = Number(String(value || "").replace(/[^\d.-]/g, ""));
+      return Number.isFinite(ratingCount) ? ratingCount : 0;
+    }
+
+    function parseRenderedSpots() {
+      return Array.from(spotsList.querySelectorAll(".spot-card")).map((card) => {
+        const image = card.querySelector(".spot-card-image");
+
+        return {
+          id: card.dataset.spotId || "",
+          name: card.dataset.spotName || "Spot",
+          image: card.dataset.spotImage || image?.getAttribute("src") || "",
+          price: card.dataset.spotPrice || "",
+          rating: Number(card.dataset.spotRating || 0),
+          rating_count: parseRatingCount(card.dataset.spotRatingCount),
+          status: card.dataset.spotStatus || "",
+          is_owner: card.dataset.spotIsOwner === "true",
+          description: card.dataset.spotDescription || "",
+          tags: parseJsonData(card.dataset.spotTags, []),
+          icons: parseJsonData(card.dataset.spotIcons, []),
+          reviews: parseJsonData(card.dataset.spotReviews, []),
+        };
+      });
+    }
+
+    function normalizeText(value) {
+      return String(value || "").trim().toLowerCase();
+    }
+
+    function getSearchQuery() {
+      return normalizeText(searchInput?.value || "");
+    }
+
+    function getActiveFilters() {
+      if (typeof window.getSpotFilters === "function") {
+        return window.getSpotFilters();
+      }
+
+      return window.currentSpotFilters || {
+        tags: [],
+        price: "none",
+      };
+    }
+
+    function normalizeFilterPrice(priceOption) {
+      const normalizedOption = String(priceOption || "").trim();
+
+      if (!normalizedOption || normalizedOption === "none") {
+        return "";
+      }
+
+      if (normalizedOption === "free") {
+        return "FREE";
+      }
+
+      if (/^[1-4]$/.test(normalizedOption)) {
+        return "$".repeat(Number(normalizedOption));
+      }
+
+      return normalizedOption.toUpperCase();
+    }
+
+    function getSpotTags(spot) {
+      if (Array.isArray(spot.tags) && spot.tags.length) {
+        return spot.tags;
+      }
+
+      if (!Array.isArray(spot.icons)) {
+        return [];
+      }
+
+      return spot.icons.map((icon) => icon.tooltip).filter(Boolean);
+    }
+
+    function hasActiveFilters(filters = getActiveFilters()) {
+      return (
+        (Array.isArray(filters.tags) && filters.tags.length > 0) ||
+        Boolean(normalizeFilterPrice(filters.price))
+      );
+    }
+
+    function matchesSearch(spot, query) {
+      if (!query) {
+        return true;
+      }
+
+      const searchableText = [
+        spot.name,
+        spot.description,
+        spot.price,
+        spot.status,
+        ...getSpotTags(spot),
+      ]
+        .join(" ")
+        .toLowerCase();
+
+      return searchableText.includes(query);
+    }
+
+    function matchesTags(spot, selectedTags) {
+      if (!selectedTags.length) {
+        return true;
+      }
+
+      const spotTags = getSpotTags(spot).map(normalizeText);
+      return selectedTags.some((tag) => spotTags.includes(tag));
+    }
+
+    function getFilteredSpots() {
+      const filters = getActiveFilters();
+      const selectedTags = Array.isArray(filters.tags)
+        ? filters.tags.map(normalizeText).filter(Boolean)
+        : [];
+      const selectedPrice = normalizeFilterPrice(filters.price);
+      const query = getSearchQuery();
+
+      return latestSpots.filter((spot) => {
+        const priceMatches = selectedPrice
+          ? String(spot.price || "").trim().toUpperCase() === selectedPrice
+          : true;
+
+        return (
+          matchesSearch(spot, query) &&
+          matchesTags(spot, selectedTags) &&
+          priceMatches
+        );
+      });
+    }
+
+    function renderFilteredSpotList() {
+      const filteredSpots = sortSpotsByDateState(getFilteredSpots());
+      const emptyMessage = latestSpots.length
+        ? "No spots match these filters."
+        : "No spots yet.";
+
+      renderSpotList(filteredSpots, emptyMessage);
+    }
+
+    function handleFilterOrSearchChange() {
+      const shouldRender = hasActiveFilters() || Boolean(getSearchQuery());
+
+      if (!shouldRender && !filtersHaveChangedList) {
+        return;
+      }
+
+      filtersHaveChangedList = shouldRender;
+      renderFilteredSpotList();
+    }
 
     function renderStars(rating) {
       const stars = document.createDocumentFragment();
@@ -63,6 +358,7 @@
       const rating = Number(spot.rating || 0);
       const displayRating = Number.isFinite(rating) ? rating.toFixed(1) : "0.0";
       const ratingCount = Number(spot.rating_count || 0);
+      const tags = Array.isArray(spot.tags) ? spot.tags : [];
       const icons = Array.isArray(spot.icons) ? spot.icons : [];
       const reviews = Array.isArray(spot.reviews) ? spot.reviews : [];
 
@@ -77,6 +373,7 @@
       card.dataset.spotStatus = spot.status || "";
       card.dataset.spotIsOwner = String(Boolean(spot.is_owner));
       card.dataset.spotDescription = spot.description || "";
+      card.dataset.spotTags = JSON.stringify(tags);
       card.dataset.spotIcons = JSON.stringify(icons);
       card.dataset.spotReviews = JSON.stringify(reviews);
 
@@ -147,14 +444,14 @@
       return card;
     }
 
-    function renderSpotList(spots) {
+    function renderSpotList(spots, emptyMessage = "No spots yet.") {
       const scrollTop = spotsList.scrollTop;
 
       if (!spots.length) {
         const emptyState = createTextElement(
           "div",
           "text text-gray",
-          "No spots yet.",
+          emptyMessage,
         );
         spotsList.replaceChildren(emptyState);
         return;
@@ -207,7 +504,8 @@
         const nextSignature = JSON.stringify(spots);
 
         if (force || nextSignature !== latestSignature) {
-          renderSpotList(spots);
+          latestSpots = spots;
+          renderFilteredSpotList();
           latestSignature = nextSignature;
         }
       } catch (error) {
@@ -218,6 +516,21 @@
     }
 
     window.reloadSpotsList = reloadSpotsList;
+    window.renderFilteredSpotList = renderFilteredSpotList;
+
+    dateSortButton?.addEventListener("click", () => {
+      currentDateSortIndex = (currentDateSortIndex + 1) % dateSortStates.length;
+      renderDateSortState();
+      applyDateSortState();
+    });
+
+    searchInput?.addEventListener("input", handleFilterOrSearchChange);
+
+    document.addEventListener("spotFiltersChange", handleFilterOrSearchChange);
+
+    latestSpots = parseRenderedSpots();
+    latestSignature = JSON.stringify(latestSpots);
+    renderDateSortState();
 
     window.setInterval(() => {
       if (shouldAutoRefresh()) {

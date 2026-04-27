@@ -1489,30 +1489,6 @@ p {
   gap: 32px;
 }
 
-.filter-distance {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.distance-input {
-  width: 120px;
-  padding: 0 0 8px;
-  border: none;
-  border-bottom: 8px solid var(--color-secondary-dark);
-  background: transparent;
-  outline: none;
-  text-align: center;
-  appearance: textfield;
-  -moz-appearance: textfield;
-}
-
-.distance-input::-webkit-outer-spin-button,
-.distance-input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
 .price-selector {
   display: flex;
   align-items: center;
