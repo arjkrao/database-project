@@ -114,6 +114,10 @@ select {
   font: inherit;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 /* =========================================================
    TYPOGRAPHY CLASSES
    ========================================================= */
@@ -732,6 +736,23 @@ p {
   object-fit: cover;
 }
 
+.spots-map {
+  background-color: #d8e4df;
+}
+
+.spots-map.spots-map--placing,
+.spots-map.spots-map--placing .leaflet-container {
+  cursor: crosshair;
+}
+
+.spots-map-popup {
+  max-width: 220px;
+}
+
+.spots-map-popup p {
+  margin: 6px 0;
+}
+
 .home-left-on-map {
   position: absolute;
   top: 50%;
@@ -743,6 +764,13 @@ p {
   align-items: flex-end;
   width: 90%;
   height: 90%;
+  pointer-events: none;
+  z-index: 500;
+}
+
+.home-left-on-map .search,
+.home-left-on-map .button {
+  pointer-events: auto;
 }
 
 .home-right {
@@ -1513,30 +1541,6 @@ p {
   gap: 32px;
 }
 
-.filter-distance {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.distance-input {
-  width: 120px;
-  padding: 0 0 8px;
-  border: none;
-  border-bottom: 8px solid var(--color-secondary-dark);
-  background: transparent;
-  outline: none;
-  text-align: center;
-  appearance: textfield;
-  -moz-appearance: textfield;
-}
-
-.distance-input::-webkit-outer-spin-button,
-.distance-input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
 .price-selector {
   display: flex;
   align-items: center;
@@ -1693,7 +1697,7 @@ p {
   background: rgba(0, 0, 0, 0.28);
   opacity: 0;
   transition: opacity 0.22s ease;
-  z-index: 39;
+  z-index: 1500;
 }
 
 .add-spot-backdrop--open {
@@ -1710,7 +1714,7 @@ p {
   transition:
     opacity 0.22s ease,
     transform 0.22s ease;
-  z-index: 40;
+  z-index: 1510;
   pointer-events: none;
 }
 

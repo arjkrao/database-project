@@ -155,6 +155,8 @@
       return;
     }
 
+    let activeSpotCard = null;
+
     function showPanel(panelToShow, panelToHide) {
       panelToHide.classList.remove("right-panel--active");
       panelToHide.classList.add("right-panel--hidden");
@@ -163,53 +165,81 @@
       panelToShow.classList.add("right-panel--active");
     }
 
-    function resetRequestPublicButton() {
-      requestPublicButton.disabled = false;
-      requestPublicButton.textContent = "Request Public";
-      requestPublicButton.classList.remove(
-        "spot-detail-request-public--pending",
-      );
+    function setRequestPublicButtonState(status, isOwner) {
+      const normalizedStatus = String(status || "").trim().toLowerCase();
+
+      requestPublicButton.hidden = true;
+      requestPublicButton.disabled = true;
+      requestPublicButton.textContent = "Request To Make Public";
+      requestPublicButton.classList.remove("spot-detail-request-public--pending");
+
+      if (!isOwner) {
+        return;
+      }
+
+      if (normalizedStatus === "private") {
+        requestPublicButton.hidden = false;
+        requestPublicButton.disabled = false;
+        return;
+      }
+
+      if (normalizedStatus === "pending") {
+        requestPublicButton.hidden = false;
+        requestPublicButton.disabled = true;
+        requestPublicButton.textContent = "Public Request Pending";
+        requestPublicButton.classList.add("spot-detail-request-public--pending");
+      }
     }
 
-    document.querySelectorAll(".spot-card--clickable").forEach((card) => {
-      card.addEventListener("click", (event) => {
-        if (
-          event.target.closest(".spot-bookmark") ||
-          event.target.closest(".spot-delete") ||
-          event.target.closest(".icon-button-base")
-        ) {
-          return;
-        }
+    spotsPanel.addEventListener("click", (event) => {
+      if (!(event.target instanceof Element)) {
+        return;
+      }
 
-        const name = card.dataset.spotName || "Spot";
-        const image = card.dataset.spotImage || "";
-        const price = card.dataset.spotPrice || "";
-        const rating = Number(card.dataset.spotRating || "0");
-        const ratingCount = card.dataset.spotRatingCount || "(0)";
-        const description =
-          card.dataset.spotDescription || "No description available.";
-        const icons = parseJsonData(card.dataset.spotIcons, []);
-        const reviews = parseJsonData(card.dataset.spotReviews, []);
+      const card = event.target.closest(".spot-card--clickable");
 
-        spotDetailTitle.textContent = name;
-        spotDetailImage.src = image;
-        spotDetailImage.alt = name;
-        spotDetailPrice.textContent = price;
-        spotDetailRatingValue.textContent = String(rating);
-        spotDetailRatingCount.textContent = ratingCount;
-        spotDetailDescription.textContent = description;
+      if (!card || !spotsPanel.contains(card)) {
+        return;
+      }
 
-        renderStars(spotDetailStars, rating);
-        renderIcons(spotDetailIcons, icons);
-        renderReviews(spotDetailReviews, reviews);
+      if (
+        event.target.closest(".spot-bookmark") ||
+        event.target.closest(".spot-delete") ||
+        event.target.closest(".icon-button-base")
+      ) {
+        return;
+      }
 
-        writeReviewPanel.hidden = true;
-        spotDetailReviews.hidden = false;
-        writeReviewText.value = "";
-        resetRequestPublicButton();
+      const name = card.dataset.spotName || "Spot";
+      const image = card.dataset.spotImage || "";
+      const price = card.dataset.spotPrice || "";
+      const rating = Number(card.dataset.spotRating || "0");
+      const ratingCount = card.dataset.spotRatingCount || "(0)";
+      const status = card.dataset.spotStatus || "";
+      const isOwner = card.dataset.spotIsOwner === "true";
+      const description = card.dataset.spotDescription || "No description available.";
+      const icons = parseJsonData(card.dataset.spotIcons, []);
+      const reviews = parseJsonData(card.dataset.spotReviews, []);
 
-        showPanel(spotDetailPanel, spotsPanel);
-      });
+      activeSpotCard = card;
+      spotDetailTitle.textContent = name;
+      spotDetailImage.src = image;
+      spotDetailImage.alt = name;
+      spotDetailPrice.textContent = price;
+      spotDetailRatingValue.textContent = String(rating);
+      spotDetailRatingCount.textContent = ratingCount;
+      spotDetailDescription.textContent = description;
+
+      renderStars(spotDetailStars, rating);
+      renderIcons(spotDetailIcons, icons);
+      renderReviews(spotDetailReviews, reviews);
+
+      writeReviewPanel.hidden = true;
+      spotDetailReviews.hidden = false;
+      writeReviewText.value = "";
+      setRequestPublicButtonState(status, isOwner);
+
+      showPanel(spotDetailPanel, spotsPanel);
     });
 
     closeSpotDetailButton.addEventListener("click", () => {
@@ -217,9 +247,34 @@
     });
 
     requestPublicButton.addEventListener("click", () => {
-      requestPublicButton.textContent = "Request Pending";
+      if (requestPublicButton.hidden || requestPublicButton.disabled) {
+        return;
+      }
+
+      requestPublicButton.textContent = "Public Request Pending";
       requestPublicButton.disabled = true;
       requestPublicButton.classList.add("spot-detail-request-public--pending");
+
+      if (activeSpotCard) {
+        activeSpotCard.dataset.spotStatus = "pending";
+      }
+    });
+
+    spotDetailReviews.addEventListener("click", (event) => {
+      const likeButton = event.target.closest(".review-card-like");
+
+      if (!likeButton) {
+        return;
+      }
+
+      const icon = likeButton.querySelector(".fa-thumbs-up");
+
+      if (!icon) {
+        return;
+      }
+
+      icon.classList.toggle("fa-regular");
+      icon.classList.toggle("fa-solid");
     });
   }
 

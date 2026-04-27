@@ -2,13 +2,15 @@
 {% from "components/spot_card.html" import spot_card %}
 {% from "components/request_card.html" import request_card %}
 
+{% block extra_head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+{% endblock %}
+
 {% block content %}
 <div class="home-container">
     <div class="home-top-container">
         <div class="home-left">
-            <!-- Placeholder image until interactive map is added -->
-            <img class="map-placeholder"
-                src="https://t4.ftcdn.net/jpg/02/65/42/55/360_F_265425516_wtAw64cGdOVvrdl64b5bsyBqcD0rkw1W.jpg" />
+            <div class="map-placeholder spots-map" id="spotsMap" tabindex="0" aria-label="Map of spots"></div>
             <div class="home-left-on-map">
                 <form class="search">
                     <div class="search-group">
@@ -76,11 +78,14 @@
     {% endif %}
 </div>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="{{ url_for('static', filename='js/home_map.js') }}"></script>
 <script src="{{ url_for('static', filename='js/spot_detail_panel.js') }}"></script>
+<script src="{{ url_for('static', filename='js/bookmark_popup.js') }}"></script>
+<script src="{{ url_for('static', filename='js/home_spots.js') }}"></script>
 <script src="{{ url_for('static', filename='js/request_card.js') }}"></script>
 <script src="{{ url_for('static', filename='js/add_spot.js') }}"></script>
 <script src="{{ url_for('static', filename='js/filters.js') }}"></script>
-<script src="{{ url_for('static', filename='js/bookmark_popup.js') }}"></script>
 <script>
     // Handle the transition from the welcome panel to the spots panel when the "Find Spots" button is clicked
     const findSpotsButton = document.getElementById("findSpotsButton");
@@ -96,19 +101,6 @@
         spotsPanel.classList.add("right-panel--active");
 
         homeRight.classList.add("home-right--after");
-    });
-
-    // Handle the date sort button icon change when clicked
-    const dateSortButton = document.getElementById("dateSortButton");
-    const dateSortIcon = document.getElementById("dateSortIcon");
-
-    const iconStates = ["fa-sort", "fa-sort-down", "fa-sort-up"];
-    let currentIconIndex = 0;
-
-    dateSortButton.addEventListener("click", () => {
-        dateSortIcon.classList.remove(iconStates[currentIconIndex]);
-        currentIconIndex = (currentIconIndex + 1) % iconStates.length;
-        dateSortIcon.classList.add(iconStates[currentIconIndex]);
     });
 
     // Escape key handler to close popups
