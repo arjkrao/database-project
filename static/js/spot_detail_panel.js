@@ -68,7 +68,6 @@
   }
 
   function createReviewCardMarkup(review) {
-
     return `
       <article class="review-card spot-detail-review-card" data-review-id="${review.id ?? ""}">
         <div class="review-card-top">
@@ -113,14 +112,22 @@
   function setupSpotDetailPanel() {
     const spotsPanel = document.getElementById("spotsPanel");
     const spotDetailPanel = document.getElementById("spotDetailPanel");
-    const closeSpotDetailButton = document.getElementById("closeSpotDetailButton");
+    const closeSpotDetailButton = document.getElementById(
+      "closeSpotDetailButton",
+    );
 
     const spotDetailTitle = document.getElementById("spotDetailTitle");
     const spotDetailImage = document.getElementById("spotDetailImage");
     const spotDetailPrice = document.getElementById("spotDetailPrice");
-    const spotDetailRatingValue = document.getElementById("spotDetailRatingValue");
-    const spotDetailRatingCount = document.getElementById("spotDetailRatingCount");
-    const spotDetailDescription = document.getElementById("spotDetailDescription");
+    const spotDetailRatingValue = document.getElementById(
+      "spotDetailRatingValue",
+    );
+    const spotDetailRatingCount = document.getElementById(
+      "spotDetailRatingCount",
+    );
+    const spotDetailDescription = document.getElementById(
+      "spotDetailDescription",
+    );
     const spotDetailStars = document.getElementById("spotDetailStars");
     const spotDetailIcons = document.getElementById("spotDetailIcons");
     const spotDetailReviews = document.getElementById("spotDetailReviews");
@@ -158,8 +165,10 @@
 
     function resetRequestPublicButton() {
       requestPublicButton.disabled = false;
-      requestPublicButton.textContent = "Request To Make Public";
-      requestPublicButton.classList.remove("spot-detail-request-public--pending");
+      requestPublicButton.textContent = "Request Public";
+      requestPublicButton.classList.remove(
+        "spot-detail-request-public--pending",
+      );
     }
 
     document.querySelectorAll(".spot-card--clickable").forEach((card) => {
@@ -177,7 +186,8 @@
         const price = card.dataset.spotPrice || "";
         const rating = Number(card.dataset.spotRating || "0");
         const ratingCount = card.dataset.spotRatingCount || "(0)";
-        const description = card.dataset.spotDescription || "No description available.";
+        const description =
+          card.dataset.spotDescription || "No description available.";
         const icons = parseJsonData(card.dataset.spotIcons, []);
         const reviews = parseJsonData(card.dataset.spotReviews, []);
 
@@ -207,7 +217,7 @@
     });
 
     requestPublicButton.addEventListener("click", () => {
-      requestPublicButton.textContent = "Public Request Pending";
+      requestPublicButton.textContent = "Request Pending";
       requestPublicButton.disabled = true;
       requestPublicButton.classList.add("spot-detail-request-public--pending");
     });
@@ -299,9 +309,119 @@
     renderWriteReviewStars(selectedReviewRating);
   }
 
+  function setupSharePopup() {
+    const shareSpotButton = document.getElementById("shareSpotButton");
+    const sharePopup = document.getElementById("sharePopup");
+    const sharePopupBackdrop = document.getElementById("sharePopupBackdrop");
+    const sharePopupSpotName = document.getElementById("sharePopupSpotName");
+    const sharePopupEmailInput = document.getElementById(
+      "sharePopupEmailInput",
+    );
+    const sharePopupSubmitButton = document.getElementById(
+      "sharePopupSubmitButton",
+    );
+    const sharePopupCancelButton = document.getElementById(
+      "sharePopupCancelButton",
+    );
+    const spotDetailTitle = document.getElementById("spotDetailTitle");
+
+    if (
+      !shareSpotButton ||
+      !sharePopup ||
+      !sharePopupBackdrop ||
+      !sharePopupSpotName ||
+      !sharePopupEmailInput ||
+      !sharePopupSubmitButton ||
+      !sharePopupCancelButton ||
+      !spotDetailTitle
+    ) {
+      return;
+    }
+
+    let sharePopupCloseTimeout = null;
+
+    function openSharePopup() {
+      if (sharePopupCloseTimeout) {
+        clearTimeout(sharePopupCloseTimeout);
+        sharePopupCloseTimeout = null;
+      }
+
+      sharePopupSpotName.textContent = spotDetailTitle.textContent || "Spot";
+      sharePopupEmailInput.value = "";
+
+      sharePopup.hidden = false;
+      sharePopupBackdrop.hidden = false;
+
+      requestAnimationFrame(() => {
+        sharePopup.classList.add("bookmark-popup--open");
+        sharePopupBackdrop.classList.add("bookmark-popup-backdrop--open");
+      });
+
+      sharePopup.setAttribute("aria-hidden", "false");
+    }
+
+    function closeSharePopup() {
+      if (!sharePopup.classList.contains("bookmark-popup--open")) {
+        return;
+      }
+
+      sharePopup.classList.remove("bookmark-popup--open");
+      sharePopupBackdrop.classList.remove("bookmark-popup-backdrop--open");
+      sharePopup.setAttribute("aria-hidden", "true");
+
+      sharePopupCloseTimeout = window.setTimeout(() => {
+        sharePopup.hidden = true;
+        sharePopupBackdrop.hidden = true;
+        sharePopupCloseTimeout = null;
+      }, 220);
+    }
+
+    shareSpotButton.addEventListener("click", () => {
+      openSharePopup();
+    });
+
+    sharePopupBackdrop.addEventListener("click", () => {
+      closeSharePopup();
+    });
+
+    sharePopup.addEventListener("click", (event) => {
+      if (event.target === sharePopup) {
+        closeSharePopup();
+      }
+    });
+
+    sharePopupSubmitButton.addEventListener("click", () => {
+      const email = sharePopupEmailInput.value.trim();
+
+      if (!email) {
+        sharePopupEmailInput.focus();
+        return;
+      }
+
+      // Replace this with actual Flask endpoint
+      console.log("Share spot with:", email);
+
+      closeSharePopup();
+    });
+
+    sharePopupCancelButton.addEventListener("click", () => {
+      sharePopupEmailInput.value = "";
+      closeSharePopup();
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        closeSharePopup();
+      }
+    });
+
+    window.closeSharePopup = closeSharePopup;
+  }
+
   function initSpotDetailPanel() {
     setupSpotDetailPanel();
     setupWriteReviewPanel();
+    setupSharePopup();
   }
 
   if (document.readyState === "loading") {

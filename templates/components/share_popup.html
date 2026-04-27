@@ -1,0 +1,25 @@
+<div class="bookmark-popup-backdrop share-popup-backdrop" id="sharePopupBackdrop" hidden></div>
+
+<div class="bookmark-popup share-popup" id="sharePopup" hidden aria-hidden="true">
+    <div class="bookmark-popup__panel">
+        <div class="bookmark-popup__title heading-2 text-primary-dark">
+            Share <span class="text-secondary-dark" id="sharePopupSpotName">Spot Name</span> with
+        </div>
+
+        <input
+            id="sharePopupEmailInput"
+            class="add-spot-input heading-3 text-black share-popup-input"
+            type="email"
+            placeholder="User email"
+        >
+
+        <div class="bookmark-popup__actions">
+            <button class="button button--primary" id="sharePopupSubmitButton" type="button">
+                Share
+            </button>
+            <button class="button button--error" id="sharePopupCancelButton" type="button">
+                Cancel
+            </button>
+        </div>
+    </div>
+</div>

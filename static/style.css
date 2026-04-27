@@ -1073,6 +1073,13 @@ p {
   width: 100%;
 }
 
+.spot-detail-private-options {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+}
+
 .spot-detail-review-button {
   align-self: center;
 }
@@ -1232,6 +1239,51 @@ p {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.share-popup-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.28);
+  opacity: 0;
+  transition: opacity 0.22s ease;
+  z-index: 49;
+}
+
+.share-popup-backdrop.bookmark-popup-backdrop--open {
+  opacity: 1;
+}
+
+.share-popup {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  pointer-events: none;
+}
+
+.share-popup.bookmark-popup--open {
+  pointer-events: auto;
+}
+
+.share-popup .bookmark-popup__panel {
+  width: min(680px, calc(100% - 72px));
+  transform: translateY(-8px);
+  transition: transform 0.22s ease;
+}
+
+.share-popup.bookmark-popup--open .bookmark-popup__panel {
+  transform: translateY(0);
+}
+
+.share-popup-input {
+  width: 100%;
+}
+
+.share-popup .bookmark-popup__actions {
+  justify-content: space-between;
 }
 
 /* =========================================================
