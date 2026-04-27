@@ -433,6 +433,7 @@ def update_profile_image():
     }), 200
     
 @app.route("/profile/<int:location_id>/location_img")
+@login_is_required
 def location_image(location_id):
     with db.engine.connect() as conn:
         query = text('SELECT location_photo_blob, location_photo_mimetype FROM locations WHERE location_id = :id;')
@@ -445,13 +446,78 @@ def location_image(location_id):
         image_mimetype = result[1] or "image/jpeg"
 
     return Response(image_bytes, mimetype=image_mimetype)
+
+@app.route("/profile/create_collection", methods=['POST'])
+@login_is_required
+def create_collection():
+    curr_user = get_user(session.get('email'))
+    collection_name = request.form.get('collection_name')
+
+    new_collection = {}
+    with db.engine.begin() as conn:
+        query = text('INSERT INTO collections (user_id, collection_name) VALUES (:id, :name);')
+        result = conn.execute(query, {"id": curr_user.user_id, "name": collection_name})
+        new_collection = {
+            "id": result.lastrowid,
+            "name": collection_name,
+        }
+
+    
+    return jsonify(new_collection), 200
+
+@app.route("/profile/delete_collection", methods=['POST'])
+@login_is_required
+def delete_collection():
+    curr_user = get_user(session.get('email'))
+    collection_id = request.form.get('collection_id')
+
+    with db.engine.begin() as conn:
+        query = text('DELETE FROM collections WHERE user_id = :uid AND collection_id = :cid')
+        conn.execute(query, {"uid": curr_user.user_id, "cid": collection_id})
+        print("delete finished")
+    
+    return {
+        "status": "success",
+        "message": "Deleted successfully!"
+    }, 200
+
+@app.route("/profile/collection/<int:collection_id>")
+@login_is_required
+def get_collection_spots(collection_id):
+    user = get_user(session.get('email'))
+
+    spots = []
+    with db.engine.begin() as conn:
+        query = text("""
+            SELECT l.location_id, l.location_name
+            FROM collection_contains cl
+            JOIN locations l ON cl.location_id = l.location_id
+            JOIN collections c ON cl.collection_id = c.collection_id
+            WHERE c.user_id = :uid AND c.collection_id = :cid
+        """)
+
+        results = conn.execute(query, {
+            "uid": user.user_id,
+            "cid": collection_id
+        }).all()
+
+        for r in results:
+            spots.append({
+                "id": r.location_id,
+                "name": r.location_name,
+                "image": url_for("location_image", location_id=r.location_id)
+            })
+
+    return jsonify(spots)
+
+
 @app.route("/profile")
 @login_is_required
 def profile():
     user = get_user(session.get('email'))
     private_spots = []
-    with db.engine.connect() as conn:
-        query = text('SELECT location_id, location_name FROM owns NATURAL JOIN locations WHERE user_id = :id;')
+    with db.engine.begin() as conn:
+        query = text('SELECT location_id, location_name FROM owns NATURAL JOIN locations WHERE user_id = :id AND location_status="private"')
         results = conn.execute(query, {"id": user.user_id}).all()
 
         for result in results:
@@ -462,33 +528,46 @@ def profile():
                     "image": url_for("location_image", location_id=result.location_id)
                 }
             )
+
+    pending_spots = []
+    with db.engine.begin() as conn:
+        query = text('SELECT location_id, location_name FROM owns NATURAL JOIN locations WHERE user_id = :id AND location_status="pending";')
+        results = conn.execute(query, {"id": user.user_id}).all()
+
+        for result in results:
+            pending_spots.append(
+                {
+                    "id": result.location_id,
+                    "name": result.location_name,
+                    "image": url_for("location_image", location_id=result.location_id)
+                }
+            )
     
-    
-    
+    collections = []
+    with db.engine.begin() as conn:
+        query = text('SELECT collection_id, collection_name FROM collections WHERE user_id = :id;')
+        results = conn.execute(query, {"id": user.user_id}).all()
+
+        for result in results:
+            collections.append({
+                "id": result.collection_id,
+                "name": result.collection_name
+                })
 
     profile_data = {
         "name": user.display_name,
         "email": user.username,
         "avatar_image": url_for("user_profile_image", username=user.username),
         "private_spots": private_spots,
-        "pending_spots": [
-            {
-                "id": 3,
-                "name": "Pending Spot",
-                "image": "https://placehold.co/300x300/f5e7da/232d4a?text=Pending+Spot",
-            },
-        ],
-        "collection_names": [
-            "Hype",
-            "Yummers",
-        ],
-        "collection_spots": [
-            {
-                "id": 2,
-                "name": "Hype Spot",
-                "image": "https://placehold.co/300x300/f2f2f0/232d4a?text=Hype_Spot",
-            },
-        ],
+        "pending_spots": pending_spots,
+        "collections": collections,
+        # "collection_spots": [
+            # {
+                # "id": 2,
+                # "name": "Hype Spot",
+                # "image": "https://placehold.co/300x300/f2f2f0/232d4a?text=Hype_Spot",
+            # },
+        # ],
         "reviews": [
             {
                 "spot_name": "Austin's Bagels",
@@ -507,7 +586,7 @@ def profile():
             },
         ],
         "available_collections": [
-            "Hype",
+            "Hye",
             "Yummers",
             "Chill",
         ],

@@ -1961,6 +1961,25 @@ p {
   gap: 18px;
 }
 
+.collection-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer; 
+}
+
+.collection-delete {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--color-error);
+  font-size: 20px;
+} 
+
 .collection-option {
   display: flex;
   align-items: center;
@@ -2015,6 +2034,7 @@ p {
 
 .grid--collections {
   grid-template-columns: repeat(3, fit-content(100%));
+  min-width: 916px;
 }
 
 .reviews-grid {

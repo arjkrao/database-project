@@ -55,13 +55,20 @@
                             <div class="collections-sidebar-group">
                                 <div class="collections-sidebar-title heading-1 text-black">Collection Name</div>
                                 <div class="collections-sidebar-list">
-                                    {% for collection_name in profile.collection_names %}
-                                    <button
-                                        class="collection-option text-black {% if loop.first %}collection-option--active{% endif %}"
-                                        type="button" data-collection-name="{{ collection_name }}">
-                                        <span class="collection-option-dot"></span>
-                                        <span class="heading-4">{{ collection_name }}</span>
-                                    </button>
+                                    {% for collection in profile.collections %}
+                                    <div class="collection-item"
+                                        data-collection-id="{{ collection.id }}"
+                                        data-collection-name="{{ collection.name }}">
+
+                                        <button class="collection-option text-black" type="button">
+                                            <span class="collection-option-dot"></span>
+                                            <span class="heading-4">{{ collection.name }}</span>
+                                        </button>
+
+                                        <button class="collection-delete" type="button">
+                                            <i class="fa-solid fa-trash icon-delete"></i>
+                                        </button>
+                                    </div>
                                     {% endfor %}
 
                                     <div class="collection-create-row">
@@ -76,11 +83,7 @@
                             </div>
                         </aside>
 
-                        <div class="grid grid--collections">
-                            {% for spot in profile.collection_spots %}
-                            {{ profile_spot(spot) }}
-                            {% endfor %}
-                        </div>
+                        <div class="grid grid--collections" id="collectionSpotsGrid"></div>
                     </div>
                 </div>
 

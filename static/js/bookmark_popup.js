@@ -235,19 +235,36 @@
 
     document.querySelectorAll(".profile-spot-trigger").forEach((button) => {
       setSavedCollections(button, getSavedCollections(button));
+    });
 
-      const open = () => {
-        openAddToCollectionsPopup(button.dataset.spotName || "Spot", button);
-      };
+    function openProfileSpotTrigger(button) {
+      setSavedCollections(button, getSavedCollections(button));
+      openAddToCollectionsPopup(button.dataset.spotName || "Spot", button);
+    }
 
-      button.addEventListener("click", open);
+    document.addEventListener("click", (event) => {
+      const button = event.target.closest(".profile-spot-trigger");
 
-      button.addEventListener("keydown", (event) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          open();
-        }
-      });
+      if (!button) {
+        return;
+      }
+
+      openProfileSpotTrigger(button);
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") {
+        return;
+      }
+
+      const button = event.target.closest(".profile-spot-trigger");
+
+      if (!button) {
+        return;
+      }
+
+      event.preventDefault();
+      openProfileSpotTrigger(button);
     });
 
     addToCollectionsBackdrop.addEventListener(

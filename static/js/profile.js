@@ -5,12 +5,60 @@
     const avatarImage = document.getElementById("avatarImage");
     const tabButtons = document.querySelectorAll(".profile-options .button");
     const tabContents = document.querySelectorAll(".profile-tab-content");
-    const createCollectionButton = document.getElementById(
-      "createCollectionButton",
-    );
+    const createCollectionButton = document.getElementById("createCollectionButton");
     const newCollectionInput = document.getElementById("newCollectionInput");
     const collectionOptions = document.querySelectorAll(".collection-option");
     const reviewLikeButtons = document.querySelectorAll(".review-card-like");
+    const collectionsList = document.querySelector(".collections-sidebar-list");
+    const collectionGrid = document.getElementById("collectionSpotsGrid");
+    const firstCollection = document.querySelector(".collection-item");
+    if (firstCollection) {
+      loadCollection(firstCollection.dataset.collectionId);
+    }
+
+    function createSpotCard(spot) {
+      const div = document.createElement("div");
+
+      div.className = "grid-item profile-spot profile-spot-trigger";
+      div.dataset.spotName = spot.name;
+      div.dataset.spotImage = spot.image;
+      div.dataset.spotId = spot.id;
+      div.tabIndex = 0;
+      div.setAttribute("role", "button");
+      div.setAttribute("aria-label", `Add ${spot.name} to collections`);
+
+      div.innerHTML = `
+        <img src="${spot.image}" alt="${spot.name}" class="grid-item-image">
+        <div class="grid-item-label text text-black" style="text-align: center; font-weight: 700;">
+          ${spot.name}
+        </div>
+      `;
+
+      return div;
+    }
+
+    async function loadCollection(collectionId) {
+      try {
+        const response = await fetch(`/profile/collection/${collectionId}`);
+        const spots = await response.json();
+
+        if (!response.ok) {
+          throw new Error("Failed to load collection");
+        }
+
+        // Clear current grid
+        collectionGrid.innerHTML = "";
+
+        // Insert new spots
+        spots.forEach((spot) => {
+          const card = createSpotCard(spot);
+          collectionGrid.appendChild(card);
+        });
+
+      } catch (err) {
+        console.error(err);
+      }
+    }
 
     function setActiveTab(activeButton) {
       tabButtons.forEach((button) => {
@@ -31,7 +79,9 @@
     }
 
     function setActiveCollection(activeButton) {
-      collectionOptions.forEach((button) => {
+      const allButtons = document.querySelectorAll(".collection-option");
+
+      allButtons.forEach((button) => {
         button.classList.remove("collection-option--active");
       });
 
@@ -92,10 +142,45 @@
       });
     });
 
-    collectionOptions.forEach((button) => {
-      button.addEventListener("click", () => {
-        setActiveCollection(button);
-      });
+    collectionsList.addEventListener("click", async (e) => {
+      const deleteButton = e.target.closest(".collection-delete");
+      const optionButton = e.target.closest(".collection-option");
+
+      const item = e.target.closest(".collection-item");
+      if (!item) return;
+
+      const collectionId = item.dataset.collectionId;
+
+      if (deleteButton) {
+        const formData = new FormData();
+        formData.append("collection_id", collectionId);
+
+        try {
+          const response = await fetch("/profile/delete_collection", {
+            method: "POST",
+            body: formData,
+          });
+
+          if (!response.ok) {
+            throw new Error("Failed to delete collection");
+          }
+
+          item.remove();
+
+          if (collectionGrid) {
+            collectionGrid.innerHTML = "";
+          }
+        } catch (err) {
+          console.error(err);
+        }
+
+        return;
+      }
+
+      if (optionButton) {
+        setActiveCollection(optionButton);
+        loadCollection(collectionId);
+      }
     });
 
     reviewLikeButtons.forEach((button) => {
@@ -107,7 +192,7 @@
       });
     });
 
-    function createCollection() {
+    async function createCollection() {
       if (!newCollectionInput) {
         return;
       }
@@ -118,8 +203,56 @@
         return;
       }
 
-      newCollectionInput.value = "";
+      const formData = new FormData();
+      formData.append("collection_name", newCollectionName);
+
+      try {
+        const response = await fetch("/profile/create_collection", {
+          method: "POST",
+          body: formData,
+        });
+
+        const result = await response.json();
+
+        if(!response.ok){
+          throw new Error("Failed to create collection");
+        }
+
+        console.log(result);
+        newCollectionInput.value = "";
+
+        const newElement = createCollectionElement(result);
+
+        const createRow = document.querySelector(".collection-create-row");
+        collectionsList.insertBefore(newElement, createRow);
+
+
+
+      } catch (error){
+        console.error(error);
+      }
     }
+
+    function createCollectionElement(collection) {
+      const wrapper = document.createElement("div");
+      wrapper.className = "collection-item";
+      wrapper.dataset.collectionId = collection.id;
+      wrapper.dataset.collectionName = collection.name;
+
+      wrapper.innerHTML = `
+        <button class="collection-option text-black" type="button">
+          <span class="collection-option-dot"></span>
+          <span class="heading-4">${collection.name}</span>
+        </button>
+
+        <button class="collection-delete" type="button">
+          <i class="fa-solid fa-trash"></i>
+        </button>
+      `;
+
+      return wrapper;
+    }
+    
 
     if (createCollectionButton) {
       createCollectionButton.addEventListener("click", createCollection);
