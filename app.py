@@ -782,7 +782,23 @@ def home():
                 })
     
 
-    bookmark_collections = ["Hype", "Yummers", "Chill"]
+    bookmark_collections = []
+    with db.engine.begin() as conn:
+        results = conn.execute(
+            text("""
+                SELECT collection_id, collection_name
+                FROM collections
+                WHERE user_id = :uid
+                ORDER BY collection_name
+            """),
+            {"uid": current_user.user_id},
+        ).all()
+
+        for result in results:
+            bookmark_collections.append({
+                "id": result.collection_id,
+                "name": result.collection_name,
+            })
 
     return render_template(
         "home.html",

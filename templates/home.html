@@ -78,6 +78,9 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="{{ url_for('static', filename='js/home_map.js') }}"></script>
 <script src="{{ url_for('static', filename='js/spot_detail_panel.js') }}"></script>
+<script>
+    window.homeBookmarkCollections = {{ bookmark_collections | tojson }};
+</script>
 <script src="{{ url_for('static', filename='js/bookmark_popup.js') }}"></script>
 <script src="{{ url_for('static', filename='js/home_spots.js') }}"></script>
 <script src="{{ url_for('static', filename='js/request_card.js') }}"></script>

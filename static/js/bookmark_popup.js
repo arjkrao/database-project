@@ -1,6 +1,11 @@
 (function () {
-  function setupBookmarkPopup() {
-    const popupId = "addToCollectionsPopup";
+  function setupBookmarkPopup(config) {
+    const {
+      popupId,
+      triggerSelector,
+      getCollections,
+      checkboxClass,
+    } = config;
 
     const popup = document.getElementById(popupId);
     const backdrop = document.getElementById(`${popupId}Backdrop`);
@@ -16,20 +21,11 @@
     let currentSpotId = null;
     let originalCheckedCollectionIds = new Set();
 
-    function getCurrentCollections() {
-      return Array.from(document.querySelectorAll(".collection-item")).map((item) => ({
-        id: item.dataset.collectionId,
-        name: item.dataset.collectionName,
-      }));
-    }
-
     function renderCollectionCheckboxes(collections, checkedIds) {
       collectionsContainer.innerHTML = "";
 
       if (collections.length === 0) {
-        collectionsContainer.innerHTML = `
-          <div class="text text-gray">No collections yet.</div>
-        `;
+        collectionsContainer.innerHTML = `<div class="text text-gray">No collections yet.</div>`;
         return;
       }
 
@@ -40,7 +36,7 @@
         label.innerHTML = `
           <input
             type="checkbox"
-            class="add-to-collections__input bookmark-collection__input"
+            class="${checkboxClass} bookmark-collection__input"
             value="${collection.id}"
             data-collection-id="${collection.id}"
             data-collection-name="${collection.name}"
@@ -49,9 +45,7 @@
           <span class="bookmark-collection__label heading-3 text-black">${collection.name}</span>
         `;
 
-        const input = label.querySelector("input");
-        input.checked = checkedIds.has(String(collection.id));
-
+        label.querySelector("input").checked = checkedIds.has(String(collection.id));
         collectionsContainer.appendChild(label);
       });
     }
@@ -59,21 +53,18 @@
     async function getCollectionsContainingSpot(spotId, collections) {
       const checkedIds = new Set();
 
-      await Promise.all(
-        collections.map(async (collection) => {
-          const response = await fetch(`/profile/collection/${collection.id}`);
-          const spots = await response.json();
+      await Promise.all(collections.map(async (collection) => {
+        const response = await fetch(`/profile/collection/${collection.id}`);
+        const spots = await response.json();
 
-          if (!response.ok) {
-            throw new Error("Failed to check collection membership");
-          }
+        if (!response.ok) {
+          throw new Error("Failed to check collection membership");
+        }
 
-          const containsSpot = spots.some((spot) => String(spot.id) === String(spotId));
-          if (containsSpot) {
-            checkedIds.add(String(collection.id));
-          }
-        }),
-      );
+        if (spots.some((spot) => String(spot.id) === String(spotId))) {
+          checkedIds.add(String(collection.id));
+        }
+      }));
 
       return checkedIds;
     }
@@ -106,13 +97,13 @@
       const spotName = spotCard.dataset.spotName || "Spot";
 
       if (!currentSpotId) {
-        console.error("Missing data-spot-id on spot card");
+        console.error("Missing data-spot-id");
         return;
       }
 
       spotNameEl.textContent = spotName;
 
-      const collections = getCurrentCollections();
+      const collections = getCollections();
 
       try {
         originalCheckedCollectionIds = await getCollectionsContainingSpot(
@@ -152,8 +143,7 @@
       );
 
       const currentlyCheckedIds = new Set(
-        inputs
-          .filter((input) => input.checked)
+        inputs.filter((input) => input.checked)
           .map((input) => String(input.dataset.collectionId)),
       );
 
@@ -161,25 +151,21 @@
 
       currentlyCheckedIds.forEach((collectionId) => {
         if (!originalCheckedCollectionIds.has(collectionId)) {
-          requests.push(
-            postCollectionChange(
-              "/profile/collection/add_spot",
-              collectionId,
-              currentSpotId,
-            ),
-          );
+          requests.push(postCollectionChange(
+            "/profile/collection/add_spot",
+            collectionId,
+            currentSpotId,
+          ));
         }
       });
 
       originalCheckedCollectionIds.forEach((collectionId) => {
         if (!currentlyCheckedIds.has(collectionId)) {
-          requests.push(
-            postCollectionChange(
-              "/profile/collection/remove_spot",
-              collectionId,
-              currentSpotId,
-            ),
-          );
+          requests.push(postCollectionChange(
+            "/profile/collection/remove_spot",
+            collectionId,
+            currentSpotId,
+          ));
         }
       });
 
@@ -213,16 +199,45 @@
     });
 
     document.addEventListener("click", (event) => {
-      const spotCard = event.target.closest(".profile-spot-trigger");
+      const trigger = event.target.closest(triggerSelector);
+      if (!trigger) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      const spotCard = trigger.closest("[data-spot-id]");
       if (!spotCard) return;
 
       showForSpot(spotCard);
     });
   }
 
+  function getProfileCollections() {
+    return Array.from(document.querySelectorAll(".collection-item")).map((item) => ({
+      id: item.dataset.collectionId,
+      name: item.dataset.collectionName,
+    }));
+  }
+
+  function init() {
+    setupBookmarkPopup({
+      popupId: "addToCollectionsPopup",
+      triggerSelector: ".profile-spot-trigger",
+      getCollections: getProfileCollections,
+      checkboxClass: "add-to-collections__input",
+    });
+
+    setupBookmarkPopup({
+      popupId: "bookmarkPopup",
+      triggerSelector: ".spot-bookmark",
+      getCollections: () => window.homeBookmarkCollections || [],
+      checkboxClass: "bookmark-collection__input-home",
+    });
+  }
+
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", setupBookmarkPopup);
+    document.addEventListener("DOMContentLoaded", init);
   } else {
-    setupBookmarkPopup();
+    init();
   }
 })();
