@@ -510,6 +510,37 @@ def get_collection_spots(collection_id):
 
     return jsonify(spots)
 
+@app.route("profile/collection/remove_spot", methods=['POST'])
+@login_is_required
+def remove_spot_from_collection():
+    user = get_user(session.get('email'))
+    collection_id = request.form.get('collection_id')
+    location_id = request.form.get('location_id')
+
+    with db.engine.begin() as conn:
+        query = text('DELETE FROM collection_contains WHERE user_id = :uid AND collection_id = :cid AND location_id = :lid;')
+        conn.execute(query, {"uid": user.user_id, "cid": collection_id, "lid": location_id})
+    
+    return {
+        "status": "success",
+        "message": "Spot removed from collection successfully!"
+    }, 200
+
+@app.route("/profile/collection/add_spot", methods=['POST'])
+@login_is_required
+def add_spot_to_collection():
+    user = get_user(session.get('email'))
+    collection_id = request.form.get('collection_id')
+    location_id = request.form.get('location_id')
+
+    with db.engine.begin() as conn:
+        query = text('INSERT INTO collection_contains (user_id, collection_id, location_id) VALUES (:uid, :cid, :lid);')
+        conn.execute(query, {"uid": user.user_id, "cid": collection_id, "lid": location_id})
+    
+    return {
+        "status": "success",
+        "message": "Spot added to collection successfully!"
+    }, 200
 
 @app.route("/profile")
 @login_is_required
@@ -561,13 +592,6 @@ def profile():
         "private_spots": private_spots,
         "pending_spots": pending_spots,
         "collections": collections,
-        # "collection_spots": [
-            # {
-                # "id": 2,
-                # "name": "Hype Spot",
-                # "image": "https://placehold.co/300x300/f2f2f0/232d4a?text=Hype_Spot",
-            # },
-        # ],
         "reviews": [
             {
                 "spot_name": "Austin's Bagels",
@@ -585,11 +609,7 @@ def profile():
                 "image": "https://placehold.co/300x300/f5e7da/232d4a?text=Shared+Spot",
             },
         ],
-        "available_collections": [
-            "Hye",
-            "Yummers",
-            "Chill",
-        ],
+        "available_collections": collections,
     }
 
     return render_template("profile.html", profile=profile_data)
