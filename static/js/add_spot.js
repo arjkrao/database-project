@@ -21,7 +21,6 @@
     );
 
     if (
-      !addSpotButton ||
       !addSpotPopup ||
       !addSpotBackdrop ||
       !createSpotButton ||
@@ -221,7 +220,7 @@
       }, 220);
     }
 
-    addSpotButton.addEventListener("click", () => {
+    addSpotButton?.addEventListener("click", () => {
       if (window.beginSpotPlacement) {
         window.beginSpotPlacement();
       }

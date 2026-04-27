@@ -351,13 +351,14 @@ def fetch_visible_spots_for_user(user_id):
 
     return [serialize_spot(row) for row in rows]
 
-def fetch_reviews_for_locations(location_ids):
+def fetch_reviews_for_locations(location_ids, current_user_id=None):
     reviews_by_location = {location_id: [] for location_id in location_ids}
     if not location_ids:
         return reviews_by_location
 
     query = text('''
         SELECT
+            r.user_id,
             r.location_id,
             r.review_datetime,
             r.rating,
@@ -372,26 +373,105 @@ def fetch_reviews_for_locations(location_ids):
     with db.engine.connect() as conn:
         rows = conn.execute(query, {"location_ids": location_ids}).mappings().all()
 
-    for index, row in enumerate(rows, start=1):
-        review_datetime = row.get("review_datetime")
-        if hasattr(review_datetime, "strftime"):
-            review_date = review_datetime.strftime("%m/%d/%y")
-        else:
-            review_date = str(review_datetime or "")
-
+    for row in rows:
         reviews_by_location.setdefault(row["location_id"], []).append(
-            {
-                "id": index,
-                "author": row.get("display_name") or "User",
-                "rating": float(row.get("rating") or 0),
-                "body": row.get("review_text") or "",
-                "date": review_date,
-                "likes": 0,
-                "liked": False,
-            }
+            build_review_payload(row, current_user_id)
         )
 
     return reviews_by_location
+
+def format_review_timestamp(review_datetime):
+    if hasattr(review_datetime, "strftime"):
+        return review_datetime.strftime("%Y-%m-%d %H:%M:%S")
+
+    return str(review_datetime or "")
+
+def format_review_date(review_datetime):
+    if hasattr(review_datetime, "strftime"):
+        return review_datetime.strftime("%m/%d/%y")
+
+    return str(review_datetime or "")
+
+def validate_review_form(form):
+    try:
+        location_id = int(form.get("location_id", ""))
+    except (TypeError, ValueError):
+        return None, "Location is required."
+
+    try:
+        rating = float(form.get("rating", ""))
+    except (TypeError, ValueError):
+        return None, "Rating is required."
+
+    review_text = (form.get("review_text") or "").strip()
+
+    if rating < 0.5 or rating > 5 or not (rating * 2).is_integer():
+        return None, "Rating must be between 0.5 and 5 in half-star increments."
+    if not review_text:
+        return None, "Review text is required."
+
+    return {
+        "location_id": location_id,
+        "rating": rating,
+        "review_text": review_text,
+    }, None
+
+def refresh_location_rating(conn, location_id):
+    stats_query = text('''
+        SELECT
+            COUNT(*) AS rating_count,
+            COALESCE(AVG(rating), 0) AS avg_rating
+        FROM reviews
+        WHERE location_id = :location_id
+    ''')
+    stats = conn.execute(
+        stats_query,
+        {"location_id": location_id},
+    ).mappings().first()
+
+    rating_count = int(stats.get("rating_count") or 0)
+    avg_rating = float(stats.get("avg_rating") or 0)
+
+    update_query = text('''
+        UPDATE locations
+        SET avg_star_rating = :avg_rating
+        WHERE location_id = :location_id
+    ''')
+    conn.execute(
+        update_query,
+        {
+            "avg_rating": avg_rating,
+            "location_id": location_id,
+        },
+    )
+
+    return {
+        "rating": round(avg_rating, 1),
+        "rating_count": rating_count,
+    }
+
+def build_review_payload(review, current_user_id=None):
+    review_datetime = review.get("review_datetime")
+    review_user_id = review.get("user_id")
+    review_timestamp = format_review_timestamp(review_datetime)
+    can_delete = (
+        current_user_id is not None
+        and review_user_id is not None
+        and str(review_user_id) == str(current_user_id)
+    )
+
+    return {
+        "id": review_timestamp,
+        "location_id": review.get("location_id"),
+        "review_timestamp": review_timestamp,
+        "author": review.get("display_name") or "User",
+        "rating": float(review.get("rating") or 0),
+        "body": review.get("review_text") or "",
+        "date": format_review_date(review_datetime),
+        "likes": 0,
+        "liked": False,
+        "can_delete": can_delete,
+    }
 
 def build_home_spot_card(spot, reviews):
     icons = [
@@ -423,7 +503,8 @@ def build_home_spot_card(spot, reviews):
 def fetch_home_spot_cards_for_user(user_id):
     visible_spots = fetch_visible_spots_for_user(user_id)
     reviews_by_location = fetch_reviews_for_locations(
-        [spot["id"] for spot in visible_spots]
+        [spot["id"] for spot in visible_spots],
+        user_id,
     )
 
     return [
@@ -828,19 +909,83 @@ def add_spot_to_collection():
         "message": "Spot added to collection successfully!"
     }, 200
 
+@app.route("/profile/review/add", methods=['POST'])
+@login_is_required
+def add_review():
+    user = get_user(session.get('email'))
+    review_data, error = validate_review_form(request.form)
+    if error:
+        return jsonify({"status": "error", "message": error}), 400
+
+    review_timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    with db.engine.begin() as conn:
+        location_query = text('SELECT location_id FROM locations WHERE location_id = :location_id;')
+        location = conn.execute(
+            location_query,
+            {"location_id": review_data["location_id"]},
+        ).first()
+
+        if location is None:
+            return jsonify({
+                "status": "error",
+                "message": "Spot not found.",
+            }), 404
+
+        insert_query = text('''
+            INSERT INTO reviews (user_id, location_id, review_datetime, rating, review_text)
+            VALUES (:user_id, :location_id, :review_datetime, :rating, :review_text);
+        ''')
+        conn.execute(
+            insert_query,
+            {
+                "user_id": user.user_id,
+                "location_id": review_data["location_id"],
+                "review_datetime": review_timestamp,
+                "rating": review_data["rating"],
+                "review_text": review_data["review_text"],
+            },
+        )
+
+        rating_stats = refresh_location_rating(conn, review_data["location_id"])
+
+    return jsonify({
+        "status": "success",
+        "message": "Review added successfully!",
+        "review": build_review_payload(
+            {
+                "user_id": user.user_id,
+                "location_id": review_data["location_id"],
+                "review_datetime": review_timestamp,
+                "rating": review_data["rating"],
+                "review_text": review_data["review_text"],
+                "display_name": user.display_name,
+            },
+            user.user_id,
+        ),
+        "spot": rating_stats,
+    }), 201
+
 @app.route("/profile/review/edit", methods=['POST'])
 @login_is_required
 def edit_review():
     user = get_user(session.get('email'))
-    location_id = request.form.get('location_id')
-    rating = request.form.get('rating')
-    review_text = request.form.get('review_text')
-    old_timestamp = request.form.get('review_timestamp')
-    new_timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M%:%S")
+    review_data, error = validate_review_form(request.form)
+    if error:
+        return jsonify({"status": "error", "message": error}), 400
+
+    old_timestamp = (request.form.get('review_timestamp') or "").strip()
+    if not old_timestamp:
+        return jsonify({
+            "status": "error",
+            "message": "Review timestamp is required.",
+        }), 400
+
+    new_timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     with db.engine.begin() as conn:
         query = text('UPDATE reviews SET rating=:rating, review_text=:text, review_datetime=:new_timestamp WHERE user_id=:uid AND location_id=:lid AND review_datetime=:old_timestamp;')
-        result = conn.execute(query, {"uid": user.user_id, "lid": location_id, "rating": float(rating), "text": review_text, "old_timestamp": old_timestamp, "new_timestamp": new_timestamp})
+        result = conn.execute(query, {"uid": user.user_id, "lid": review_data["location_id"], "rating": review_data["rating"], "text": review_data["review_text"], "old_timestamp": old_timestamp, "new_timestamp": new_timestamp})
 
         if result.rowcount == 0:
             return {
@@ -848,19 +993,33 @@ def edit_review():
                 "message": "Review not found or no changes made."
             }, 404
 
+        rating_stats = refresh_location_rating(conn, review_data["location_id"])
 
-    return {
+    return jsonify({
         "status": "success",
         "message": "Review edited successfully!",
-        "review_timestamp": new_timestamp 
-    }, 200
+        "review_timestamp": new_timestamp,
+        "spot": rating_stats,
+    }), 200
 
 @app.route("/profile/review/delete", methods=['POST'])
 @login_is_required
 def delete_review():
     user = get_user(session.get('email'))
-    location_id = request.form.get('location_id')
-    old_timestamp = request.form.get('review_timestamp')
+    try:
+        location_id = int(request.form.get("location_id", ""))
+    except (TypeError, ValueError):
+        return jsonify({
+            "status": "error",
+            "message": "Location is required.",
+        }), 400
+
+    old_timestamp = (request.form.get('review_timestamp') or "").strip()
+    if not old_timestamp:
+        return jsonify({
+            "status": "error",
+            "message": "Review timestamp is required.",
+        }), 400
 
     with db.engine.begin() as conn:
         query = text('DELETE FROM reviews WHERE user_id=:uid AND location_id=:lid AND review_datetime=:old_timestamp;')
@@ -872,10 +1031,13 @@ def delete_review():
                 "message": "No matching review found to delete."
             }, 404
 
-    return {
+        rating_stats = refresh_location_rating(conn, location_id)
+
+    return jsonify({
         "status": "success",
-        "message": "Review deleted successfully!"
-    }, 200
+        "message": "Review deleted successfully!",
+        "spot": rating_stats,
+    }), 200
 
 @app.route("/profile")
 @login_is_required
