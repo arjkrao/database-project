@@ -28,14 +28,54 @@
 
     let activeBookmarkIcon = null;
     let activeBookmarkButton = null;
+    const savedCollectionsBySpotId = new Map();
+
+    function getSpotId(button) {
+      const spotCard = button.closest(".spot-card");
+      return spotCard?.dataset.spotId || spotCard?.dataset.spotName || "";
+    }
+
+    function readSavedCollections(button) {
+      const raw = button.dataset.savedCollections;
+
+      if (!raw) {
+        return [];
+      }
+
+      try {
+        const collections = JSON.parse(raw);
+        return Array.isArray(collections) ? collections : [];
+      } catch (error) {
+        console.error("Failed to parse saved bookmark collections:", error);
+        return [];
+      }
+    }
 
     function getSavedCollections(button) {
-      const raw = button.dataset.savedCollections;
-      return raw ? JSON.parse(raw) : [];
+      const spotId = getSpotId(button);
+
+      if (spotId && savedCollectionsBySpotId.has(spotId)) {
+        return [...savedCollectionsBySpotId.get(spotId)];
+      }
+
+      const collections = readSavedCollections(button);
+
+      if (spotId) {
+        savedCollectionsBySpotId.set(spotId, collections);
+      }
+
+      return collections;
     }
 
     function setSavedCollections(button, collections) {
-      button.dataset.savedCollections = JSON.stringify(collections);
+      const nextCollections = [...collections];
+      const spotId = getSpotId(button);
+
+      button.dataset.savedCollections = JSON.stringify(nextCollections);
+
+      if (spotId) {
+        savedCollectionsBySpotId.set(spotId, nextCollections);
+      }
     }
 
     function getCurrentCollectionLabels() {
@@ -57,6 +97,18 @@
 
       icon.classList.toggle("fa-solid", isSaved);
       icon.classList.toggle("fa-regular", !isSaved);
+    }
+
+    function syncBookmarkButton(button) {
+      const icon = button.querySelector(".fa-bookmark");
+      const savedCollections = getSavedCollections(button);
+
+      setSavedCollections(button, savedCollections);
+      setBookmarkIconState(icon, savedCollections.length > 0);
+    }
+
+    function syncHomeBookmarkButtons(root = document) {
+      root.querySelectorAll(".spot-bookmark").forEach(syncBookmarkButton);
     }
 
     function openBookmarkPopup(spotName, button, icon) {
@@ -95,20 +147,26 @@
       }, 220);
     }
 
-    document.querySelectorAll(".spot-bookmark").forEach((button) => {
+    document.addEventListener("click", (event) => {
+      if (!(event.target instanceof Element)) {
+        return;
+      }
+
+      const button = event.target.closest(".spot-bookmark");
+      const spotsPanel = document.getElementById("spotsPanel");
+
+      if (!button || !spotsPanel?.contains(button)) {
+        return;
+      }
+
+      event.stopPropagation();
+
       const icon = button.querySelector(".fa-bookmark");
+      const spotCard = button.closest(".spot-card");
+      const spotName = spotCard?.dataset.spotName || "Spot";
 
-      setSavedCollections(button, getSavedCollections(button));
-      setBookmarkIconState(icon, getSavedCollections(button).length > 0);
-
-      button.addEventListener("click", (event) => {
-        event.stopPropagation();
-
-        const spotCard = button.closest(".spot-card");
-        const spotName = spotCard?.dataset.spotName || "Spot";
-
-        openBookmarkPopup(spotName, button, icon);
-      });
+      syncBookmarkButton(button);
+      openBookmarkPopup(spotName, button, icon);
     });
 
     bookmarkPopupBackdrop.addEventListener("click", closeBookmarkPopup);
@@ -141,6 +199,8 @@
     });
 
     window.closeBookmarkPopup = closeBookmarkPopup;
+    window.syncHomeBookmarkButtons = syncHomeBookmarkButtons;
+    syncHomeBookmarkButtons();
   }
 
   function setupProfileBookmarkPopup() {

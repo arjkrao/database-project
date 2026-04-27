@@ -3,7 +3,7 @@ import pathlib
 from flask import Flask, jsonify, render_template, request, session, abort, redirect, url_for, Response, send_file
 from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import text, URL
+from sqlalchemy import bindparam, text, URL
 from google_auth_oauthlib.flow import Flow
 from google.oauth2 import id_token
 from google.auth.transport import requests
@@ -250,13 +250,16 @@ def serialize_spot(row):
         "description": spot.get("description") or "",
         "price": spot.get("pricing_tier") or "",
         "status": spot.get("location_status") or "",
+        "is_owner": bool(spot.get("is_owner")),
+        "rating": float(spot.get("avg_star_rating") or 0),
+        "rating_count": int(spot.get("rating_count") or 0),
         "latitude": float(spot["latitude"]),
         "longitude": float(spot["longitude"]),
         "tags": tags,
         "image_url": url_for("spot_image", location_id=location_id) if has_image else None,
     }
 
-def fetch_spot(location_id):
+def fetch_spot(location_id, current_user_id=None):
     with db.engine.connect() as conn:
         query = text('''
             SELECT
@@ -268,9 +271,13 @@ def fetch_spot(location_id):
                 l.latitude,
                 l.longitude,
                 MAX(CASE WHEN l.location_photo_blob IS NULL THEN 0 ELSE 1 END) AS has_image,
+                MAX(CASE WHEN o.user_id IS NULL THEN 0 ELSE 1 END) AS is_owner,
                 GROUP_CONCAT(DISTINCT lt.tag ORDER BY lt.tag SEPARATOR ',') AS tags
             FROM locations l
             LEFT JOIN location_tags lt ON lt.location_id = l.location_id
+            LEFT JOIN owns o
+                ON o.location_id = l.location_id
+                AND o.user_id = :current_user_id
             WHERE l.location_id = :location_id
             GROUP BY
                 l.location_id,
@@ -281,9 +288,147 @@ def fetch_spot(location_id):
                 l.latitude,
                 l.longitude
         ''')
-        row = conn.execute(query, {"location_id": location_id}).mappings().first()
+        row = conn.execute(
+            query,
+            {
+                "location_id": location_id,
+                "current_user_id": current_user_id,
+            },
+        ).mappings().first()
 
     return serialize_spot(row) if row else None
+
+def fetch_visible_spots_for_user(user_id):
+    with db.engine.connect() as conn:
+        query = text('''
+            SELECT
+                l.location_id,
+                l.location_name,
+                l.pricing_tier,
+                l.location_status,
+                l.avg_star_rating,
+                l.description,
+                l.latitude,
+                l.longitude,
+                MAX(CASE WHEN l.location_photo_blob IS NULL THEN 0 ELSE 1 END) AS has_image,
+                MAX(CASE WHEN o.user_id IS NULL THEN 0 ELSE 1 END) AS is_owner,
+                COALESCE(review_stats.rating_count, 0) AS rating_count,
+                GROUP_CONCAT(DISTINCT lt.tag ORDER BY lt.tag SEPARATOR ',') AS tags
+            FROM locations l
+            LEFT JOIN location_tags lt ON lt.location_id = l.location_id
+            LEFT JOIN (
+                SELECT location_id, COUNT(*) AS rating_count
+                FROM reviews
+                GROUP BY location_id
+            ) review_stats ON review_stats.location_id = l.location_id
+            LEFT JOIN owns o
+                ON o.location_id = l.location_id
+                AND o.user_id = :current_user_id
+            LEFT JOIN `access` a
+                ON a.location_id = l.location_id
+                AND a.user_id = :current_user_id
+            WHERE
+                LOWER(COALESCE(l.location_status, '')) = 'public'
+                OR (
+                    o.user_id IS NOT NULL
+                    AND LOWER(COALESCE(l.location_status, '')) IN ('private', 'pending')
+                )
+                OR a.user_id IS NOT NULL
+            GROUP BY
+                l.location_id,
+                l.location_name,
+                l.pricing_tier,
+                l.location_status,
+                l.avg_star_rating,
+                l.description,
+                l.latitude,
+                l.longitude,
+                review_stats.rating_count
+            ORDER BY l.location_name ASC
+        ''')
+        rows = conn.execute(query, {"current_user_id": user_id}).mappings().all()
+
+    return [serialize_spot(row) for row in rows]
+
+def fetch_reviews_for_locations(location_ids):
+    reviews_by_location = {location_id: [] for location_id in location_ids}
+    if not location_ids:
+        return reviews_by_location
+
+    query = text('''
+        SELECT
+            r.location_id,
+            r.review_datetime,
+            r.rating,
+            r.review_text,
+            u.display_name
+        FROM reviews r
+        LEFT JOIN users u ON u.user_id = r.user_id
+        WHERE r.location_id IN :location_ids
+        ORDER BY r.review_datetime DESC
+    ''').bindparams(bindparam("location_ids", expanding=True))
+
+    with db.engine.connect() as conn:
+        rows = conn.execute(query, {"location_ids": location_ids}).mappings().all()
+
+    for index, row in enumerate(rows, start=1):
+        review_datetime = row.get("review_datetime")
+        if hasattr(review_datetime, "strftime"):
+            review_date = review_datetime.strftime("%m/%d/%y")
+        else:
+            review_date = str(review_datetime or "")
+
+        reviews_by_location.setdefault(row["location_id"], []).append(
+            {
+                "id": index,
+                "author": row.get("display_name") or "User",
+                "rating": float(row.get("rating") or 0),
+                "body": row.get("review_text") or "",
+                "date": review_date,
+                "likes": 0,
+                "liked": False,
+            }
+        )
+
+    return reviews_by_location
+
+def build_home_spot_card(spot, reviews):
+    icons = [
+        ICON_OPTIONS[tag]
+        for tag in spot["tags"]
+        if tag in ICON_OPTIONS
+    ]
+
+    if not icons:
+        icons = [ICON_OPTIONS["Other"]]
+
+    return {
+        "id": spot["id"],
+        "name": spot["name"],
+        "image": url_for("location_image", location_id=spot["id"]),
+        "price": spot["price"],
+        "status": spot["status"],
+        "is_owner": spot["is_owner"],
+        "rating": round(float(spot["rating"]), 1),
+        "rating_count": spot["rating_count"],
+        "description": spot["description"],
+        "icons": icons,
+        "reviews": reviews,
+    }
+
+def fetch_home_spot_cards_for_user(user_id):
+    visible_spots = fetch_visible_spots_for_user(user_id)
+    reviews_by_location = fetch_reviews_for_locations(
+        [spot["id"] for spot in visible_spots]
+    )
+
+    return [
+        build_home_spot_card(
+            spot,
+            reviews_by_location.get(spot["id"], []),
+        )
+        for spot in visible_spots
+    ]
 
 # Gets role of currently logged in user, only used in callback to store user role in session.get('role')
 def get_role():
@@ -363,7 +508,6 @@ def inject_user():
     if(email == None): return {}
 
     curr_user = get_user(email)
-    print(curr_user)
     if(curr_user is None): return
     return {
         "curr_uid": curr_user.user_id,
@@ -379,52 +523,16 @@ def list_spots():
     if current_user is None:
         return jsonify({"error": "User not found."}), 404
 
-    with db.engine.connect() as conn:
-        query = text('''
-            SELECT
-                l.location_id,
-                l.location_name,
-                l.pricing_tier,
-                l.location_status,
-                l.description,
-                l.latitude,
-                l.longitude,
-                MAX(CASE WHEN l.location_photo_blob IS NULL THEN 0 ELSE 1 END) AS has_image,
-                GROUP_CONCAT(DISTINCT lt.tag ORDER BY lt.tag SEPARATOR ',') AS tags
-            FROM locations l
-            LEFT JOIN location_tags lt ON lt.location_id = l.location_id
-            LEFT JOIN owns o
-                ON o.location_id = l.location_id
-                AND o.user_id = :current_user_id
-            LEFT JOIN `access` a
-                ON a.location_id = l.location_id
-                AND a.user_id = :current_user_id
-            WHERE
-                LOWER(COALESCE(l.location_status, '')) = 'public'
-                OR (
-                    o.user_id IS NOT NULL
-                    AND LOWER(COALESCE(l.location_status, '')) IN ('private', 'pending')
-                )
-                OR a.user_id IS NOT NULL
-            GROUP BY
-                l.location_id,
-                l.location_name,
-                l.pricing_tier,
-                l.location_status,
-                l.description,
-                l.latitude,
-                l.longitude
-            ORDER BY l.location_name ASC
-        ''')
-        spots = [
-            serialize_spot(row)
-            for row in conn.execute(
-                query,
-                {"current_user_id": current_user.user_id},
-            ).mappings().all()
-        ]
+    return jsonify({"spots": fetch_visible_spots_for_user(current_user.user_id)})
 
-    return jsonify({"spots": spots})
+@app.route("/api/home/spots")
+@login_is_required
+def list_home_spots():
+    current_user = get_user(session.get('email'))
+    if current_user is None:
+        return jsonify({"error": "User not found."}), 404
+
+    return jsonify({"spots": fetch_home_spot_cards_for_user(current_user.user_id)})
 
 @app.route("/api/spots/<int:location_id>/image")
 @login_is_required
@@ -487,91 +595,17 @@ def create_spot():
     return jsonify({
         "status": "success",
         "message": "Spot created successfully",
-        "spot": fetch_spot(newid),
+        "spot": fetch_spot(newid, owner_id),
     }), 201
 
 @app.route("/home")
 @login_is_required
 def home():
+    current_user = get_user(session.get('email'))
+    if current_user is None:
+        return redirect(url_for('index'))
 
-    spots = [
-        {
-            "name": "Bodo's Bagels",
-            "image": "https://charlottesville29.com/wp-content/uploads/2012/06/food-0621.jpg",
-            "price": "FREE",
-            "rating": 3.5,
-            "rating_count": 12,
-            "description": "Bodos is a bagel shop with many bagels and drinks.",
-            "icons": [
-                ICON_OPTIONS["Food"],
-                ICON_OPTIONS["Drink"],
-                ICON_OPTIONS["Casual"],
-            ],
-            "reviews": [
-                {
-                    "id": 1,
-                    "author": "Raheel Syed",
-                    "rating": 4.0,
-                    "body": "I'm loving it",
-                    "date": "03/10/05",
-                    "likes": 10,
-                    "liked": False,
-                },
-                {
-                    "id": 2,
-                    "author": "Rayyan Alam",
-                    "rating": 3.5,
-                    "body": "Great outdoor seating and fast service.",
-                    "date": "03/11/05",
-                    "likes": 7,
-                    "liked": True,
-                },
-            ],
-        },
-        {
-            "name": "Blue Moon Diner",
-            "image": "https://placehold.co/300x300",
-            "price": "$$",
-            "rating": 4.5,
-            "rating_count": 24,
-            "description": "Blue Moon Diner is a casual spot for comfort food and coffee.",
-            "icons": [
-                ICON_OPTIONS["Food"],
-                ICON_OPTIONS["Drink"],
-                ICON_OPTIONS["Casual"],
-                ICON_OPTIONS["Tourist Attraction"],
-            ],
-            "reviews": [
-                {
-                    "id": 3,
-                    "author": "Austin Kim",
-                    "rating": 4.5,
-                    "body": "Amazing pancakes and really nice vibe.",
-                    "date": "04/02/05",
-                    "likes": 14,
-                    "liked": True,
-                },
-                {
-                    "id": 4,
-                    "author": "Maya Patel",
-                    "rating": 4.0,
-                    "body": "Great brunch spot but it gets busy fast.",
-                    "date": "04/05/05",
-                    "likes": 5,
-                    "liked": False,
-                },
-                {
-                    "id": 5,
-                    "author": "Chris Lee",
-                    "rating": 5.0,
-                    "body": "One of my favorite diner spots in town.",
-                    "date": "04/09/05",
-                    "likes": 9,
-                    "liked": False,
-                },
-            ],
-        },
-    ]
+    spots = fetch_home_spot_cards_for_user(current_user.user_id)
 
     requested_spots = [
         {

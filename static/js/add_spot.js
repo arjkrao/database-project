@@ -287,9 +287,17 @@
           return;
         }
 
+        const refreshTasks = [];
+
         if (window.reloadSpotsMap) {
-          await window.reloadSpotsMap();
+          refreshTasks.push(window.reloadSpotsMap());
         }
+
+        if (window.reloadSpotsList) {
+          refreshTasks.push(window.reloadSpotsList({ force: true }));
+        }
+
+        await Promise.all(refreshTasks);
 
         closeAddSpotPopup({ clearAfterClose: true });
       } catch (error) {

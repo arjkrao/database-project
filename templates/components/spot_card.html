@@ -11,9 +11,10 @@
 {% endmacro %}
 
 {% macro spot_card(spot) %}
-<div class="spot-card spot-card--clickable" data-spot-name="{{ spot.name }}" data-spot-image="{{ spot.image }}"
-    data-spot-price="{{ spot.price }}" data-spot-rating="{{ spot.rating }}"
-    data-spot-rating-count="({{ spot.rating_count }})" data-spot-description="{{ spot.description }}"
+<div class="spot-card spot-card--clickable" data-spot-id="{{ spot.id }}" data-spot-name="{{ spot.name }}"
+    data-spot-image="{{ spot.image }}" data-spot-price="{{ spot.price }}" data-spot-rating="{{ spot.rating }}"
+    data-spot-rating-count="({{ spot.rating_count }})" data-spot-status="{{ spot.status }}"
+    data-spot-is-owner="{{ spot.is_owner | tojson }}" data-spot-description="{{ spot.description }}"
     data-spot-icons='{{ spot.icons | tojson | safe }}' data-spot-reviews='{{ spot.reviews | tojson | safe }}'>
     <div class="spot-card-inner">
         <img class="spot-card-image" src="{{ spot.image }}" alt="{{ spot.name }}">
