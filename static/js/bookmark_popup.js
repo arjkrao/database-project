@@ -185,15 +185,12 @@
 
       try {
         await Promise.all(requests);
-        closePopup();
 
-        const activeCollection = document.querySelector(
-          ".collection-option--active",
-        )?.closest(".collection-item");
-
-        if (activeCollection && window.loadCollection) {
-          window.loadCollection(activeCollection.dataset.collectionId);
+        if (window.refreshActiveCollection) {
+          await window.refreshActiveCollection();
         }
+
+        closePopup();
       } catch (err) {
         console.error(err);
       }

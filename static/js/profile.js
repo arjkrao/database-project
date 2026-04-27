@@ -1,5 +1,6 @@
 (function () {
   function setupProfilePage() {
+    let activeCollectionId = null;
     const editAvatarButton = document.getElementById("editAvatarButton");
     const avatarFileInput = document.getElementById("avatarFileInput");
     const avatarImage = document.getElementById("avatarImage");
@@ -13,8 +14,20 @@
     const collectionGrid = document.getElementById("collectionSpotsGrid");
     const firstCollection = document.querySelector(".collection-item");
     if (firstCollection) {
+      activeCollectionId = firstCollection.dataset.collectionId;
+
+      const firstButton = firstCollection.querySelector(".collection-option");
+      if (firstButton) {
+        setActiveCollection(firstButton);
+      }
+
       loadCollection(firstCollection.dataset.collectionId);
     }
+
+    window.refreshActiveCollection = async function () {
+      if (!activeCollectionId) return;
+      await loadCollection(activeCollectionId);
+    };
 
     function createSpotCard(spot) {
       const div = document.createElement("div");
@@ -139,7 +152,7 @@
     }
 
     tabButtons.forEach((button) => {
-      button.addEventListener("click", () => {
+      button.addEventListener("click", async () => {
         const scrollX = window.scrollX;
         const scrollY = window.scrollY;
 
@@ -186,8 +199,10 @@
       }
 
       if (optionButton) {
+        activeCollectionId = item.dataset.collectionId;
+
         setActiveCollection(optionButton);
-        loadCollection(collectionId);
+        await loadCollection(collectionId);
       }
     });
 
