@@ -453,6 +453,7 @@ def refresh_location_rating(conn, location_id):
 def build_review_payload(review, current_user_id=None):
     review_datetime = review.get("review_datetime")
     review_user_id = review.get("user_id")
+    review_timestamp = format_review_timestamp(review_datetime)
     can_delete = (
         current_user_id is not None
         and review_user_id is not None
@@ -460,9 +461,9 @@ def build_review_payload(review, current_user_id=None):
     )
 
     return {
-        "id": format_review_timestamp(review_datetime),
+        "id": review_timestamp,
         "location_id": review.get("location_id"),
-        "review_timestamp": format_review_timestamp(review_datetime),
+        "review_timestamp": review_timestamp,
         "author": review.get("display_name") or "User",
         "rating": float(review.get("rating") or 0),
         "body": review.get("review_text") or "",
