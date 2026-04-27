@@ -745,6 +745,12 @@ p {
   cursor: crosshair;
 }
 
+.leaflet-container,
+.leaflet-pane,
+.leaflet-control-container {
+  z-index: 1;
+}
+
 .spots-map-popup {
   max-width: 220px;
 }
@@ -1275,7 +1281,7 @@ p {
   background: rgba(0, 0, 0, 0.28);
   opacity: 0;
   transition: opacity 0.22s ease;
-  z-index: 49;
+  z-index: 9998;
 }
 
 .share-popup-backdrop.bookmark-popup-backdrop--open {
@@ -1288,7 +1294,7 @@ p {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 50;
+  z-index: 9999;
   pointer-events: none;
 }
 
