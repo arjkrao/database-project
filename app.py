@@ -257,6 +257,40 @@ def create_spot():
         "message": "Spot created successfully"
     })
 
+@app.route("/home/admin/approve_spot", methods=['POST'])
+@login_is_required
+@admin_required
+def approve_spot():
+    location_id = request.form.get('location_id')
+    user = get_user(session.get('email'))
+
+    with db.get_engine(bind='admin').begin() as conn:
+        query = text('UPDATE locations SET location_status="public" WHERE location_id=:lid')
+        conn.execute(query, {"lid": location_id})
+        query = text('INSERT INTO approves VALUES (:uid, :lid)')
+        conn.execute(query, {"uid": user.user_id, "lid": location_id})
+    
+    return jsonify({
+        "status": "success",
+        "message": "Spot approved successfully!"
+    }), 200
+
+@app.route("/home/admin/reject_spot", methods=['POST'])
+@login_is_required
+@admin_required
+def reject_spot():
+    location_id = request.form.get('location_id')
+
+    with db.get_engine(bind='admin').begin() as conn:
+        query = text('UPDATE locations SET location_status="private" WHERE location_id=:lid')
+        conn.execute(query, {"lid": location_id})
+    
+    return jsonify({
+        "status": "success",
+        "message": "Spot rejected successfully!"
+    }), 200
+    
+
 @app.route("/home")
 @login_is_required
 def home():
@@ -340,46 +374,28 @@ def home():
         },
     ]
 
-    requested_spots = [
-        {
-            "id": 1,
-            "name": "Shannon Library",
-            "image": "https://library.virginia.edu/sites/default/files/2025-03/shannon-tour-landing-page.jpg",
-            "requested_by": "Rayyan Alam",
-            "coordinates": "38.0364, -78.5053",
-            "price": "FREE",
-            "icons": [
-                ICON_OPTIONS["Study"],
-                ICON_OPTIONS["Historic"],
-            ],
-        },
-        {
-            "id": 2,
-            "name": "The Lawn",
-            "image": "https://placehold.co/376x282/f2f2f0/232d4a?text=The+Lawn",
-            "requested_by": "Maya Patel",
-            "coordinates": "38.0356, -78.5034",
-            "price": "FREE",
-            "icons": [
-                ICON_OPTIONS["Historic"],
-                ICON_OPTIONS["Sightseeing"],
-                ICON_OPTIONS["Tourist Attraction"],
-            ],
-        },
-        {
-            "id": 3,
-            "name": "Memorial Gym",
-            "image": "https://placehold.co/376x282/c7cad1/232d4a?text=Memorial+Gym",
-            "requested_by": "Austin Kim",
-            "coordinates": "38.0392, -78.5061",
-            "price": "$",
-            "icons": [
-                ICON_OPTIONS["Sports"],
-                ICON_OPTIONS["Recreation"],
-            ],
-        },
-    ]
+    requested_spots = []
+    if get_role() != 'admin':
+        requested_spots = []
+    else:
+        with db.get_engine(bind='admin').begin() as conn:
+            query = text('SELECT location_id, location_name, display_name, longitude, latitude, pricing_tier FROM locations NATURAL JOIN owns JOIN users ON owns.user_id = users.user_id WHERE location_status="pending";')
+            results = conn.execute(query).all()
 
+            for result in results:
+                tag_query = text('SELECT tag FROM location_tags WHERE location_id = :lid')
+                tag_results = conn.execute(tag_query, {"lid": result.location_id}).all()
+                tags = [tag_result.tag for tag_result in tag_results]
+                requested_spots.append({
+                    "id": result.location_id,
+                    "name": result.location_name,
+                    "image": url_for("location_image", location_id=result.location_id),
+                    "requested_by": result.display_name,
+                    "coordinates": f"{result.latitude}, {result.longitude}",
+                    "price": result.pricing_tier,
+                    "icons": [ICON_OPTIONS.get(tag, ICON_OPTIONS["Other"]) for tag in tags]
+                })
+    
     bookmark_collections = ["Hype", "Yummers", "Chill"]
 
     return render_template(
