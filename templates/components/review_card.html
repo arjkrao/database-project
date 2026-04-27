@@ -37,17 +37,6 @@
 
     <div class="review-card-bottom">
         <div class="small text-gray">{{ review.date }}</div>
-
-        <div class="review-card-interactions">
-            <div class="text text-secondary-dark">{{ review.likes }}</div>
-            <button class="review-card-like" type="button" aria-label="Like review">
-                {% if review.liked %}
-                    <i class="fa-solid fa-thumbs-up"></i>
-                {% else %}
-                    <i class="fa-regular fa-thumbs-up"></i>
-                {% endif %}
-            </button>
-        </div>
     </div>
 </article>
 {% endmacro %}

@@ -68,7 +68,6 @@
   }
 
   function createReviewCardMarkup(review) {
-    const likeIconClass = review.liked ? "fa-solid" : "fa-regular";
 
     return `
       <article class="review-card spot-detail-review-card" data-review-id="${review.id ?? ""}">
@@ -93,13 +92,6 @@
 
         <div class="review-card-bottom">
           <div class="small text-gray">${review.date}</div>
-
-          <div class="review-card-interactions">
-            <div class="text text-secondary-dark">${review.likes}</div>
-            <button class="review-card-like" type="button" aria-label="Like review">
-              <i class="${likeIconClass} fa-thumbs-up"></i>
-            </button>
-          </div>
         </div>
       </article>
     `;
@@ -218,23 +210,6 @@
       requestPublicButton.textContent = "Public Request Pending";
       requestPublicButton.disabled = true;
       requestPublicButton.classList.add("spot-detail-request-public--pending");
-    });
-
-    spotDetailReviews.addEventListener("click", (event) => {
-      const likeButton = event.target.closest(".review-card-like");
-
-      if (!likeButton) {
-        return;
-      }
-
-      const icon = likeButton.querySelector(".fa-thumbs-up");
-
-      if (!icon) {
-        return;
-      }
-
-      icon.classList.toggle("fa-regular");
-      icon.classList.toggle("fa-solid");
     });
   }
 

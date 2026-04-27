@@ -1,13 +1,13 @@
 {% macro render_review_stars(rating) %}
-    {% for i in range(1, 6) %}
-        {% if rating >= i %}
-            <i class="fa-solid fa-star icon-star"></i>
-        {% elif rating >= i - 0.5 %}
-            <i class="fa-solid fa-star-half-stroke icon-star"></i>
-        {% else %}
-            <i class="fa-regular fa-star icon-star"></i>
-        {% endif %}
-    {% endfor %}
+{% for i in range(1, 6) %}
+{% if rating >= i %}
+<i class="fa-solid fa-star icon-star-review"></i>
+{% elif rating >= i - 0.5 %}
+<i class="fa-solid fa-star-half-stroke icon-star-review"></i>
+{% else %}
+<i class="fa-regular fa-star icon-star-review"></i>
+{% endif %}
+{% endfor %}
 {% endmacro %}
 
 {% macro profile_review(review) %}
@@ -18,10 +18,11 @@
     data-rating="{{ review.rating }}"
 >
     <div class="review-card-top">
-        <div class="review-card-title heading-4 text-primary-dark">{{ review.spot_name }}</div>
-        <div class="review-card-date small text-gray">{{ review.date }}</div>
-        <div class="spot-stars review-card-stars">
-            {{ render_review_stars(review.rating) }}
+        <div class="review-card-meta">
+            <div class="review-card-title heading-4 text-primary-dark">{{ review.spot_name }}</div>
+            <div class="spot-stars review-card-stars">
+                {{ render_review_stars(review.rating) }}
+            </div>
         </div>
         <button class="review-card-edit" type="button" aria-label="Edit review">
             <i class="fa-regular fa-pen-to-square"></i>
@@ -33,17 +34,7 @@
     </p>
 
     <div class="review-card-bottom">
-        <div class="review-card-interactions">
-            <div class="review-card-rating text text-secondary-dark">{{ review.likes }}</div>
-            <button class="review-card-like" type="button" aria-label="Like review">
-                {% if review.liked %}
-                    <i class="fa-solid fa-thumbs-up"></i>
-                {% else %}
-                    <i class="fa-regular fa-thumbs-up"></i>
-                {% endif %}
-            </button>
-        </div>
-
+        <div class="review-card-date small text-gray">{{ review.date }}</div>
         <button class="review-card-delete" type="button" aria-label="Delete review">
             <i class="fa-solid fa-trash"></i>
         </button>

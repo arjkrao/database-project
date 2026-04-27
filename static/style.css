@@ -2056,6 +2056,16 @@ p {
   resize: vertical;
 }
 
+.review-card-save {
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  line-height: 1;
+  color: var(--color-success);
+  font-size: 20px;
+}
+
 .review-edit-rating {
   padding: 8px;
   border: 2px solid var(--color-primary-dark);
@@ -2083,6 +2093,17 @@ p {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.review-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.icon-star-review {
+  font-size: 18px;
+  color: var(--color-primary-dark);
 }
 
 .review-card-edit,

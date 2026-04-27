@@ -59,8 +59,8 @@
 
       stars.querySelector(".review-edit-rating").value = String(currentRating);
 
-      editButton.classList.add("review-card-save");
       editButton.classList.remove("review-card-edit");
+      editButton.classList.add("review-card-save");
       editButton.setAttribute("aria-label", "Save review");
       editButton.innerHTML = `<i class="fa-solid fa-check"></i>`;
     }
