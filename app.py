@@ -778,9 +778,7 @@ def delete_spot():
         if not can_delete:
             return jsonify({"status": "error", "message": "You don't have permission to delete this location!"}), 403
 
-    engine = db.get_engine(bind='admin') if is_admin else db.engine
-
-    with engine.begin() as conn:
+    with db.get_engine(bind='admin').begin() as conn:
         conn.execute(text('DELETE FROM owns WHERE location_id=:lid'), {"lid": location_id})
         conn.execute(text('DELETE FROM `access` WHERE location_id=:lid'), {"lid": location_id})
         conn.execute(text('DELETE FROM collection_contains WHERE location_id=:lid'), {"lid": location_id})
