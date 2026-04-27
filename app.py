@@ -351,7 +351,7 @@ def fetch_visible_spots_for_user(user_id):
 
     return [serialize_spot(row) for row in rows]
 
-def fetch_reviews_for_locations(location_ids, current_user_id=None):
+def fetch_reviews_for_locations(location_ids, current_user_id=None, current_user_role=None):
     reviews_by_location = {location_id: [] for location_id in location_ids}
     if not location_ids:
         return reviews_by_location
@@ -375,7 +375,7 @@ def fetch_reviews_for_locations(location_ids, current_user_id=None):
 
     for row in rows:
         reviews_by_location.setdefault(row["location_id"], []).append(
-            build_review_payload(row, current_user_id)
+            build_review_payload(row, current_user_id, current_user_role)
         )
 
     return reviews_by_location
@@ -450,15 +450,16 @@ def refresh_location_rating(conn, location_id):
         "rating_count": rating_count,
     }
 
-def build_review_payload(review, current_user_id=None):
+def build_review_payload(review, current_user_id=None, current_user_role=None):
     review_datetime = review.get("review_datetime")
     review_user_id = review.get("user_id")
     review_timestamp = format_review_timestamp(review_datetime)
-    can_delete = (
+    is_own_review = (
         current_user_id is not None
         and review_user_id is not None
         and str(review_user_id) == str(current_user_id)
     )
+    can_delete = is_own_review or current_user_role == 'admin'
 
     return {
         "id": review_timestamp,
@@ -500,11 +501,12 @@ def build_home_spot_card(spot, reviews):
         "reviews": reviews,
     }
 
-def fetch_home_spot_cards_for_user(user_id):
+def fetch_home_spot_cards_for_user(user_id, user_role=None):
     visible_spots = fetch_visible_spots_for_user(user_id)
     reviews_by_location = fetch_reviews_for_locations(
         [spot["id"] for spot in visible_spots],
         user_id,
+        user_role,
     )
 
     return [
@@ -618,7 +620,7 @@ def list_home_spots():
         return jsonify({"error": "User not found."}), 404
 
     return jsonify({
-        "spots": fetch_home_spot_cards_for_user(current_user.user_id),
+        "spots": fetch_home_spot_cards_for_user(current_user.user_id, current_user.role),
         "user_role": current_user.role
     })
 
@@ -795,7 +797,7 @@ def home():
     if current_user is None:
         return redirect(url_for('index'))
 
-    spots = fetch_home_spot_cards_for_user(current_user.user_id)
+    spots = fetch_home_spot_cards_for_user(current_user.user_id, current_user.role)
 
     requested_spots = []
     if get_role() != 'admin':
@@ -1144,9 +1146,15 @@ def delete_review():
             "message": "Review timestamp is required.",
         }), 400
 
-    with db.engine.begin() as conn:
-        query = text('DELETE FROM reviews WHERE user_id=:uid AND location_id=:lid AND review_datetime=:old_timestamp;')
-        result = conn.execute(query, {"uid": user.user_id, "lid": location_id, "old_timestamp": old_timestamp})
+    is_admin = user.role == 'admin'
+
+    with db.get_engine(bind='admin').begin() as conn:
+        if is_admin:
+            query = text('DELETE FROM reviews WHERE location_id=:lid AND review_datetime=:old_timestamp;')
+            result = conn.execute(query, {"lid": location_id, "old_timestamp": old_timestamp})
+        else:
+            query = text('DELETE FROM reviews WHERE user_id=:uid AND location_id=:lid AND review_datetime=:old_timestamp;')
+            result = conn.execute(query, {"uid": user.user_id, "lid": location_id, "old_timestamp": old_timestamp})
 
         if result.rowcount == 0:
             return {
