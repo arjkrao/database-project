@@ -287,9 +287,7 @@
           return;
         }
 
-        if (window.addSpotToMap && result.spot) {
-          await window.addSpotToMap(result.spot);
-        } else if (window.reloadSpotsMap) {
+        if (window.reloadSpotsMap) {
           await window.reloadSpotsMap();
         }
 

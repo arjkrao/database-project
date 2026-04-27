@@ -1665,7 +1665,7 @@ p {
   background: rgba(0, 0, 0, 0.28);
   opacity: 0;
   transition: opacity 0.22s ease;
-  z-index: 39;
+  z-index: 1500;
 }
 
 .add-spot-backdrop--open {
@@ -1682,7 +1682,7 @@ p {
   transition:
     opacity 0.22s ease,
     transform 0.22s ease;
-  z-index: 40;
+  z-index: 1510;
   pointer-events: none;
 }
 

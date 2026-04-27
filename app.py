@@ -385,6 +385,7 @@ def list_spots():
                 GROUP_CONCAT(DISTINCT lt.tag ORDER BY lt.tag SEPARATOR ',') AS tags
             FROM locations l
             LEFT JOIN location_tags lt ON lt.location_id = l.location_id
+            WHERE LOWER(l.location_status) = 'public'
             GROUP BY
                 l.location_id,
                 l.location_name,
